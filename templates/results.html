@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔍 Your Health Summary</title>
+    <title>🔍 Your Comprehensive Health Summary</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -21,9 +21,15 @@
             border-radius: 15px;
             backdrop-filter: blur(10px);
         }
-        h1 {
+        h1, h2 {
             text-align: center;
             margin-bottom: 30px;
+        }
+        h3 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ff6b6b;
+            padding-bottom: 5px;
         }
         .summary-item {
             background: rgba(255, 255, 255, 0.1);
@@ -57,52 +63,137 @@
         .button:hover {
             background: #ff5252;
         }
+        .tried-list {
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔍 Your Health Summary</h1>
+        <h1>🔍 Your Comprehensive Health Summary</h1>
+        
+        <h3>🧍 Personal Information</h3>
         
         <div class="summary-item">
-            <strong>Goal:</strong> {{ data.goal.title() }}
+            <strong>Sex:</strong> {{ data.sex.title() if data.sex else 'Not specified' }}
         </div>
         
         <div class="summary-item">
-            <strong>Sleep:</strong> {{ data.sleep_hours }} hours (recommendation: 7-9 hours)
+            <strong>Age:</strong> {{ data.age }} years old
         </div>
         
         <div class="summary-item">
-            <strong>Steps:</strong> {{ "{:,}".format(data.steps) }} (recommendation: 8,000+ steps)
+            <strong>Height:</strong> {{ data.height }} cm
         </div>
         
         <div class="summary-item">
-            <strong>Calories:</strong> {{ data.calories_intake }} eaten vs {{ data.target_calories }} target
+            <strong>Current Weight:</strong> {{ data.weight }} kg
         </div>
         
         <div class="summary-item">
-            <strong>Energy level:</strong> {{ data.energy_level.title() }}
+            <strong>Recent Weight Change:</strong> {{ data.weight_change.replace('_', ' ').title() if data.weight_change else 'No' }}
         </div>
         
         <div class="summary-item">
-            <strong>Water intake:</strong> {{ data.water_litres }} litres
+            <strong>Main Goal:</strong> {{ data.goal.replace('_', ' ').title() if data.goal else 'Not specified' }}
+        </div>
+
+        <h3>💭 Your Journey</h3>
+        
+        <div class="summary-item">
+            <strong>Duration working on goal:</strong> {{ data.duration.replace('_', ' ').title() if data.duration else 'Not specified' }}
         </div>
         
         <div class="summary-item">
-            <strong>Macros:</strong> {{ data.protein_intake }}g protein, {{ data.carbs_intake }}g carbs, {{ data.fats_intake }}g fats
+            <strong>What you've tried:</strong>
+            {% if data.tried %}
+                <div class="tried-list">
+                    {% for item in data.tried %}
+                        • {{ item.replace('_', ' ').title() }}<br>
+                    {% endfor %}
+                </div>
+            {% else %}
+                Nothing specified
+            {% endif %}
         </div>
         
-        {% if data.cycle_phase != 'none' %}
         <div class="summary-item">
-            <strong>Menstrual phase:</strong> {{ data.cycle_phase.title() }}
+            <strong>Confidence in routine:</strong> {{ data.confidence }}/5
+        </div>
+        
+        <div class="summary-item">
+            <strong>Biggest struggle:</strong> {{ data.struggle.replace('_', ' ').title() if data.struggle else 'Not specified' }}
+        </div>
+
+        <h3>🍽 Nutrition</h3>
+        
+        <div class="summary-item">
+            <strong>Food tracking:</strong> {{ data.track_food.title() if data.track_food else 'Not specified' }}
+        </div>
+        
+        {% if data.calories > 0 %}
+        <div class="summary-item">
+            <strong>Daily calories:</strong> {{ data.calories }} kcal
+        </div>
+        {% endif %}
+        
+        <div class="summary-item">
+            <strong>Macros:</strong> 
+            {{ data.protein }}g protein, {{ data.carbs }}g carbs, {{ data.fats }}g fats
+        </div>
+        
+        {% if data.diet %}
+        <div class="summary-item">
+            <strong>Special diet:</strong> {{ data.diet }}
+        </div>
+        {% endif %}
+
+        <h3>🛌 Recovery</h3>
+        
+        <div class="summary-item">
+            <strong>Sleep last night:</strong> {{ data.sleep }} hours (recommendation: 7-9 hours)
+        </div>
+        
+        <div class="summary-item">
+            <strong>Energy level today:</strong> {{ data.energy.title() if data.energy else 'Not specified' }}
+        </div>
+        
+        {% if data.cycle and data.cycle != 'not_sure' %}
+        <div class="summary-item">
+            <strong>Menstrual phase:</strong> {{ data.cycle.title() if data.cycle else 'Not specified' }}
+        </div>
+        {% endif %}
+
+        <h3>🏃 Activity</h3>
+        
+        <div class="summary-item">
+            <strong>Activity level:</strong> {{ data.activity.replace('_', ' ').title() if data.activity else 'Not specified' }}
+        </div>
+        
+        <div class="summary-item">
+            <strong>Regular exercise:</strong> {{ data.exercise.title() if data.exercise else 'Not specified' }}
+        </div>
+        
+        {% if data.exercise_type %}
+        <div class="summary-item">
+            <strong>Exercise type:</strong> {{ data.exercise_type }}
+        </div>
+        {% endif %}
+
+        {% if data.wish %}
+        <h3>💬 Your Request</h3>
+        <div class="summary-item">
+            <strong>What you need help with:</strong><br>
+            {{ data.wish }}
         </div>
         {% endif %}
         
         <div class="success-message">
-            <h3>✅ Data collected successfully!</h3>
-            <p>Your fitness tracker is working perfectly!</p>
+            <h3>✅ Comprehensive data collected successfully!</h3>
+            <p>Your detailed fitness profile is now complete!</p>
         </div>
         
-        <a href="/" class="button">📝 Track Another Day</a>
+        <a href="/" class="button">📝 Submit Another Check-In</a>
     </div>
 </body>
 </html>

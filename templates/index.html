@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧠 Fitness Tracker</title>
+    <title>🧠 Fitness Check-In</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,25 +21,43 @@
             border-radius: 15px;
             backdrop-filter: blur(10px);
         }
-        h1 {
+        h1, h2 {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ff6b6b;
+            padding-bottom: 5px;
         }
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 10px;
             border: none;
             border-radius: 5px;
             font-size: 16px;
             box-sizing: border-box;
+            color: #333;
+        }
+        .checkbox-group {
+            margin: 10px 0;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        .checkbox-group label {
+            display: inline;
+            font-weight: normal;
         }
         button {
             background: #ff6b6b;
@@ -55,110 +73,231 @@
         button:hover {
             background: #ff5252;
         }
+        .intro {
+            text-align: center;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
     </style>
+    <script>
+        function toggleCycle() {
+            const sex = document.getElementById("sex").value;
+            const cycleDiv = document.getElementById("cycle-div");
+            if (sex === "female") {
+                cycleDiv.style.display = "block";
+            } else {
+                cycleDiv.style.display = "none";
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="container">
-        <h1>🧠 Welcome to your Fitness Tracker!</h1>
-        <p style="text-align: center; margin-bottom: 30px;">Let's learn a bit about you...</p>
+        <h1>🧠 Your Fitness Check-In</h1>
+        <p class="intro">This form helps you figure out what's really going on with your body. No judgment — just clarity.</p>
         
         <form action="/submit" method="POST">
+            <h3>🧍 Personal Info</h3>
+            
             <div class="form-group">
-                <label for="goal">🎯 Goal:</label>
+                <label for="sex">Biological Sex:</label>
+                <select name="sex" id="sex" onchange="toggleCycle()" required>
+                    <option value="">Select</option>
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input name="age" id="age" type="number" required min="1" max="120">
+            </div>
+            
+            <div class="form-group">
+                <label for="height">Height (cm):</label>
+                <input name="height" id="height" type="number" required step="0.1" min="50" max="300">
+            </div>
+            
+            <div class="form-group">
+                <label for="weight">Current Weight (kg):</label>
+                <input name="weight" id="weight" type="number" required step="0.1" min="20" max="500">
+            </div>
+            
+            <div class="form-group">
+                <label for="weight_change">Have you recently lost/gained weight?</label>
+                <select name="weight_change" id="weight_change">
+                    <option value="no">No</option>
+                    <option value="lost">Yes - Lost</option>
+                    <option value="gained">Yes - Gained</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="goal">Main goal:</label>
                 <select name="goal" id="goal" required>
                     <option value="">Select your goal</option>
-                    <option value="fat_loss">Fat Loss</option>
-                    <option value="weight_gain">Weight Gain</option>
+                    <option value="fat_loss">Fat loss</option>
+                    <option value="weight_gain">Weight gain</option>
+                    <option value="muscle_gain">Muscle gain</option>
+                    <option value="maintain">Maintain</option>
+                    <option value="not_sure">I'm not sure</option>
+                </select>
+            </div>
+
+            <h3>💭 Your Journey</h3>
+            
+            <div class="form-group">
+                <label for="duration">How long have you been working on this goal?</label>
+                <select name="duration" id="duration">
+                    <option value="less_than_1_month">Less than 1 month</option>
+                    <option value="1_3_months">1–3 months</option>
+                    <option value="3_6_months">3–6 months</option>
+                    <option value="6_plus_months">6+ months</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="age">🎂 Age:</label>
-                <input type="number" name="age" id="age" required min="1" max="120">
+                <label>What have you tried so far?</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" name="tried" value="tracking_food" id="tried_tracking">
+                    <label for="tried_tracking">Tracking food</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" name="tried" value="clean_eating" id="tried_clean">
+                    <label for="tried_clean">Eating clean</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" name="tried" value="exercise" id="tried_exercise">
+                    <label for="tried_exercise">Exercise</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" name="tried" value="supplements" id="tried_supplements">
+                    <label for="tried_supplements">Supplements</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" name="tried" value="nothing" id="tried_nothing">
+                    <label for="tried_nothing">I haven't tried anything yet</label>
+                </div>
             </div>
             
             <div class="form-group">
-                <label for="sex">🧬 Biological Sex:</label>
-                <select name="sex" id="sex" required>
-                    <option value="">Select</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
+                <label for="confidence">Confidence in your current routine (1–5):</label>
+                <input name="confidence" id="confidence" type="number" min="1" max="5">
+            </div>
+            
+            <div class="form-group">
+                <label for="struggle">Your biggest current struggle:</label>
+                <select name="struggle" id="struggle">
+                    <option value="dont_know_what_to_eat">I don't know what to eat</option>
+                    <option value="cant_stay_consistent">I can't stay consistent</option>
+                    <option value="weight_wont_change">My weight won't change</option>
+                    <option value="feel_tired">I feel tired all the time</option>
+                    <option value="hormones_cycle">Hormones / cycle issues</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <h3>🍽 Nutrition</h3>
+            
+            <div class="form-group">
+                <label for="track_food">Do you track food?</label>
+                <select name="track_food" id="track_food">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="sometimes">Sometimes</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="height">📏 Height (cm):</label>
-                <input type="number" name="height" id="height" required step="0.1" min="50" max="300">
+                <label for="calories">Approx. daily calories:</label>
+                <input name="calories" id="calories" type="number" min="0">
             </div>
             
             <div class="form-group">
-                <label for="weight">⚖️ Current weight (kg):</label>
-                <input type="number" name="weight" id="weight" required step="0.1" min="20" max="500">
+                <label for="protein">Approx. daily protein (g):</label>
+                <input name="protein" id="protein" type="number" min="0">
             </div>
             
             <div class="form-group">
-                <label for="sleep_hours">😴 Hours of sleep last night:</label>
-                <input type="number" name="sleep_hours" id="sleep_hours" required step="0.1" min="0" max="24">
+                <label for="carbs">Carbs (g):</label>
+                <input name="carbs" id="carbs" type="number" min="0">
             </div>
             
             <div class="form-group">
-                <label for="steps">🚶 Steps walked yesterday:</label>
-                <input type="number" name="steps" id="steps" required min="0">
+                <label for="fats">Fats (g):</label>
+                <input name="fats" id="fats" type="number" min="0">
             </div>
             
             <div class="form-group">
-                <label for="energy_level">⚡ Energy level today:</label>
-                <select name="energy_level" id="energy_level" required>
-                    <option value="">Select energy level</option>
-                    <option value="low">Low</option>
+                <label for="diet">Special diet?</label>
+                <input name="diet" id="diet" type="text" placeholder="e.g. vegan, keto, none">
+            </div>
+
+            <h3>🛌 Recovery</h3>
+            
+            <div class="form-group">
+                <label for="sleep">Sleep hours last night:</label>
+                <input name="sleep" id="sleep" type="number" step="0.1" min="0" max="24">
+            </div>
+            
+            <div class="form-group">
+                <label for="energy">How's your energy today?</label>
+                <select name="energy" id="energy">
+                    <option value="tired">Tired</option>
+                    <option value="sluggish">Sluggish</option>
                     <option value="ok">OK</option>
-                    <option value="high">High</option>
+                    <option value="energetic">Energetic</option>
+                </select>
+            </div>
+            
+            <div id="cycle-div" style="display:none;">
+                <div class="form-group">
+                    <label for="cycle">Menstrual phase (if applicable):</label>
+                    <select name="cycle" id="cycle">
+                        <option value="follicular">Follicular</option>
+                        <option value="ovulation">Ovulation</option>
+                        <option value="luteal">Luteal</option>
+                        <option value="menstrual">Menstrual</option>
+                        <option value="not_sure">Not sure</option>
+                    </select>
+                </div>
+            </div>
+
+            <h3>🏃 Activity</h3>
+            
+            <div class="form-group">
+                <label for="activity">Daily activity level:</label>
+                <select name="activity" id="activity">
+                    <option value="sedentary">Sedentary</option>
+                    <option value="lightly_active">Lightly active</option>
+                    <option value="moderately_active">Moderately active</option>
+                    <option value="very_active">Very active</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="water_litres">💧 Water intake yesterday (litres):</label>
-                <input type="number" name="water_litres" id="water_litres" required step="0.1" min="0">
-            </div>
-            
-            <div class="form-group">
-                <label for="protein_intake">🍗 Protein eaten yesterday (grams):</label>
-                <input type="number" name="protein_intake" id="protein_intake" required min="0">
-            </div>
-            
-            <div class="form-group">
-                <label for="carbs_intake">🍞 Carbs eaten yesterday (grams):</label>
-                <input type="number" name="carbs_intake" id="carbs_intake" required min="0">
-            </div>
-            
-            <div class="form-group">
-                <label for="fats_intake">🥑 Fats eaten yesterday (grams):</label>
-                <input type="number" name="fats_intake" id="fats_intake" required min="0">
-            </div>
-            
-            <div class="form-group">
-                <label for="calories_intake">🔥 Total calories eaten yesterday:</label>
-                <input type="number" name="calories_intake" id="calories_intake" required min="0">
-            </div>
-            
-            <div class="form-group">
-                <label for="target_calories">🎯 Target daily calories:</label>
-                <input type="number" name="target_calories" id="target_calories" required min="0">
-            </div>
-            
-            <div class="form-group">
-                <label for="cycle_phase">🩸 Menstrual cycle phase:</label>
-                <select name="cycle_phase" id="cycle_phase" required>
-                    <option value="">Select phase</option>
-                    <option value="none">None/Not applicable</option>
-                    <option value="follicular">Follicular</option>
-                    <option value="ovulation">Ovulation</option>
-                    <option value="luteal">Luteal</option>
-                    <option value="period">Period</option>
+                <label for="exercise">Are you exercising regularly?</label>
+                <select name="exercise" id="exercise">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="sometimes">Sometimes</option>
                 </select>
             </div>
             
-            <button type="submit">Get My Health Summary 🔍</button>
+            <div class="form-group">
+                <label for="exercise_type">What kind of exercise do you do (if any)?</label>
+                <input name="exercise_type" id="exercise_type" type="text" placeholder="e.g. gym, walking, classes">
+            </div>
+
+            <h3>💬 One Last Thing</h3>
+            
+            <div class="form-group">
+                <label for="wish">What's something you wish someone would help you with right now?</label>
+                <textarea name="wish" id="wish" rows="3"></textarea>
+            </div>
+            
+            <button type="submit">Get My Personalised Feedback 🔍</button>
         </form>
     </div>
 </body>
