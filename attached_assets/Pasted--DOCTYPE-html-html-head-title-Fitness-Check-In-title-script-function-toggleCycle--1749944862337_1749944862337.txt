@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Fitness Check-In</title>
+  <script>
+    function toggleCycle() {
+      const sex = document.getElementById("sex").value;
+      const cycleDiv = document.getElementById("cycle-div");
+      if (sex === "Female") {
+        cycleDiv.style.display = "block";
+      } else {
+        cycleDiv.style.display = "none";
+      }
+    }
+  </script>
+</head>
+<body>
+  <h2>Your Fitness Check-In</h2>
+  <p>This form helps you figure out what's really going on with your body. No judgment — just clarity.</p>
+
+  <form method="POST">
+    <h3>🧍 Personal Info</h3>
+    <label>Sex:</label>
+    <select name="sex" id="sex" onchange="toggleCycle()" required>
+      <option>Female</option>
+      <option>Male</option>
+      <option>Other</option>
+    </select><br>
+
+    <label>Age:</label>
+    <input name="age" type="number" required><br>
+
+    <label>Height (cm):</label>
+    <input name="height" type="number" required><br>
+
+    <label>Current Weight (kg):</label>
+    <input name="weight" type="number" required><br>
+
+    <label>Have you recently lost/gained weight?</label>
+    <select name="weight_change">
+      <option>No</option>
+      <option>Yes - Lost</option>
+      <option>Yes - Gained</option>
+    </select><br>
+
+    <label>Main goal:</label>
+    <select name="goal" required>
+      <option>Fat loss</option>
+      <option>Weight gain</option>
+      <option>Muscle gain</option>
+      <option>Maintain</option>
+      <option>I’m not sure</option>
+    </select><br>
+
+    <h3>💭 Your Journey</h3>
+    <label>How long have you been working on this goal?</label>
+    <select name="duration">
+      <option>Less than 1 month</option>
+      <option>1–3 months</option>
+      <option>3–6 months</option>
+      <option>6+ months</option>
+    </select><br>
+
+    <label>What have you tried so far?</label><br>
+    <input type="checkbox" name="tried" value="Tracking food">Tracking food<br>
+    <input type="checkbox" name="tried" value="Clean eating">Eating clean<br>
+    <input type="checkbox" name="tried" value="Exercise">Exercise<br>
+    <input type="checkbox" name="tried" value="Supplements">Supplements<br>
+    <input type="checkbox" name="tried" value="Nothing">I haven't tried anything yet<br>
+
+    <label>Confidence in your current routine (1–5):</label>
+    <input name="confidence" type="number" min="1" max="5"><br>
+
+    <label>Your biggest current struggle:</label>
+    <select name="struggle">
+      <option>I don’t know what to eat</option>
+      <option>I can’t stay consistent</option>
+      <option>My weight won’t change</option>
+      <option>I feel tired all the time</option>
+      <option>Hormones / cycle issues</option>
+      <option>Other</option>
+    </select><br>
+
+    <h3>🍽 Nutrition</h3>
+    <label>Do you track food?</label>
+    <select name="track_food">
+      <option>Yes</option>
+      <option>No</option>
+      <option>Sometimes</option>
+    </select><br>
+
+    <label>Approx. daily calories:</label>
+    <input name="calories" type="number"><br>
+
+    <label>Approx. daily protein (g):</label>
+    <input name="protein" type="number"><br>
+
+    <label>Carbs (g):</label>
+    <input name="carbs" type="number"><br>
+
+    <label>Fats (g):</label>
+    <input name="fats" type="number"><br>
+
+    <label>Special diet?</label>
+    <input name="diet" type="text" placeholder="e.g. vegan, keto, none"><br>
+
+    <h3>🛌 Recovery</h3>
+    <label>Sleep hours last night:</label>
+    <input name="sleep" type="number"><br>
+
+    <label>How’s your energy today?</label>
+    <select name="energy">
+      <option>Tired</option>
+      <option>Sluggish</option>
+      <option>OK</option>
+      <option>Energetic</option>
+    </select><br>
+
+    <div id="cycle-div" style="display:none;">
+      <label>Menstrual phase (if applicable):</label>
+      <select name="cycle">
+        <option>Follicular</option>
+        <option>Ovulation</option>
+        <option>Luteal</option>
+        <option>Menstrual</option>
+        <option>Not sure</option>
+      </select><br>
+    </div>
+
+    <h3>🏃 Activity</h3>
+    <label>Daily activity level:</label>
+    <select name="activity">
+      <option>Sedentary</option>
+      <option>Lightly active</option>
+      <option>Moderately active</option>
+      <option>Very active</option>
+    </select><br>
+
+    <label>Are you exercising regularly?</label>
+    <select name="exercise">
+      <option>Yes</option>
+      <option>No</option>
+      <option>Sometimes</option>
+    </select><br>
+
+    <label>What kind of exercise do you do (if any)?</label>
+    <input name="exercise_type" type="text" placeholder="e.g. gym, walking, classes"><br>
+
+    <h3>💬 One Last Thing</h3>
+    <label>What’s something you wish someone would help you with right now?</label><br>
+    <textarea name="wish" rows="3" cols="40"></textarea><br><br>
+
+    <button type="submit">Get My Personalised Feedback</button>
+  </form>
+</body>
+</html>
