@@ -1,53 +1,102 @@
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, request, render_template_string
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+@app.route("/", methods=["GET", "POST"])
+def form():
+    if request.method == "POST":
+        data = request.form
 
-@app.route('/submit', methods=['POST'])
-def submit():
-    # Get all form data
-    user_data = {
-        # Personal Info
-        'sex': request.form.get('sex', '').strip().lower(),
-        'age': request.form.get('age', 0, type=int),
-        'height': request.form.get('height', 0.0, type=float),
-        'weight': request.form.get('weight', 0.0, type=float),
-        'weight_change': request.form.get('weight_change', '').strip().lower(),
-        'goal': request.form.get('goal', '').strip().lower(),
-        
-        # Journey
-        'duration': request.form.get('duration', '').strip().lower(),
-        'tried': request.form.getlist('tried'),  # Multiple checkboxes
-        'confidence': request.form.get('confidence', 0, type=int),
-        'struggle': request.form.get('struggle', '').strip().lower(),
-        
-        # Nutrition
-        'track_food': request.form.get('track_food', '').strip().lower(),
-        'calories': request.form.get('calories', 0, type=int),
-        'protein': request.form.get('protein', 0, type=int),
-        'carbs': request.form.get('carbs', 0, type=int),
-        'fats': request.form.get('fats', 0, type=int),
-        'diet': request.form.get('diet', '').strip(),
-        
-        # Recovery
-        'sleep': request.form.get('sleep', 0.0, type=float),
-        'energy': request.form.get('energy', '').strip().lower(),
-        'cycle': request.form.get('cycle', '').strip().lower(),
-        
-        # Activity
-        'activity': request.form.get('activity', '').strip().lower(),
-        'exercise': request.form.get('exercise', '').strip().lower(),
-        'exercise_type': request.form.get('exercise_type', '').strip(),
-        
-        # Final question
-        'wish': request.form.get('wish', '').strip()
-    }
+        # Extracting form data
+        sex = data.get("sex")
+        age = data.get("age")
+        height = data.get("height")
+        weight = data.get("weight")
+        weight_change = data.get("weight_change")
+        goal = data.get("goal")
+        duration = data.get("duration")
+        tried = request.form.getlist("tried")
+        confidence = data.get("confidence")
+        struggle = data.get("struggle")
+        track_food = data.get("track_food")
+        calories = data.get("calories")
+        protein = data.get("protein")
+        carbs = data.get("carbs")
+        fats = data.get("fats")
+        diet = data.get("diet")
+        sleep = data.get("sleep")
+        energy = data.get("energy")
+        cycle = data.get("cycle") if sex == "Female" else "N/A"
+        activity = data.get("activity")
+        exercise = data.get("exercise")
+        exercise_type = data.get("exercise_type")
+        wish = data.get("wish")
 
-    return render_template('results.html', data=user_data)
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Fitness Check-In Results</title>
+            <style>
+                body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+                .summary-item { margin: 10px 0; padding: 8px; background: #f5f5f5; border-radius: 4px; }
+                .button { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-top: 20px; }
+            </style>
+        </head>
+        <body>
+            <h2>✅ Thank You for Your Check-In!</h2>
+            <p>Your comprehensive fitness profile has been submitted. Here's your summary:</p>
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+            <h3>🧍 Personal Information</h3>
+            <div class="summary-item"><strong>Sex:</strong> {{ sex }}</div>
+            <div class="summary-item"><strong>Age:</strong> {{ age }} years old</div>
+            <div class="summary-item"><strong>Height:</strong> {{ height }} cm</div>
+            <div class="summary-item"><strong>Current Weight:</strong> {{ weight }} kg</div>
+            <div class="summary-item"><strong>Weight Change:</strong> {{ weight_change }}</div>
+            <div class="summary-item"><strong>Main Goal:</strong> {{ goal }}</div>
+
+            <h3>💭 Your Journey</h3>
+            <div class="summary-item"><strong>Duration:</strong> {{ duration }}</div>
+            <div class="summary-item"><strong>What You've Tried:</strong> {{ tried|join(', ') if tried else 'Nothing yet' }}</div>
+            <div class="summary-item"><strong>Confidence Level:</strong> {{ confidence }}/5</div>
+            <div class="summary-item"><strong>Biggest Struggle:</strong> {{ struggle }}</div>
+
+            <h3>🍽 Nutrition</h3>
+            <div class="summary-item"><strong>Track Food:</strong> {{ track_food }}</div>
+            <div class="summary-item"><strong>Daily Calories:</strong> {{ calories }} kcal</div>
+            <div class="summary-item"><strong>Daily Protein:</strong> {{ protein }} g</div>
+            <div class="summary-item"><strong>Daily Carbs:</strong> {{ carbs }} g</div>
+            <div class="summary-item"><strong>Daily Fats:</strong> {{ fats }} g</div>
+            <div class="summary-item"><strong>Special Diet:</strong> {{ diet or 'None' }}</div>
+
+            <h3>🛌 Recovery & Activity</h3>
+            <div class="summary-item"><strong>Sleep Last Night:</strong> {{ sleep }} hours</div>
+            <div class="summary-item"><strong>Energy Today:</strong> {{ energy }}</div>
+            <div class="summary-item"><strong>Cycle Phase:</strong> {{ cycle }}</div>
+            <div class="summary-item"><strong>Activity Level:</strong> {{ activity }}</div>
+            <div class="summary-item"><strong>Exercise Regularly:</strong> {{ exercise }}</div>
+            <div class="summary-item"><strong>Exercise Type:</strong> {{ exercise_type or 'None specified' }}</div>
+
+            {% if wish %}
+            <h3>💭 Your Wish</h3>
+            <div class="summary-item">{{ wish }}</div>
+            {% endif %}
+
+            <p>✅ Your responses will help personalize your fitness journey.</p>
+            <p>🧠 <strong>Coming Soon:</strong> Smart AI tips, habit tracking, and goal-based coaching.</p>
+            
+            <a href="/" class="button">📝 Submit Another Check-In</a>
+        </body>
+        </html>
+        """, sex=sex, age=age, height=height, weight=weight, weight_change=weight_change,
+           goal=goal, duration=duration, tried=tried, confidence=confidence,
+           struggle=struggle, track_food=track_food, calories=calories,
+           protein=protein, carbs=carbs, fats=fats, diet=diet, sleep=sleep,
+           energy=energy, cycle=cycle, activity=activity, exercise=exercise,
+           exercise_type=exercise_type, wish=wish)
+
+    return open("templates/index.html").read()
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
