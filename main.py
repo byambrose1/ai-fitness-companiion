@@ -1,8 +1,5 @@
 
-import openai
-import os
-
-print("\n🧠 Welcome to your AI Fitness Coach!\nLet's learn a bit about you...\n")
+print("\n🧠 Welcome to your Fitness Tracker!\nLet's learn a bit about you...\n")
 
 # Collect user input
 goal = input("🎯 Goal (fat_loss / weight_gain): ").strip().lower()
@@ -40,41 +37,15 @@ user_data = {
     "cycle_phase": cycle_phase
 }
 
-# Prompt to guide AI feedback
-def generate_prompt(data):
-    return f"""
-You are a compassionate but realistic female fitness and health AI coach. A user is trying to achieve {data['goal']} and has submitted the following:
 
-- Age: {data['age']} | Sex: {data['sex']}
-- Height: {data['height']} cm | Weight: {data['weight']} kg
-- Sleep: {data['sleep_hours']} hours
-- Steps: {data['steps']}
-- Energy: {data['energy_level']}
-- Water: {data['water_litres']} litres
-- Protein: {data['protein_intake']}g
-- Carbs: {data['carbs_intake']}g
-- Fats: {data['fats_intake']}g
-- Calories: {data['calories_intake']} kcal (Target: {data['target_calories']} kcal)
-- Menstrual phase: {data['cycle_phase']}
 
-Give back:
-1. A short, motivational summary (with context on weight, energy, period, etc.)
-2. 2–3 actionable daily tips (adjustments or reminders)
-3. Tone: supportive, friendly, honest
-
-Respond clearly and briefly. No emojis.
-"""
-
-# Get AI feedback from OpenAI
-def get_ai_feedback(user_data):
-    client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    prompt = generate_prompt(user_data)
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}]
-    )
-    return response.choices[0].message.content
-
-# Show the AI feedback
-print("\n🔍 AI Feedback:\n")
-print(get_ai_feedback(user_data))
+# Show basic health summary (no AI required)
+print("\n🔍 Health Summary:\n")
+print(f"Goal: {user_data['goal'].title()}")
+print(f"Sleep: {user_data['sleep_hours']} hours (recommendation: 7-9 hours)")
+print(f"Steps: {user_data['steps']:,} (recommendation: 8,000+ steps)")
+print(f"Calories: {user_data['calories_intake']} eaten vs {user_data['target_calories']} target")
+print(f"Energy level: {user_data['energy_level'].title()}")
+if user_data['cycle_phase'] != 'none':
+    print(f"Menstrual phase: {user_data['cycle_phase'].title()}")
+print("\n✅ Data collected successfully! Your fitness tracker is working.")
