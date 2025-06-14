@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Fitness Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #ff5252;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Welcome to your Fitness Tracker!</h1>
+        <p style="text-align: center; margin-bottom: 30px;">Let's learn a bit about you...</p>
+        
+        <form action="/submit" method="POST">
+            <div class="form-group">
+                <label for="goal">🎯 Goal:</label>
+                <select name="goal" id="goal" required>
+                    <option value="">Select your goal</option>
+                    <option value="fat_loss">Fat Loss</option>
+                    <option value="weight_gain">Weight Gain</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="age">🎂 Age:</label>
+                <input type="number" name="age" id="age" required min="1" max="120">
+            </div>
+            
+            <div class="form-group">
+                <label for="sex">🧬 Biological Sex:</label>
+                <select name="sex" id="sex" required>
+                    <option value="">Select</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="height">📏 Height (cm):</label>
+                <input type="number" name="height" id="height" required step="0.1" min="50" max="300">
+            </div>
+            
+            <div class="form-group">
+                <label for="weight">⚖️ Current weight (kg):</label>
+                <input type="number" name="weight" id="weight" required step="0.1" min="20" max="500">
+            </div>
+            
+            <div class="form-group">
+                <label for="sleep_hours">😴 Hours of sleep last night:</label>
+                <input type="number" name="sleep_hours" id="sleep_hours" required step="0.1" min="0" max="24">
+            </div>
+            
+            <div class="form-group">
+                <label for="steps">🚶 Steps walked yesterday:</label>
+                <input type="number" name="steps" id="steps" required min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="energy_level">⚡ Energy level today:</label>
+                <select name="energy_level" id="energy_level" required>
+                    <option value="">Select energy level</option>
+                    <option value="low">Low</option>
+                    <option value="ok">OK</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="water_litres">💧 Water intake yesterday (litres):</label>
+                <input type="number" name="water_litres" id="water_litres" required step="0.1" min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="protein_intake">🍗 Protein eaten yesterday (grams):</label>
+                <input type="number" name="protein_intake" id="protein_intake" required min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="carbs_intake">🍞 Carbs eaten yesterday (grams):</label>
+                <input type="number" name="carbs_intake" id="carbs_intake" required min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="fats_intake">🥑 Fats eaten yesterday (grams):</label>
+                <input type="number" name="fats_intake" id="fats_intake" required min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="calories_intake">🔥 Total calories eaten yesterday:</label>
+                <input type="number" name="calories_intake" id="calories_intake" required min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="target_calories">🎯 Target daily calories:</label>
+                <input type="number" name="target_calories" id="target_calories" required min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="cycle_phase">🩸 Menstrual cycle phase:</label>
+                <select name="cycle_phase" id="cycle_phase" required>
+                    <option value="">Select phase</option>
+                    <option value="none">None/Not applicable</option>
+                    <option value="follicular">Follicular</option>
+                    <option value="ovulation">Ovulation</option>
+                    <option value="luteal">Luteal</option>
+                    <option value="period">Period</option>
+                </select>
+            </div>
+            
+            <button type="submit">Get My Health Summary 🔍</button>
+        </form>
+    </div>
+</body>
+</html>

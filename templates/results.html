@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Your Health Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .summary-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ff6b6b;
+        }
+        .summary-item strong {
+            color: #ffeb3b;
+        }
+        .success-message {
+            text-align: center;
+            background: rgba(76, 175, 80, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .button {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 20px;
+            text-align: center;
+            display: block;
+        }
+        .button:hover {
+            background: #ff5252;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Your Health Summary</h1>
+        
+        <div class="summary-item">
+            <strong>Goal:</strong> {{ data.goal.title() }}
+        </div>
+        
+        <div class="summary-item">
+            <strong>Sleep:</strong> {{ data.sleep_hours }} hours (recommendation: 7-9 hours)
+        </div>
+        
+        <div class="summary-item">
+            <strong>Steps:</strong> {{ "{:,}".format(data.steps) }} (recommendation: 8,000+ steps)
+        </div>
+        
+        <div class="summary-item">
+            <strong>Calories:</strong> {{ data.calories_intake }} eaten vs {{ data.target_calories }} target
+        </div>
+        
+        <div class="summary-item">
+            <strong>Energy level:</strong> {{ data.energy_level.title() }}
+        </div>
+        
+        <div class="summary-item">
+            <strong>Water intake:</strong> {{ data.water_litres }} litres
+        </div>
+        
+        <div class="summary-item">
+            <strong>Macros:</strong> {{ data.protein_intake }}g protein, {{ data.carbs_intake }}g carbs, {{ data.fats_intake }}g fats
+        </div>
+        
+        {% if data.cycle_phase != 'none' %}
+        <div class="summary-item">
+            <strong>Menstrual phase:</strong> {{ data.cycle_phase.title() }}
+        </div>
+        {% endif %}
+        
+        <div class="success-message">
+            <h3>✅ Data collected successfully!</h3>
+            <p>Your fitness tracker is working perfectly!</p>
+        </div>
+        
+        <a href="/" class="button">📝 Track Another Day</a>
+    </div>
+</body>
+</html>
