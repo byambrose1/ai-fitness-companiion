@@ -2,9 +2,6 @@
 import openai
 import os
 
-# Get API key from environment variable
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
 print("\n🧠 Welcome to your AI Fitness Coach!\nLet's learn a bit about you...\n")
 
 # Collect user input
@@ -70,12 +67,13 @@ Respond clearly and briefly. No emojis.
 
 # Get AI feedback from OpenAI
 def get_ai_feedback(user_data):
+    client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     prompt = generate_prompt(user_data)
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "user", "content": prompt}]
     )
-    return response['choices'][0]['message']['content']
+    return response.choices[0].message.content
 
 # Show the AI feedback
 print("\n🔍 AI Feedback:\n")
