@@ -1,0 +1,67 @@
+from flask import Flask, request, render_template_string
+
+app = Flask(__name__)
+
+@app.route("/", methods=["GET", "POST"])
+def form():
+    if request.method == "POST":
+        data = request.form
+
+        # Extracting form data
+        sex = data.get("sex")
+        age = data.get("age")
+        height = data.get("height")
+        weight = data.get("weight")
+        weight_change = data.get("weight_change")
+        goal = data.get("goal")
+        duration = data.get("duration")
+        tried = request.form.getlist("tried")
+        confidence = data.get("confidence")
+        struggle = data.get("struggle")
+        track_food = data.get("track_food")
+        calories = data.get("calories")
+        protein = data.get("protein")
+        carbs = data.get("carbs")
+        fats = data.get("fats")
+        diet = data.get("diet")
+        sleep = data.get("sleep")
+        energy = data.get("energy")
+        cycle = data.get("cycle") if sex == "Female" else "N/A"
+        activity = data.get("activity")
+        exercise = data.get("exercise")
+        exercise_type = data.get("exercise_type")
+        wish = data.get("wish")
+
+        return render_template_string("""
+        <h2>✅ Thank You!</h2>
+        <p>Your check-in has been submitted. Here's a quick summary:</p>
+
+        <ul>
+          <li><strong>Goal:</strong> {{ goal }}</li>
+          <li><strong>Sex:</strong> {{ sex }}</li>
+          <li><strong>Age:</strong> {{ age }}</li>
+          <li><strong>Current Weight:</strong> {{ weight }} kg</li>
+          <li><strong>Height:</strong> {{ height }} cm</li>
+          <li><strong>Weight Change:</strong> {{ weight_change }}</li>
+          <li><strong>Main Struggle:</strong> {{ struggle }}</li>
+          <li><strong>Energy Today:</strong> {{ energy }}</li>
+          <li><strong>Sleep Last Night:</strong> {{ sleep }} hours</li>
+          <li><strong>Calories:</strong> {{ calories }} kcal</li>
+          <li><strong>Protein:</strong> {{ protein }} g</li>
+          <li><strong>Confidence:</strong> {{ confidence }}/5</li>
+          <li><strong>Cycle Phase:</strong> {{ cycle }}</li>
+        </ul>
+
+        <p>✅ Your responses will help us personalise your feedback and support.</p>
+        <p>🧠 <strong>Coming Soon:</strong> Smart AI tips, habit tracking, and goal-based coaching.</p>
+        """, sex=sex, age=age, height=height, weight=weight, weight_change=weight_change,
+           goal=goal, duration=duration, tried=tried, confidence=confidence,
+           struggle=struggle, track_food=track_food, calories=calories,
+           protein=protein, carbs=carbs, fats=fats, diet=diet, sleep=sleep,
+           energy=energy, cycle=cycle, activity=activity, exercise=exercise,
+           exercise_type=exercise_type, wish=wish)
+
+    return open("form.html").read()
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=81)
