@@ -1,0 +1,67 @@
+🧠 Prompt for Lovable.dev: Fitness Assistant AI Tracker
+
+I want to create a user-friendly fitness assistant web app that helps people who are either trying to lose fat or gain weight by analysing their habits and giving tailored AI feedback.
+The app should have a modern, mobile-first design with a clear, friendly tone using British English throughout.
+👤 The user flow should start with a multi-step form that collects the following sections of information:
+1. Personal Information
+
+Email (required)
+Date of birth (must be 18+)
+Biological sex (Female / Male / Other)
+Height in cm
+Current weight in kg
+Goal weight (optional)
+2. Fitness Goal & Motivation
+
+What is your primary fitness goal? (Fat loss / Muscle gain / General health / Mental wellbeing)
+Why do you want to achieve this goal? Include both structured options and a free text box (e.g., recent breakup, grief, confidence, health scare, self-love, etc.)
+3. Mental & Emotional State
+
+Current mental/emotional state (free text)
+Motivation level (1 to 10)
+Mood most days (options + free text input in case someone wants to write something like "depressed")
+4. Health & Medical
+
+Any medications? (Yes/No with optional text)
+Any diagnosed health conditions (e.g., thyroid, PCOS)?
+If biologically female, ask: Are you on your period, approaching it, or unsure?
+5. Sleep & Recovery
+
+Average hours of sleep per night
+How do they feel when waking up? (Refreshed / Tired / Exhausted)
+6. Nutrition Habits
+
+Typical protein sources (free text: e.g. 2 chicken breasts, 1 protein shake, tofu)
+Typical number of meals/snacks per day
+Water intake estimate
+Eating habits (Home-cooked / Takeaways / Mix)
+Food habits (how often they eat out, cook, or order food)
+7. Movement & Activity
+
+Activity level (Sedentary to Very Active)
+Exercise type/frequency (free text)
+Do they use any wearables? (Apple Watch, Fitbit, etc.)
+8. Body & Tracking
+
+Weekly weight check-in input (optional but prompted)
+Recent weight changes (lost, gained, no change)
+How they feel in their body (free text)
+9. Lifestyle
+
+Weekly stress level (1–10)
+Support system (yes/no + optional explanation)
+10. AI Consent
+
+Do they want a custom AI-generated feedback summary based on their answers?
+💡 Key Features:
+After form submission, show a summary results page:
+Smart feedback with 2–3 personalised AI-generated tips
+Brief emotional check-in summary
+Suggestions based on sleep, nutrition, and motivation
+Use placeholder text where helpful ("e.g. 2 chicken breasts, 1 smoothie")
+If user selects “Male”, skip any menstrual questions
+Only show form to users over 18 (DOB input)
+Use British English spelling and labels
+Include logic so each section only appears after the previous is completed
+Allow users to input rough food descriptions (not just grams or calories)
+The design should be modern, engaging, and supportive. Think helpful, holistic, and personalised — not intimidating. The goal is to help users feel guided and cared for, not judged.
