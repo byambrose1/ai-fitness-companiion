@@ -1,132 +1,592 @@
+
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitness Assistant – Personalised Tracker</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 2em;
-            background-color: #f4f4f4;
-        }
-        form {
-            background: white;
-            padding: 2em;
-            border-radius: 10px;
-            max-width: 600px;
-            margin: auto;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            margin: 1em 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+        * {
             box-sizing: border-box;
         }
-        button {
-            background-color: #28a745;
-            color: white;
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             padding: 1em;
-            border: none;
-            border-radius: 5px;
-            font-size: 1em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+        
+        .container {
+            background: white;
+            padding: 2em;
+            border-radius: 15px;
+            max-width: 700px;
+            margin: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .step {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 0.5em;
+        }
+        
+        h2 {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5em;
+            margin-top: 0;
+        }
+        
+        .progress-bar {
             width: 100%;
-            cursor: pointer;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin: 1em 0;
         }
-        button:hover {
-            background-color: #218838;
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
         }
+        
         label {
             display: block;
             margin-top: 1em;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 0.5em 0 1em 0;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0.5em;
+            transition: transform 0.2s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2em;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 0.5em;
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1em;
+            margin: 0.5em 0;
+        }
+        
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+        }
+        
+        .slider-container {
+            margin: 1em 0;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #e0e0e0;
+            outline: none;
+        }
+        
+        .slider-value {
             font-weight: bold;
+            color: #667eea;
+            margin-left: 1em;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5em;
+                margin: 0.5em;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
-
-<h2 style="text-align:center;">Let's Personalise Your Fitness Journey</h2>
-
-<form action="/" method="post">
-    <label for="email">Email address:</label>
-    <input type="email" name="email" required>
-
-    <label for="dob">Date of Birth:</label>
-    <input type="date" name="dob" required>
-
-    <label for="gender">What is your biological sex?</label>
-    <select name="gender" required onchange="toggleMenstrual(this.value)">
-        <option value="">-- Please select --</option>
-        <option value="female">Female</option>
-        <option value="male">Male</option>
-        <option value="other">Other / Prefer not to say</option>
-    </select>
-
-    <div id="cycleQuestion" style="display:none;">
-        <label for="cycle">Are you currently on your period or approaching it?</label>
-        <select name="cycle">
-            <option value="">-- Please select --</option>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-            <option value="not_sure">Not sure</option>
-        </select>
+    <div class="container">
+        <h1>🌟 Let's Personalise Your Fitness Journey</h1>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 10%"></div>
+        </div>
+        
+        <form id="fitnessForm">
+            <!-- Step 1: Personal Information -->
+            <div class="step active" id="step1">
+                <h2>👤 Personal Information</h2>
+                
+                <label for="email">Email address:</label>
+                <input type="email" name="email" required>
+                
+                <label for="dob">Date of birth:</label>
+                <input type="date" name="dob" required>
+                
+                <label for="gender">Biological sex:</label>
+                <select name="gender" required>
+                    <option value="">-- Please select --</option>
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                    <option value="other">Other / Prefer not to say</option>
+                </select>
+                
+                <label for="height">Height (cm):</label>
+                <input type="number" name="height" min="100" max="250" required>
+                
+                <label for="weight">Current weight (kg):</label>
+                <input type="number" name="weight" min="30" max="300" step="0.1" required>
+                
+                <label for="goalWeight">Goal weight (kg) - optional:</label>
+                <input type="number" name="goalWeight" min="30" max="300" step="0.1">
+                
+                <div class="button-group">
+                    <button type="button" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 2: Fitness Goal & Motivation -->
+            <div class="step" id="step2">
+                <h2>🎯 Fitness Goal & Motivation</h2>
+                
+                <label for="goal">What is your primary fitness goal?</label>
+                <select name="goal" required>
+                    <option value="">-- Please select --</option>
+                    <option value="fat_loss">Fat loss</option>
+                    <option value="muscle_gain">Muscle gain</option>
+                    <option value="general_health">General health</option>
+                    <option value="mental_wellbeing">Mental wellbeing</option>
+                </select>
+                
+                <label for="goalReason">Why do you want to achieve this goal?</label>
+                <select name="goalReason">
+                    <option value="">-- Select a reason --</option>
+                    <option value="recent_breakup">Recent breakup</option>
+                    <option value="grief">Dealing with grief</option>
+                    <option value="confidence">Building confidence</option>
+                    <option value="health_scare">Health concerns</option>
+                    <option value="self_love">Self-love journey</option>
+                    <option value="other">Other</option>
+                </select>
+                
+                <label for="motivation">Tell us more about your motivation:</label>
+                <textarea name="motivation" placeholder="E.g., I've recently broken up with someone, I don't feel good in my body, I want to be a better version of myself..." rows="3" required></textarea>
+                
+                <div class="button-group">
+                    <button type="button" onclick="prevStep()">Previous</button>
+                    <button type="button" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Mental & Emotional State -->
+            <div class="step" id="step3">
+                <h2>💭 Mental & Emotional State</h2>
+                
+                <label for="mentalState">Current mental/emotional state:</label>
+                <textarea name="mentalState" placeholder="How are you feeling mentally and emotionally right now?" rows="3" required></textarea>
+                
+                <label for="motivationLevel">Motivation level (1-10):</label>
+                <div class="slider-container">
+                    <input type="range" name="motivationLevel" min="1" max="10" value="5" class="slider" oninput="updateSliderValue(this, 'motivationValue')">
+                    <span class="slider-value" id="motivationValue">5</span>
+                </div>
+                
+                <label for="mood">How would you describe your mood most days?</label>
+                <select name="mood" onchange="toggleMoodOther(this.value)">
+                    <option value="">-- Please select --</option>
+                    <option value="happy">Happy</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="stressed">Stressed</option>
+                    <option value="anxious">Anxious</option>
+                    <option value="sad">Sad</option>
+                    <option value="unmotivated">Unmotivated</option>
+                    <option value="other">Other</option>
+                </select>
+                
+                <div id="moodOther" class="hidden">
+                    <label for="moodCustom">Please describe:</label>
+                    <input type="text" name="moodCustom" placeholder="e.g., depressed, overwhelmed...">
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" onclick="prevStep()">Previous</button>
+                    <button type="button" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 4: Health & Medical -->
+            <div class="step" id="step4">
+                <h2>🏥 Health & Medical</h2>
+                
+                <label for="medications">Are you on any medications?</label>
+                <select name="medications" onchange="toggleMedications(this.value)">
+                    <option value="">-- Please select --</option>
+                    <option value="no">No</option>
+                    <option value="yes">Yes</option>
+                </select>
+                
+                <div id="medicationDetails" class="hidden">
+                    <label for="medicationList">Please list your medications:</label>
+                    <textarea name="medicationList" placeholder="List any medications you're taking..." rows="2"></textarea>
+                </div>
+                
+                <label for="healthConditions">Any diagnosed health conditions?</label>
+                <textarea name="healthConditions" placeholder="e.g., thyroid issues, PCOS, diabetes... (optional)" rows="2"></textarea>
+                
+                <div id="menstrualQuestion" class="hidden">
+                    <label for="menstrualCycle">Are you currently on your period, approaching it, or unsure?</label>
+                    <select name="menstrualCycle">
+                        <option value="">-- Please select --</option>
+                        <option value="on_period">Currently on my period</option>
+                        <option value="approaching">Approaching my period</option>
+                        <option value="mid_cycle">Mid-cycle</option>
+                        <option value="unsure">Unsure</option>
+                    </select>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" onclick="prevStep()">Previous</button>
+                    <button type="button" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 5: Sleep & Recovery -->
+            <div class="step" id="step5">
+                <h2>😴 Sleep & Recovery</h2>
+                
+                <label for="sleepHours">Average hours of sleep per night:</label>
+                <input type="number" name="sleepHours" min="0" max="24" step="0.5" required>
+                
+                <label for="wakingFeeling">How do you feel when waking up?</label>
+                <select name="wakingFeeling" required>
+                    <option value="">-- Please select --</option>
+                    <option value="refreshed">Refreshed</option>
+                    <option value="tired">Tired</option>
+                    <option value="exhausted">Exhausted</option>
+                </select>
+                
+                <div class="button-group">
+                    <button type="button" onclick="prevStep()">Previous</button>
+                    <button type="button" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 6: Nutrition Habits -->
+            <div class="step" id="step6">
+                <h2>🍽️ Nutrition Habits</h2>
+                
+                <label for="proteinSources">Typical protein sources:</label>
+                <textarea name="proteinSources" placeholder="e.g., 2 chicken breasts, 1 protein shake, tofu, eggs..." rows="2" required></textarea>
+                
+                <label for="mealsPerDay">Typical number of meals/snacks per day:</label>
+                <input type="number" name="mealsPerDay" min="1" max="10" required>
+                
+                <label for="waterIntake">Daily water intake estimate:</label>
+                <select name="waterIntake" required>
+                    <option value="">-- Please select --</option>
+                    <option value="less_than_1l">Less than 1 litre</option>
+                    <option value="1_to_2l">1-2 litres</option>
+                    <option value="2_to_3l">2-3 litres</option>
+                    <option value="more_than_3l">More than 3 litres</option>
+                </select>
+                
+                <label for="eatingHabits">Eating habits:</label>
+                <select name="eatingHabits" required>
+                    <option value="">-- Please select --</option>
+                    <option value="mostly_home_cooked">Mostly home-cooked meals</option>
+                    <option value="lots_of_takeaway">Lots of takeaways</option>
+                    <option value="mix">A mix of both</option>
+                </select>
+                
+                <div class="button-group">
+                    <button type="button" onclick="prevStep()">Previous</button>
+                    <button type="button" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 7: Movement & Activity -->
+            <div class="step" id="step7">
+                <h2>🏃‍♀️ Movement & Activity</h2>
+                
+                <label for="activityLevel">Activity level:</label>
+                <select name="activityLevel" required>
+                    <option value="">-- Please select --</option>
+                    <option value="sedentary">Sedentary (desk job, little exercise)</option>
+                    <option value="lightly_active">Lightly active (light exercise 1-3 days/week)</option>
+                    <option value="moderately_active">Moderately active (moderate exercise 3-5 days/week)</option>
+                    <option value="very_active">Very active (hard exercise 6-7 days/week)</option>
+                    <option value="extremely_active">Extremely active (very hard exercise, physical job)</option>
+                </select>
+                
+                <label for="exerciseDetails">Exercise type/frequency:</label>
+                <textarea name="exerciseDetails" placeholder="e.g., 30-min walk daily, gym 3x weekly, yoga twice a week..." rows="3" required></textarea>
+                
+                <label for="wearables">Do you use any fitness wearables?</label>
+                <select name="wearables">
+                    <option value="">-- Please select --</option>
+                    <option value="apple_watch">Apple Watch</option>
+                    <option value="fitbit">Fitbit</option>
+                    <option value="garmin">Garmin</option>
+                    <option value="other">Other</option>
+                    <option value="none">None</option>
+                </select>
+                
+                <div class="button-group">
+                    <button type="button" onclick="prevStep()">Previous</button>
+                    <button type="button" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 8: Body & Tracking -->
+            <div class="step" id="step8">
+                <h2>📊 Body & Tracking</h2>
+                
+                <label for="weightChanges">Recent weight changes:</label>
+                <select name="weightChanges" required>
+                    <option value="">-- Please select --</option>
+                    <option value="gained">Gained weight</option>
+                    <option value="lost">Lost weight</option>
+                    <option value="no_change">No change</option>
+                    <option value="not_sure">Not sure</option>
+                </select>
+                
+                <label for="bodyFeeling">How do you feel in your body?</label>
+                <textarea name="bodyFeeling" placeholder="Describe how you feel about your body and physical state..." rows="3" required></textarea>
+                
+                <label for="weeklyWeighIn">Would you like to do weekly weight check-ins?</label>
+                <select name="weeklyWeighIn">
+                    <option value="">-- Please select --</option>
+                    <option value="yes">Yes, I'd like weekly reminders</option>
+                    <option value="no">No, I prefer not to weigh myself regularly</option>
+                    <option value="maybe">Maybe, I'll decide later</option>
+                </select>
+                
+                <div class="button-group">
+                    <button type="button" onclick="prevStep()">Previous</button>
+                    <button type="button" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 9: Lifestyle -->
+            <div class="step" id="step9">
+                <h2>🌈 Lifestyle</h2>
+                
+                <label for="stressLevel">Weekly stress level (1-10):</label>
+                <div class="slider-container">
+                    <input type="range" name="stressLevel" min="1" max="10" value="5" class="slider" oninput="updateSliderValue(this, 'stressValue')">
+                    <span class="slider-value" id="stressValue">5</span>
+                </div>
+                
+                <label for="supportSystem">Do you have a good support system?</label>
+                <select name="supportSystem" onchange="toggleSupportDetails(this.value)">
+                    <option value="">-- Please select --</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="somewhat">Somewhat</option>
+                </select>
+                
+                <div id="supportDetails" class="hidden">
+                    <label for="supportExplanation">Tell us about your support system:</label>
+                    <textarea name="supportExplanation" placeholder="Who supports you in your fitness journey?" rows="2"></textarea>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" onclick="prevStep()">Previous</button>
+                    <button type="button" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+            
+            <!-- Step 10: AI Consent -->
+            <div class="step" id="step10">
+                <h2>🤖 AI Feedback</h2>
+                
+                <label for="aiConsent">Would you like a custom AI-generated feedback summary based on your answers?</label>
+                <select name="aiConsent" required>
+                    <option value="">-- Please select --</option>
+                    <option value="yes">Yes, give me personalised AI feedback</option>
+                    <option value="no">No, just show me my summary</option>
+                </select>
+                
+                <div class="button-group">
+                    <button type="button" onclick="prevStep()">Previous</button>
+                    <button type="submit">Get My Personalised Plan</button>
+                </div>
+            </div>
+        </form>
     </div>
-
-    <label for="goal">What is your main fitness goal?</label>
-    <select name="goal" required>
-        <option value="">-- Please select --</option>
-        <option value="fat_loss">Fat loss</option>
-        <option value="muscle_gain">Muscle gain</option>
-        <option value="health">Better health / energy</option>
-        <option value="mental_wellbeing">Mental wellbeing</option>
-        <option value="other">Other</option>
-    </select>
-
-    <label for="motivation">Why do you want to achieve this goal?</label>
-    <textarea name="motivation" placeholder="E.g., I've recently broken up with someone, I don't feel good in my body, I want to be a better version of myself..." rows="3" required></textarea>
-
-    <label for="mood">How are you currently feeling?</label>
-    <textarea name="mood" placeholder="E.g., stressed, anxious, sad, unmotivated, low confidence..." rows="2" required></textarea>
-
-    <label for="medication">Are you on any medication or have health conditions?</label>
-    <textarea name="medication" placeholder="Optional – This helps personalise your advice..." rows="2"></textarea>
-
-    <label for="foodHabits">What are your food habits like?</label>
-    <select name="foodHabits" required>
-        <option value="">-- Please select --</option>
-        <option value="mostly_home_cooked">Mostly home-cooked meals</option>
-        <option value="lots_of_takeaway">Lots of takeaways or ready meals</option>
-        <option value="mix">A mix of both</option>
-    </select>
-
-    <label for="activity">Describe a normal day of activity (exercise or general movement):</label>
-    <textarea name="activity" placeholder="E.g., 30-min walk, sit at desk 8 hrs, 3 gym sessions weekly…" rows="3" required></textarea>
-
-    <label for="protein">How much protein do you think you're getting daily?</label>
-    <textarea name="protein" placeholder="E.g., 2 chicken breasts, Greek yoghurt, protein shake…" rows="2" required></textarea>
-
-    <label for="sleep">How many hours of sleep are you getting on average?</label>
-    <input type="number" name="sleep" min="0" max="24" required>
-
-    <label for="weightChange">Have you noticed weight changes recently?</label>
-    <select name="weightChange" required>
-        <option value="">-- Please select --</option>
-        <option value="gained">Gained weight</option>
-        <option value="lost">Lost weight</option>
-        <option value="no_change">No change</option>
-        <option value="not_sure">Not sure</option>
-    </select>
-
-    <button type="submit">Get My Personalised Tips</button>
-</form>
-
-<script>
-function toggleMenstrual(value) {
-    document.getElementById('cycleQuestion').style.display = (value === 'female') ? 'block' : 'none';
-}
-</script>
-
+    
+    <script>
+        let currentStep = 1;
+        const totalSteps = 10;
+        
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+        
+        function nextStep() {
+            if (validateCurrentStep()) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep++;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateProgress();
+                
+                // Show menstrual question for females
+                if (currentStep === 4) {
+                    const gender = document.querySelector('select[name="gender"]').value;
+                    if (gender === 'female') {
+                        document.getElementById('menstrualQuestion').classList.remove('hidden');
+                    }
+                }
+            }
+        }
+        
+        function prevStep() {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep--;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            updateProgress();
+        }
+        
+        function validateCurrentStep() {
+            const currentStepElement = document.getElementById(`step${currentStep}`);
+            const requiredFields = currentStepElement.querySelectorAll('[required]');
+            
+            for (let field of requiredFields) {
+                if (!field.value.trim()) {
+                    field.focus();
+                    return false;
+                }
+                
+                // Age validation
+                if (field.name === 'dob') {
+                    const birthDate = new Date(field.value);
+                    const today = new Date();
+                    const age = today.getFullYear() - birthDate.getFullYear();
+                    
+                    if (age < 18) {
+                        alert('You must be 18 or older to use this service.');
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        function updateSliderValue(slider, targetId) {
+            document.getElementById(targetId).textContent = slider.value;
+        }
+        
+        function toggleMoodOther(value) {
+            const otherDiv = document.getElementById('moodOther');
+            if (value === 'other') {
+                otherDiv.classList.remove('hidden');
+            } else {
+                otherDiv.classList.add('hidden');
+            }
+        }
+        
+        function toggleMedications(value) {
+            const detailsDiv = document.getElementById('medicationDetails');
+            if (value === 'yes') {
+                detailsDiv.classList.remove('hidden');
+            } else {
+                detailsDiv.classList.add('hidden');
+            }
+        }
+        
+        function toggleSupportDetails(value) {
+            const detailsDiv = document.getElementById('supportDetails');
+            if (value === 'yes' || value === 'somewhat') {
+                detailsDiv.classList.remove('hidden');
+            } else {
+                detailsDiv.classList.add('hidden');
+            }
+        }
+        
+        // Form submission
+        document.getElementById('fitnessForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(html => {
+                document.body.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('There was an error submitting your form. Please try again.');
+            });
+        });
+        
+        // Initialize
+        updateProgress();
+    </script>
 </body>
 </html>
