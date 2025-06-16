@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <title>Fitness Assistant – Personalised Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2em;
+            background-color: #f4f4f4;
+        }
+        form {
+            background: white;
+            padding: 2em;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 1em 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 1em;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+
+<h2 style="text-align:center;">Let’s Personalise Your Fitness Journey</h2>
+
+<form action="/submit" method="post">
+    <label for="email">Email address:</label>
+    <input type="email" name="email" required>
+
+    <label for="dob">Date of Birth:</label>
+    <input type="date" name="dob" required>
+
+    <label for="gender">What is your biological sex?</label>
+    <select name="gender" required onchange="toggleMenstrual(this.value)">
+        <option value="">-- Please select --</option>
+        <option value="female">Female</option>
+        <option value="male">Male</option>
+        <option value="other">Other / Prefer not to say</option>
+    </select>
+
+    <div id="cycleQuestion" style="display:none;">
+        <label for="cycle">Are you currently on your period or approaching it?</label>
+        <select name="cycle">
+            <option value="">-- Please select --</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+            <option value="not_sure">Not sure</option>
+        </select>
+    </div>
+
+    <label for="goal">What is your main fitness goal?</label>
+    <select name="goal" required>
+        <option value="">-- Please select --</option>
+        <option value="fat_loss">Fat loss</option>
+        <option value="muscle_gain">Muscle gain</option>
+        <option value="health">Better health / energy</option>
+        <option value="mental_wellbeing">Mental wellbeing</option>
+        <option value="other">Other</option>
+    </select>
+
+    <label for="motivation">Why do you want to achieve this goal?</label>
+    <textarea name="motivation" placeholder="E.g., I've recently broken up with someone, I don’t feel good in my body, I want to be a better version of myself..." rows="3" required></textarea>
+
+    <label for="mood">How are you currently feeling?</label>
+    <textarea name="mood" placeholder="E.g., stressed, anxious, sad, unmotivated, low confidence..." rows="2" required></textarea>
+
+    <label for="medication">Are you on any medication or have health conditions?</label>
+    <textarea name="medication" placeholder="Optional – This helps personalise your advice..." rows="2"></textarea>
+
+    <label for="foodHabits">What are your food habits like?</label>
+    <select name="foodHabits" required>
+        <option value="">-- Please select --</option>
+        <option value="mostly_home_cooked">Mostly home-cooked meals</option>
+        <option value="lots_of_takeaway">Lots of takeaways or ready meals</option>
+        <option value="mix">A mix of both</option>
+    </select>
+
+    <label for="activity">Describe a normal day of activity (exercise or general movement):</label>
+    <textarea name="activity" placeholder="E.g., 30-min walk, sit at desk 8 hrs, 3 gym sessions weekly…" rows="3" required></textarea>
+
+    <label for="protein">How much protein do you think you’re getting daily?</label>
+    <textarea name="protein" placeholder="E.g., 2 chicken breasts, Greek yoghurt, protein shake…" rows="2" required></textarea>
+
+    <label for="sleep">How many hours of sleep are you getting on average?</label>
+    <input type="number" name="sleep" min="0" max="24" required>
+
+    <label for="weightChange">Have you noticed weight changes recently?</label>
+    <select name="weightChange" required>
+        <option value="">-- Please select --</option>
+        <option value="gained">Gained weight</option>
+        <option value="lost">Lost weight</option>
+        <option value="no_change">No change</option>
+        <option value="not_sure">Not sure</option>
+    </select>
+
+    <button type="submit">Get My Personalised Tips</button>
+</form>
+
+<script>
+function toggleMenstrual(value) {
+    document.getElementById('cycleQuestion').style.display = (value === 'female') ? 'block' : 'none';
+}
+</script>
+
+</body>
+</html>
