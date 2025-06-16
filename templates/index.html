@@ -8,109 +8,211 @@
     <style>
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            padding: 1em;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            margin: 0;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
         }
         
         .container {
-            background: white;
-            padding: 2em;
-            border-radius: 15px;
-            max-width: 700px;
-            margin: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
         
         .step {
             display: none;
-            animation: fadeIn 0.5s ease-in;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .step.active {
             display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            opacity: 1;
+            transform: translateY(0);
         }
         
         h1 {
             text-align: center;
-            color: #333;
-            margin-bottom: 0.5em;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.02em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            font-weight: 400;
         }
         
         h2 {
-            color: #667eea;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 0.5em;
-            margin-top: 0;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .progress-container {
+            margin: 2rem 0;
+            position: relative;
         }
         
         .progress-bar {
             width: 100%;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 4px;
-            margin: 1em 0;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
         }
         
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            border-radius: 4px;
-            transition: width 0.3s ease;
+            background: linear-gradient(90deg, #ff6b6b, #ffd93d);
+            border-radius: 3px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
         }
         
         label {
             display: block;
-            margin-top: 1em;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
             font-weight: 600;
-            color: #333;
+            color: white;
+            font-size: 1rem;
         }
         
         input, select, textarea {
             width: 100%;
-            padding: 12px;
-            margin: 0.5em 0 1em 0;
-            border-radius: 8px;
-            border: 2px solid #e0e0e0;
+            padding: 16px 20px;
+            margin-bottom: 1rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
             font-size: 16px;
-            transition: border-color 0.3s ease;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
         }
         
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: rgba(255, 107, 107, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        select option {
+            background: #667eea;
+            color: white;
         }
         
         button {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
             color: white;
-            padding: 12px 24px;
+            padding: 16px 32px;
             border: none;
-            border-radius: 8px;
+            border-radius: 16px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            margin: 0.5em;
-            transition: transform 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
         }
         
         button:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 107, 107, 0.4);
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:active {
+            transform: translateY(-1px);
         }
         
         .button-group {
             display: flex;
             justify-content: space-between;
-            margin-top: 2em;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .button-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .button-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
         }
         
         .hidden {
@@ -118,59 +220,152 @@
         }
         
         .error {
-            color: #e74c3c;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 0.5rem;
+            border-radius: 8px;
             font-size: 14px;
-            margin-top: 0.5em;
+            margin-top: 0.5rem;
+            border: 1px solid rgba(255, 107, 107, 0.3);
         }
         
         .radio-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1em;
-            margin: 0.5em 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+            margin: 0.5rem 0;
         }
         
         .radio-item {
             display: flex;
             align-items: center;
-            gap: 0.5em;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: background 0.2s ease;
+        }
+        
+        .radio-item:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
         
         .slider-container {
-            margin: 1em 0;
+            margin: 1rem 0;
+            position: relative;
         }
         
         .slider {
             width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.2);
             outline: none;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+            transition: transform 0.2s ease;
+        }
+        
+        .slider::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
         }
         
         .slider-value {
-            font-weight: bold;
-            color: #667eea;
-            margin-left: 1em;
+            position: absolute;
+            right: 0;
+            top: -40px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
         }
         
         @media (max-width: 768px) {
             .container {
-                padding: 1.5em;
-                margin: 0.5em;
+                padding: 24px;
+                margin: 10px;
+                border-radius: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
             }
             
             .button-group {
                 flex-direction: column;
             }
+            
+            button {
+                width: 100%;
+            }
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .step-dot.active {
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🌟 Let's Personalise Your Fitness Journey</h1>
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 10%"></div>
+        <h1>✨ Fitness Journey</h1>
+        <p class="subtitle">Let's create your personalised wellness path</p>
+        
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 10%"></div>
+            </div>
+            <div class="progress-text" id="progressText">Step 1 of 10</div>
+        </div>
+        
+        <div class="step-indicator" id="stepIndicator">
+            <!-- Dots will be generated by JavaScript -->
         </div>
         
         <form id="fitnessForm">
@@ -179,7 +374,7 @@
                 <h2>👤 Personal Information</h2>
                 
                 <label for="email">Email address:</label>
-                <input type="email" name="email" required>
+                <input type="email" name="email" placeholder="your@email.com" required>
                 
                 <label for="dob">Date of birth:</label>
                 <input type="date" name="dob" required>
@@ -193,22 +388,22 @@
                 </select>
                 
                 <label for="height">Height (cm):</label>
-                <input type="number" name="height" min="100" max="250" required>
+                <input type="number" name="height" min="100" max="250" placeholder="170" required>
                 
                 <label for="weight">Current weight (kg):</label>
-                <input type="number" name="weight" min="30" max="300" step="0.1" required>
+                <input type="number" name="weight" min="30" max="300" step="0.1" placeholder="70.0" required>
                 
                 <label for="goalWeight">Goal weight (kg) - optional:</label>
-                <input type="number" name="goalWeight" min="30" max="300" step="0.1">
+                <input type="number" name="goalWeight" min="30" max="300" step="0.1" placeholder="65.0">
                 
                 <div class="button-group">
-                    <button type="button" onclick="nextStep()">Next</button>
+                    <button type="button" onclick="nextStep()">Continue →</button>
                 </div>
             </div>
             
             <!-- Step 2: Fitness Goal & Motivation -->
             <div class="step" id="step2">
-                <h2>🎯 Fitness Goal & Motivation</h2>
+                <h2>🎯 Your Goals</h2>
                 
                 <label for="goal">What is your primary fitness goal?</label>
                 <select name="goal" required>
@@ -231,25 +426,25 @@
                 </select>
                 
                 <label for="motivation">Tell us more about your motivation:</label>
-                <textarea name="motivation" placeholder="E.g., I've recently broken up with someone, I don't feel good in my body, I want to be a better version of myself..." rows="3" required></textarea>
+                <textarea name="motivation" placeholder="Share what's driving you to make this change..." rows="4" required></textarea>
                 
                 <div class="button-group">
-                    <button type="button" onclick="prevStep()">Previous</button>
-                    <button type="button" onclick="nextStep()">Next</button>
+                    <button type="button" class="button-secondary" onclick="prevStep()">← Back</button>
+                    <button type="button" onclick="nextStep()">Continue →</button>
                 </div>
             </div>
             
             <!-- Step 3: Mental & Emotional State -->
             <div class="step" id="step3">
-                <h2>💭 Mental & Emotional State</h2>
+                <h2>💭 Mental Wellbeing</h2>
                 
                 <label for="mentalState">Current mental/emotional state:</label>
                 <textarea name="mentalState" placeholder="How are you feeling mentally and emotionally right now?" rows="3" required></textarea>
                 
-                <label for="motivationLevel">Motivation level (1-10):</label>
+                <label for="motivationLevel">Motivation level:</label>
                 <div class="slider-container">
                     <input type="range" name="motivationLevel" min="1" max="10" value="5" class="slider" oninput="updateSliderValue(this, 'motivationValue')">
-                    <span class="slider-value" id="motivationValue">5</span>
+                    <span class="slider-value" id="motivationValue">5/10</span>
                 </div>
                 
                 <label for="mood">How would you describe your mood most days?</label>
@@ -270,14 +465,14 @@
                 </div>
                 
                 <div class="button-group">
-                    <button type="button" onclick="prevStep()">Previous</button>
-                    <button type="button" onclick="nextStep()">Next</button>
+                    <button type="button" class="button-secondary" onclick="prevStep()">← Back</button>
+                    <button type="button" onclick="nextStep()">Continue →</button>
                 </div>
             </div>
             
             <!-- Step 4: Health & Medical -->
             <div class="step" id="step4">
-                <h2>🏥 Health & Medical</h2>
+                <h2>🏥 Health Information</h2>
                 
                 <label for="medications">Are you on any medications?</label>
                 <select name="medications" onchange="toggleMedications(this.value)">
@@ -295,7 +490,7 @@
                 <textarea name="healthConditions" placeholder="e.g., thyroid issues, PCOS, diabetes... (optional)" rows="2"></textarea>
                 
                 <div id="menstrualQuestion" class="hidden">
-                    <label for="menstrualCycle">Are you currently on your period, approaching it, or unsure?</label>
+                    <label for="menstrualCycle">Menstrual cycle status:</label>
                     <select name="menstrualCycle">
                         <option value="">-- Please select --</option>
                         <option value="on_period">Currently on my period</option>
@@ -306,8 +501,8 @@
                 </div>
                 
                 <div class="button-group">
-                    <button type="button" onclick="prevStep()">Previous</button>
-                    <button type="button" onclick="nextStep()">Next</button>
+                    <button type="button" class="button-secondary" onclick="prevStep()">← Back</button>
+                    <button type="button" onclick="nextStep()">Continue →</button>
                 </div>
             </div>
             
@@ -316,7 +511,7 @@
                 <h2>😴 Sleep & Recovery</h2>
                 
                 <label for="sleepHours">Average hours of sleep per night:</label>
-                <input type="number" name="sleepHours" min="0" max="24" step="0.5" required>
+                <input type="number" name="sleepHours" min="0" max="24" step="0.5" placeholder="7.5" required>
                 
                 <label for="wakingFeeling">How do you feel when waking up?</label>
                 <select name="wakingFeeling" required>
@@ -327,20 +522,20 @@
                 </select>
                 
                 <div class="button-group">
-                    <button type="button" onclick="prevStep()">Previous</button>
-                    <button type="button" onclick="nextStep()">Next</button>
+                    <button type="button" class="button-secondary" onclick="prevStep()">← Back</button>
+                    <button type="button" onclick="nextStep()">Continue →</button>
                 </div>
             </div>
             
             <!-- Step 6: Nutrition Habits -->
             <div class="step" id="step6">
-                <h2>🍽️ Nutrition Habits</h2>
+                <h2>🍽️ Nutrition</h2>
                 
                 <label for="proteinSources">Typical protein sources:</label>
-                <textarea name="proteinSources" placeholder="e.g., 2 chicken breasts, 1 protein shake, tofu, eggs..." rows="2" required></textarea>
+                <textarea name="proteinSources" placeholder="e.g., 2 chicken breasts, 1 protein shake, tofu, eggs..." rows="3" required></textarea>
                 
                 <label for="mealsPerDay">Typical number of meals/snacks per day:</label>
-                <input type="number" name="mealsPerDay" min="1" max="10" required>
+                <input type="number" name="mealsPerDay" min="1" max="10" placeholder="3" required>
                 
                 <label for="waterIntake">Daily water intake estimate:</label>
                 <select name="waterIntake" required>
@@ -360,14 +555,14 @@
                 </select>
                 
                 <div class="button-group">
-                    <button type="button" onclick="prevStep()">Previous</button>
-                    <button type="button" onclick="nextStep()">Next</button>
+                    <button type="button" class="button-secondary" onclick="prevStep()">← Back</button>
+                    <button type="button" onclick="nextStep()">Continue →</button>
                 </div>
             </div>
             
             <!-- Step 7: Movement & Activity -->
             <div class="step" id="step7">
-                <h2>🏃‍♀️ Movement & Activity</h2>
+                <h2>🏃‍♀️ Activity Level</h2>
                 
                 <label for="activityLevel">Activity level:</label>
                 <select name="activityLevel" required>
@@ -393,14 +588,14 @@
                 </select>
                 
                 <div class="button-group">
-                    <button type="button" onclick="prevStep()">Previous</button>
-                    <button type="button" onclick="nextStep()">Next</button>
+                    <button type="button" class="button-secondary" onclick="prevStep()">← Back</button>
+                    <button type="button" onclick="nextStep()">Continue →</button>
                 </div>
             </div>
             
             <!-- Step 8: Body & Tracking -->
             <div class="step" id="step8">
-                <h2>📊 Body & Tracking</h2>
+                <h2>📊 Progress Tracking</h2>
                 
                 <label for="weightChanges">Recent weight changes:</label>
                 <select name="weightChanges" required>
@@ -414,7 +609,7 @@
                 <label for="bodyFeeling">How do you feel in your body?</label>
                 <textarea name="bodyFeeling" placeholder="Describe how you feel about your body and physical state..." rows="3" required></textarea>
                 
-                <label for="weeklyWeighIn">Would you like to do weekly weight check-ins?</label>
+                <label for="weeklyWeighIn">Would you like weekly weight check-ins?</label>
                 <select name="weeklyWeighIn">
                     <option value="">-- Please select --</option>
                     <option value="yes">Yes, I'd like weekly reminders</option>
@@ -423,8 +618,8 @@
                 </select>
                 
                 <div class="button-group">
-                    <button type="button" onclick="prevStep()">Previous</button>
-                    <button type="button" onclick="nextStep()">Next</button>
+                    <button type="button" class="button-secondary" onclick="prevStep()">← Back</button>
+                    <button type="button" onclick="nextStep()">Continue →</button>
                 </div>
             </div>
             
@@ -432,10 +627,10 @@
             <div class="step" id="step9">
                 <h2>🌈 Lifestyle</h2>
                 
-                <label for="stressLevel">Weekly stress level (1-10):</label>
+                <label for="stressLevel">Weekly stress level:</label>
                 <div class="slider-container">
                     <input type="range" name="stressLevel" min="1" max="10" value="5" class="slider" oninput="updateSliderValue(this, 'stressValue')">
-                    <span class="slider-value" id="stressValue">5</span>
+                    <span class="slider-value" id="stressValue">5/10</span>
                 </div>
                 
                 <label for="supportSystem">Do you have a good support system?</label>
@@ -452,25 +647,25 @@
                 </div>
                 
                 <div class="button-group">
-                    <button type="button" onclick="prevStep()">Previous</button>
-                    <button type="button" onclick="nextStep()">Next</button>
+                    <button type="button" class="button-secondary" onclick="prevStep()">← Back</button>
+                    <button type="button" onclick="nextStep()">Continue →</button>
                 </div>
             </div>
             
             <!-- Step 10: AI Consent -->
             <div class="step" id="step10">
-                <h2>🤖 AI Feedback</h2>
+                <h2>🤖 Personalised Insights</h2>
                 
-                <label for="aiConsent">Would you like a custom AI-generated feedback summary based on your answers?</label>
+                <label for="aiConsent">Would you like AI-generated personalised recommendations?</label>
                 <select name="aiConsent" required>
                     <option value="">-- Please select --</option>
-                    <option value="yes">Yes, give me personalised AI feedback</option>
+                    <option value="yes">Yes, give me personalised AI insights</option>
                     <option value="no">No, just show me my summary</option>
                 </select>
                 
                 <div class="button-group">
-                    <button type="button" onclick="prevStep()">Previous</button>
-                    <button type="submit">Get My Personalised Plan</button>
+                    <button type="button" class="button-secondary" onclick="prevStep()">← Back</button>
+                    <button type="submit">✨ Create My Plan</button>
                 </div>
             </div>
         </form>
@@ -480,9 +675,31 @@
         let currentStep = 1;
         const totalSteps = 10;
         
+        // Initialize step indicators
+        function initStepIndicators() {
+            const container = document.getElementById('stepIndicator');
+            for (let i = 1; i <= totalSteps; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'step-dot';
+                if (i === 1) dot.classList.add('active');
+                container.appendChild(dot);
+            }
+        }
+        
         function updateProgress() {
             const progress = (currentStep / totalSteps) * 100;
             document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Step ${currentStep} of ${totalSteps}`;
+            
+            // Update step indicators
+            const dots = document.querySelectorAll('.step-dot');
+            dots.forEach((dot, index) => {
+                if (index < currentStep) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
         }
         
         function nextStep() {
@@ -499,6 +716,9 @@
                         document.getElementById('menstrualQuestion').classList.remove('hidden');
                     }
                 }
+                
+                // Smooth scroll to top
+                document.querySelector('.container').scrollIntoView({ behavior: 'smooth' });
             }
         }
         
@@ -507,6 +727,9 @@
             currentStep--;
             document.getElementById(`step${currentStep}`).classList.add('active');
             updateProgress();
+            
+            // Smooth scroll to top
+            document.querySelector('.container').scrollIntoView({ behavior: 'smooth' });
         }
         
         function validateCurrentStep() {
@@ -516,8 +739,14 @@
             for (let field of requiredFields) {
                 if (!field.value.trim()) {
                     field.focus();
+                    field.style.borderColor = '#ff6b6b';
+                    field.style.boxShadow = '0 0 0 3px rgba(255, 107, 107, 0.3)';
                     return false;
                 }
+                
+                // Reset error styling
+                field.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                field.style.boxShadow = 'none';
                 
                 // Age validation
                 if (field.name === 'dob') {
@@ -535,7 +764,7 @@
         }
         
         function updateSliderValue(slider, targetId) {
-            document.getElementById(targetId).textContent = slider.value;
+            document.getElementById(targetId).textContent = slider.value + '/10';
         }
         
         function toggleMoodOther(value) {
@@ -565,9 +794,14 @@
             }
         }
         
-        // Form submission
+        // Form submission with loading state
         document.getElementById('fitnessForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            const submitButton = document.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = '✨ Creating Your Plan...';
+            submitButton.disabled = true;
             
             const formData = new FormData(this);
             
@@ -582,11 +816,24 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('There was an error submitting your form. Please try again.');
+                submitButton.textContent = originalText;
+                submitButton.disabled = false;
             });
         });
         
         // Initialize
+        initStepIndicators();
         updateProgress();
+        
+        // Add smooth transitions and animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add loading animation
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 0.5s ease';
+                document.body.style.opacity = '1';
+            }, 100);
+        });
     </script>
 </body>
 </html>
