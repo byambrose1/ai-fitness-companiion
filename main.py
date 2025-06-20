@@ -3,9 +3,13 @@ from flask import Flask, request, render_template_string, jsonify, session
 from datetime import datetime, timedelta
 import json
 import os
+import openai
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-this'  # Change this in production
+
+# OpenAI setup - you'll need to add your API key via Secrets
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 # Simple in-memory storage (replace with database in production)
 users_data = {}
@@ -554,3 +558,317 @@ def save_daily_log():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
+
+
+@app.route("/weekly-checkin")
+def weekly_checkin():
+    email = request.args.get('email')
+    if not email:
+        return "Please provide email parameter"
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html lang="en-GB">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Weekly Check-in</title>
+        <style>
+            * { box-sizing: border-box; }
+            body { 
+                font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;
+                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
+            }
+            .container { background: white; padding: 2em; border-radius: 20px; max-width: 600px; margin: 0 auto; }
+            input, textarea, select { 
+                width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #A8E6CF; 
+                border-radius: 8px; font-size: 16px;
+            }
+            label { display: block; margin-top: 15px; font-weight: 600; color: #2d5a3d; }
+            .button { 
+                background: linear-gradient(135deg, #A8E6CF, #7ED3B2); color: #2d5a3d; 
+                padding: 15px 30px; border: none; border-radius: 8px; font-size: 16px; 
+                font-weight: 600; cursor: pointer; width: 100%; margin-top: 20px;
+            }
+            h1 { color: #2d5a3d; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>📅 Weekly Check-in</h1>
+            <p style="text-align: center; color: #666;">Reflect on your week and get AI-powered feedback</p>
+            
+            <form method="POST" action="/save-weekly-checkin">
+                <input type="hidden" name="email" value="{{ email }}">
+                <input type="hidden" name="week_of" value="{{ today }}">
+                
+                <label for="adherence">📊 How well did you follow your plan this week? (1-10):</label>
+                <input type="range" name="adherence" min="1" max="10" value="5" oninput="document.getElementById('adherence-value').textContent = this.value">
+                <span id="adherence-value">5</span>/10
+                
+                <label for="energy">⚡ Average energy level this week:</label>
+                <select name="energy">
+                    <option value="very_low">Very Low</option>
+                    <option value="low">Low</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="high">High</option>
+                    <option value="very_high">Very High</option>
+                </select>
+                
+                <label for="bloating">🫃 Bloating/digestive issues:</label>
+                <select name="bloating">
+                    <option value="none">None</option>
+                    <option value="mild">Mild</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="severe">Severe</option>
+                </select>
+                
+                <label for="hunger">🍽️ Hunger levels:</label>
+                <select name="hunger">
+                    <option value="very_low">Very Low</option>
+                    <option value="low">Low</option>
+                    <option value="normal">Normal</option>
+                    <option value="high">High</option>
+                    <option value="very_high">Very High</option>
+                </select>
+                
+                <label for="weight_change">⚖️ Weight difference from last week (optional):</label>
+                <input type="number" name="weight_change" step="0.1" placeholder="e.g., -0.5 or +1.2">
+                
+                <label for="challenges">🤔 What were your biggest challenges this week?</label>
+                <textarea name="challenges" placeholder="E.g., busy schedule, stress eating, lack of motivation..." rows="3"></textarea>
+                
+                <label for="wins">🎉 What went well this week?</label>
+                <textarea name="wins" placeholder="E.g., consistent workouts, better sleep, healthy meal prep..." rows="3"></textarea>
+                
+                <label for="focus_next_week">🎯 What do you want to focus on next week?</label>
+                <textarea name="focus_next_week" placeholder="E.g., increase water intake, try new recipes, prioritize sleep..." rows="2"></textarea>
+                
+                <button type="submit" class="button">💾 Submit Check-in & Get AI Feedback</button>
+            </form>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    """, email=email, today=datetime.now().strftime("%Y-%m-%d"))
+
+@app.route("/save-weekly-checkin", methods=["POST"])
+def save_weekly_checkin():
+    email = request.form.get('email')
+    if email not in users_data:
+        return "User not found"
+    
+    # Save the weekly check-in
+    checkin_data = {
+        'week_of': request.form.get('week_of'),
+        'timestamp': datetime.now().isoformat(),
+        'adherence': request.form.get('adherence'),
+        'energy': request.form.get('energy'),
+        'bloating': request.form.get('bloating'),
+        'hunger': request.form.get('hunger'),
+        'weight_change': request.form.get('weight_change'),
+        'challenges': request.form.get('challenges'),
+        'wins': request.form.get('wins'),
+        'focus_next_week': request.form.get('focus_next_week')
+    }
+    
+    users_data[email]['weekly_checkins'].append(checkin_data)
+    
+    # Generate AI feedback if OpenAI key is available
+    ai_feedback = "AI feedback temporarily unavailable. Please ensure OpenAI API key is configured."
+    
+    if openai.api_key:
+        try:
+            user_profile = users_data[email]['profile_data']
+            prompt = f"""
+            Based on this user's weekly check-in and profile, provide supportive, educational feedback:
+            
+            User Profile: {user_profile.get('goal')} goal, stress level {user_profile.get('stressLevel')}/10
+            Weekly Check-in: Adherence {checkin_data['adherence']}/10, Energy: {checkin_data['energy']}
+            Challenges: {checkin_data['challenges']}
+            Wins: {checkin_data['wins']}
+            
+            Provide 3-4 sentences of encouraging, specific advice focusing on sustainable habits.
+            """
+            
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=200
+            )
+            ai_feedback = response.choices[0].message.content
+        except Exception as e:
+            ai_feedback = f"AI feedback unavailable: {str(e)}"
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Weekly Check-in Complete</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); }
+            .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; }
+            .ai-feedback { background: #e3f9e5; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #7ED3B2; }
+            .button { background: #A8E6CF; color: #2d5a3d; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>✅ Weekly Check-in Complete!</h2>
+            
+            <div class="ai-feedback">
+                <h3>🤖 Your Personalized AI Feedback</h3>
+                <p>{{ ai_feedback }}</p>
+            </div>
+            
+            <p>Keep up the great work! Your consistency and self-reflection are key to long-term success.</p>
+            <a href="/dashboard?email={{ email }}" class="button">← Back to Dashboard</a>
+        </div>
+    </body>
+    </html>
+    """, email=email, ai_feedback=ai_feedback)
+
+@app.route("/ai-chat")
+def ai_chat():
+    email = request.args.get('email')
+    if not email:
+        return "Please provide email parameter"
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html lang="en-GB">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AI Wellness Assistant</title>
+        <style>
+            * { box-sizing: border-box; }
+            body { 
+                font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;
+                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
+            }
+            .container { background: white; padding: 2em; border-radius: 20px; max-width: 700px; margin: 0 auto; }
+            .chat-input { width: 100%; padding: 15px; border: 2px solid #A8E6CF; border-radius: 10px; font-size: 16px; }
+            .button { 
+                background: linear-gradient(135deg, #A8E6CF, #7ED3B2); color: #2d5a3d; 
+                padding: 15px 30px; border: none; border-radius: 8px; font-size: 16px; 
+                font-weight: 600; cursor: pointer; margin-top: 10px;
+            }
+            .suggested-questions { margin: 20px 0; }
+            .question-btn { 
+                background: #f0f8ff; border: 2px solid #A8E6CF; padding: 10px 15px; 
+                margin: 5px; border-radius: 20px; cursor: pointer; display: inline-block;
+                font-size: 14px; color: #2d5a3d;
+            }
+            .question-btn:hover { background: #A8E6CF; }
+            h1 { color: #2d5a3d; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🤖 AI Wellness Assistant</h1>
+            <p style="text-align: center; color: #666;">Ask me anything about your fitness journey!</p>
+            
+            <form method="POST" action="/ai-response">
+                <input type="hidden" name="email" value="{{ email }}">
+                <textarea name="question" class="chat-input" rows="4" placeholder="E.g., Why didn't I lose weight this week? Why do I feel bloated today? What should I improve?"></textarea>
+                <button type="submit" class="button">💬 Ask AI Assistant</button>
+            </form>
+            
+            <div class="suggested-questions">
+                <h3>💡 Suggested Questions:</h3>
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Why didn\\'t I lose weight this week?'">Why didn't I lose weight this week?</div>
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Why do I feel bloated today?'">Why do I feel bloated today?</div>
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'What should I focus on next week?'">What should I focus on next week?</div>
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'How can I improve my energy levels?'">How can I improve my energy levels?</div>
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Tips for better sleep?'">Tips for better sleep?</div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    """, email=email)
+
+@app.route("/ai-response", methods=["POST"])
+def ai_response():
+    email = request.form.get('email')
+    question = request.form.get('question')
+    
+    if email not in users_data:
+        return "User not found"
+    
+    # Generate AI response if OpenAI key is available
+    ai_response = "AI assistant temporarily unavailable. Please ensure OpenAI API key is configured in Secrets."
+    
+    if openai.api_key:
+        try:
+            user_data = users_data[email]
+            user_profile = user_data['profile_data']
+            recent_logs = user_data['daily_logs'][-7:] if user_data['daily_logs'] else []
+            
+            context = f"""
+            You are a supportive, knowledgeable fitness and wellness coach. Answer the user's question based on their profile and recent data.
+            
+            User Profile: {user_profile.get('goal')} goal, {user_profile.get('gender')} {user_profile.get('age')} years old
+            Sleep: {user_profile.get('sleepHours')} hours, Stress: {user_profile.get('stressLevel')}/10
+            Motivation: {user_profile.get('motivationLevel')}/10
+            Menstrual cycle: {user_profile.get('menstrualCycle', 'N/A')}
+            
+            Recent daily logs (last 7 days): {recent_logs}
+            
+            User Question: {question}
+            
+            Provide a supportive, educational response in 3-4 sentences. Be specific and actionable.
+            """
+            
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": context}],
+                max_tokens=300
+            )
+            ai_response = response.choices[0].message.content
+        except Exception as e:
+            ai_response = f"AI assistant error: {str(e)}"
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>AI Response</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); }
+            .container { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; }
+            .question { background: #f0f8ff; padding: 15px; border-radius: 10px; margin: 15px 0; border-left: 5px solid #74b9ff; }
+            .response { background: #e3f9e5; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #7ED3B2; }
+            .button { background: #A8E6CF; color: #2d5a3d; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 5px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>🤖 AI Wellness Assistant Response</h2>
+            
+            <div class="question">
+                <strong>Your Question:</strong><br>
+                {{ question }}
+            </div>
+            
+            <div class="response">
+                <strong>🤖 AI Response:</strong><br>
+                {{ ai_response }}
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="/ai-chat?email={{ email }}" class="button">💬 Ask Another Question</a>
+                <a href="/dashboard?email={{ email }}" class="button">🏠 Back to Dashboard</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    """, email=email, question=question, ai_response=ai_response)
