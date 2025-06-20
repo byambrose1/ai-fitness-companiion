@@ -54,6 +54,7 @@ def form():
         # Store user data (in production, save to database)
         email = data.get("email")
         user_profile = {
+            'name': name,
             'email': email,
             'dob': dob,
             'age': age,
@@ -67,6 +68,7 @@ def form():
         users_data[email] = user_profile
 
         # Extract all form data for display
+        name = data.get("name")
         gender = data.get("gender")
         height = data.get("height")
         weight = data.get("weight")
@@ -210,7 +212,7 @@ def form():
                 </div>
                 
                 <p style="text-align: center; font-size: 18px; color: #2d5a3d; margin-bottom: 30px;">
-                    Thank you for sharing your information, {{ email.split('@')[0]|title }}! Your personalised wellness companion is ready.
+                    Thank you for sharing your information, {{ name|title }}! Your personalised wellness companion is ready.
                 </p>
 
                 <h2>👤 Your Profile Summary</h2>
@@ -313,7 +315,7 @@ def form():
         </body>
         </html>
         """, 
-        email=email, age=age, gender=gender, height=height, weight=weight, 
+        name=name, email=email, age=age, gender=gender, height=height, weight=weight, 
         goal_weight=goal_weight, goal=goal, goal_reason=goal_reason, motivation=motivation,
         mental_state=mental_state, motivation_level=motivation_level, mood=mood, 
         mood_custom=mood_custom, medications=medications, medication_list=medication_list,
@@ -362,7 +364,7 @@ def dashboard():
     </head>
     <body>
         <div class="container">
-            <h1>🌟 Welcome back, {{ user.email.split('@')[0]|title }}!</h1>
+            <h1>🌟 Welcome back, {{ user.name|title }}!</h1>
             
             <div class="reminder">
                 <p>💚 <strong>Daily Reminder:</strong> You're doing great! Remember to log your meals and movement today.</p>
