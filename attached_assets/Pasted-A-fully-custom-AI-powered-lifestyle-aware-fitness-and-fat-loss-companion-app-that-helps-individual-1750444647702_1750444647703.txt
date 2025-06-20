@@ -1,0 +1,160 @@
+A fully custom, AI-powered, lifestyle-aware fitness and fat-loss companion app that helps individuals track daily behaviours, receive personalised feedback based on hormone status, lifestyle, sleep, stress, and activity levels, and make informed improvements without guesswork. This platform is gender-neutral and built for both men and women, including those with hormone fluctuations (e.g. menstrual cycle, menopause).
+
+⸻
+
+🧩 Core Features to Build on Replit:
+
+✅ 1. User Authentication & Onboarding
+	•	Email & password sign-up
+	•	Must be 18+
+	•	Users must complete a one-time onboarding questionnaire that includes:
+	•	Name, DOB, sex assigned at birth
+	•	Do you menstruate? → If yes:
+	•	Are your cycles regular?
+	•	Are you tracking them?
+	•	Where are you in your cycle now?
+	•	If no: Menopausal stage (pre, peri, menopausal, post)
+	•	Daily sitting time
+	•	Chronic conditions (selectable list + custom input)
+	•	Medications (especially hormone-related)
+	•	Primary health goal: fat loss only
+
+⚠️ Logic: User cannot progress until all relevant fields are filled
+⚠️ After completion, they must be directed to sign up if not already done
+
+⸻
+
+✅ 2. Daily Logging Interface
+
+Allow users to input daily:
+	•	Food log (with natural language input, e.g. “chicken salad and 2 boiled eggs”)
+	•	Workout type (select from dropdown) and duration
+	•	Weight (optional)
+	•	Mood
+	•	Sleep duration
+	•	Stress level (1–10)
+	•	Water intake
+	•	Movement (steps, time active — if wearable connected)
+
+🧠 AI should detect:
+	•	Overweighing (warn user gently)
+	•	Inconsistencies (e.g. high stress + poor sleep = reduced fat loss)
+	•	If weight gain is likely water weight
+
+⸻
+
+✅ 3. Weekly Check-in
+
+Prompt user weekly to input:
+	•	Average adherence
+	•	Bloating, energy, hunger
+	•	Whether they followed the plan
+	•	Weight difference (optional)
+
+➡️ Return AI-generated feedback based on all tracked data.
+
+⸻
+
+✅ 4. AI Feedback Engine
+
+Using OpenAI (ChatGPT):
+	•	If user asks:
+	•	“Why didn’t I lose weight this week?”
+	•	“Why do I feel bloated today?”
+	•	“What should I improve next week?”
+
+➡️ The chatbot will analyse recent logs + hormone info + behaviour and generate a realistic, supportive, educational response.
+
+⸻
+
+✅ 5. Dashboard (Post-login)
+	•	Shows scores:
+	•	Nutrition score
+	•	Movement score
+	•	Recovery score
+	•	Shows current cycle status (if applicable)
+	•	Shows AI feedback summary
+	•	Pushes gentle, human-sounding daily reminders:
+	•	E.g. “Hi Emily, don’t forget to log your water today 😊”
+	•	Include 5 rotating prompts (if user hasn’t logged)
+
+⸻
+
+✅ 6. Wearable Integration
+
+Enable users to connect devices:
+	•	Apple Health / Google Fit (via OAuth)
+	•	Fitbit API (basic access: sleep, steps, HR)
+	•	Pull step count, sleep duration, heart rate data
+	•	Merge this into their daily log and AI analysis
+
+⸻
+
+✅ 7. Food Tracking
+
+Use either:
+	•	Integration with a UK/Europe-friendly nutrition database (e.g. Open Food Facts)
+	•	OR Natural language → AI food parsing:
+	•	User types meals, system parses into calories/macros
+
+Bonus: Offer calorie/protein/fibre summaries based on logs
+
+⸻
+
+✅ 8. Stripe for Paid Accounts (Later)
+	•	Allow people to use for free
+	•	Later: Unlock premium weekly AI check-ins, full reports, or reminders
+	•	Use Stripe Checkout (no credit card storage)
+	•	Allow upgrade/cancel anytime
+
+⸻
+
+✅ 9. Progressive Web App (PWA)
+	•	Make it installable on mobile
+	•	Enable push notifications via OneSignal or Firebase Cloud Messaging
+	•	Make sure experience is mobile-first
+
+⸻
+
+✅ 10. Admin Tools
+	•	Admin dashboard for:
+	•	Viewing anonymised user trends
+	•	Feedback moderation
+	•	Adjusting prompts and messages
+	•	Broadcasting updates or education content
+
+⸻
+
+🔐 Privacy & Data Security
+	•	Users can:
+	•	Export/delete their data
+	•	Toggle privacy settings
+	•	Data encrypted and stored securely
+	•	Compliant with UK GDPR
+	•	Stripe handles all billing data
+
+⸻
+
+🎨 Design & UX
+	•	Soft mint green colour palette: #A8E6CF
+	•	Fonts: Poppins (headings), Inter (body)
+	•	Gender-neutral tone
+	•	Clean, mobile-friendly layout
+	•	Friendly but clear prompts
+	•	Encouraging language — not nagging or overly clinical
+
+⸻
+
+🧠 Smart Behaviour Detection (Examples)
+	•	If stress + sleep is poor → feedback explains likely reduced fat loss
+	•	If weight is up but water intake is high → warn it’s likely water weight
+	•	If user weighs in every day and stress is rising → prompt them to skip scales for a few days
+	•	If menstruating → adjust expectations and explain impact on weight, hunger, motivation, etc.
+
+⸻
+
+🌐 Future Add-Ons (Optional)
+	•	Community/peer support
+	•	Guided meditation/sleep audio
+	•	30-day challenges
+	•	Sync with Notion/Google Calendar
