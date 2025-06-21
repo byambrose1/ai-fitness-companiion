@@ -187,14 +187,16 @@ def form():
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>✨ Your Personalised Fitness Profile</title>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
             <style>
                 * { box-sizing: border-box; }
 
                 body { 
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                     margin: 0; padding: 20px;
-                    background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);
+                    background: #ffffff;
                     min-height: 100vh;
+                    color: #1a1a1a;
                 }
 
                 .container {
@@ -285,7 +287,7 @@ def form():
         </head>
         <body>
             <div class="container">
-                <h1>✨ Welcome to Your Fitness Journey</h1>
+                <h1>✨ Your Fat Loss Journey Starts Here</h1>
                 <div style="text-align: center; margin-bottom: 30px;">
                     <span class="success-badge">✅ Profile Created Successfully</span>
                 </div>
