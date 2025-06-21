@@ -14,6 +14,50 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 # Simple in-memory storage (replace with database in production)
 users_data = {}
 
+@app.route("/register", methods=["POST"])
+def register_user():
+    """Handle user registration with password"""
+    data = request.form
+    name = data.get("name")
+    email = data.get("email")
+    password = data.get("password")
+    
+    if not name or not email or not password:
+        return jsonify({"success": False, "message": "All fields required"}), 400
+    
+    if email in users_data:
+        return jsonify({"success": False, "message": "Account already exists"}), 400
+    
+    # Create basic user account (in production, hash the password)
+    users_data[email] = {
+        'name': name,
+        'email': email,
+        'password': password,  # In production, use proper password hashing
+        'created_at': datetime.now().isoformat(),
+        'profile_data': {},
+        'daily_logs': [],
+        'weekly_checkins': []
+    }
+    
+    return jsonify({"success": True, "message": "Account created successfully"})
+
+@app.route("/login", methods=["POST"])
+def login_user():
+    """Handle user login"""
+    email = request.form.get("email")
+    password = request.form.get("password")
+    
+    if email not in users_data:
+        return jsonify({"success": False, "message": "Account not found"}), 404
+    
+    # In production, use proper password verification
+    if users_data[email].get('password') != password:
+        return jsonify({"success": False, "message": "Invalid password"}), 401
+    
+    # Set session (basic implementation)
+    session['user_email'] = email
+    return jsonify({"success": True, "message": "Login successful"})
+
 @app.route("/", methods=["GET", "POST"])
 def form():
     if request.method == "POST":
@@ -53,9 +97,15 @@ def form():
 
         # Store user data (in production, save to database)
         email = data.get("email")
+        name = data.get("name")
+        
+        # Get password from session if coming from sign up flow
+        password = session.get('tempPassword', '')
+        
         user_profile = {
             'name': name,
             'email': email,
+            'password': password,
             'dob': dob,
             'age': age,
             'created_at': datetime.now().isoformat(),
@@ -66,9 +116,11 @@ def form():
         
         # Simple storage by email (replace with proper user management)
         users_data[email] = user_profile
+        
+        # Clear temporary password
+        session.pop('tempPassword', None)
 
         # Extract all form data for display
-        name = data.get("name")
         gender = data.get("gender")
         height = data.get("height")
         weight = data.get("weight")
