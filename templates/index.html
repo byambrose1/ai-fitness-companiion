@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
@@ -116,7 +115,7 @@
       padding: 8px 16px;
       background: #f8f9fa;
       border-radius: 20px;
-      color: #3B7A57;
+      color: #A8E6CF;
       font-weight: 500;
       font-size: 0.9rem;
     }
@@ -887,7 +886,8 @@
             </div>
 
             <label for="biggestChallenge">What's your biggest challenge with fat loss?</label>
-            <select name="biggestChallenge" required>
+Update multiple colors used in different modal sections and elements of the landing page to use the specified mint green color.
+```<select name="biggestChallenge" required>
               <option value="">-- Please select --</option>
               <option value="motivation">Staying motivated</option>
               <option value="time">Finding time</option>
@@ -956,16 +956,16 @@
         <form class="quiz-form" id="signupForm">
           <label for="signupName">Full Name:</label>
           <input type="text" id="signupName" placeholder="Enter your full name" required>
-          
+
           <label for="signupEmail">Email Address:</label>
           <input type="email" id="signupEmail" placeholder="your@email.com" required>
-          
+
           <label for="signupPassword">Create Password:</label>
           <input type="password" id="signupPassword" placeholder="Minimum 6 characters" required>
-          
+
           <label for="signupDob">Date of Birth:</label>
           <input type="date" id="signupDob" required>
-          
+
           <button type="button" onclick="createAccount()" class="btn-nav btn-submit" style="width: 100%; margin-top: 20px;">Create Account & Start Questionnaire</button>
         </form>
       </div>
@@ -992,7 +992,7 @@
           passwordField.remove();
         }
       }
-      
+
       document.getElementById('quizModal').style.display = 'block';
       document.body.style.overflow = 'hidden';
       updateProgress();
