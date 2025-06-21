@@ -184,6 +184,133 @@
       line-height: 1.6;
     }
 
+    .dashboard-preview {
+      background: #f8fffe;
+      border: 2px solid #e5f4e8;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .preview-header {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .preview-date {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+
+    .overall-score {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #A8E6CF;
+      line-height: 1;
+    }
+
+    .score-label {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-bottom: 16px;
+    }
+
+    .mini-scores {
+      display: flex;
+      justify-content: space-around;
+      gap: 12px;
+    }
+
+    .mini-score {
+      font-size: 0.8rem;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .ai-preview {
+      text-align: left;
+      position: relative;
+    }
+
+    .ai-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #A8E6CF;
+      color: #2d5a42;
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .ai-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .ai-message {
+      font-size: 0.85rem;
+      color: #374151;
+      line-height: 1.4;
+      margin-bottom: 12px;
+      font-style: italic;
+    }
+
+    .ai-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      background: #e5f4e8;
+      color: #2d5a42;
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-weight: 500;
+    }
+
+    .progress-preview {
+      text-align: center;
+    }
+
+    .progress-stats {
+      display: flex;
+      justify-content: space-around;
+      margin: 16px 0;
+    }
+
+    .stat {
+      font-size: 0.85rem;
+      color: #2d5a42;
+      font-weight: 600;
+    }
+
+    .progress-chart {
+      margin-top: 16px;
+    }
+
+    .chart-bars {
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      gap: 6px;
+      height: 60px;
+    }
+
+    .bar {
+      width: 12px;
+      background: linear-gradient(to top, #A8E6CF, #7ED3B2);
+      border-radius: 2px;
+      min-height: 8px;
+    }
+
     /* Daily Scores Section */
     .daily-scores {
       background: #f8f9fa;
@@ -617,30 +744,55 @@
 
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-image">
-          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop&crop=center" alt="Holistic health approach with sleep, nutrition, and wellness elements" style="width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 20px;">
+        <div class="dashboard-preview">
+          <div class="preview-header">Daily Check-in</div>
+          <div class="preview-date">Today</div>
+          <div class="overall-score">8.2</div>
+          <div class="score-label">Overall Score</div>
+          <div class="mini-scores">
+            <div class="mini-score">😴<br>9.1</div>
+            <div class="mini-score">🥗<br>7.8</div>
+            <div class="mini-score">🏃‍♀️<br>8.5</div>
+          </div>
         </div>
-        <span class="icon">🌟</span>
-        <h3>Holistic Approach</h3>
-        <p>We consider sleep, stress, hydration, movement, and nutrition together. Real fat loss happens when all factors work in harmony.</p>
+        <h3>Smart Daily Tracking</h3>
+        <p>Log your progress in under 2 minutes with intelligent scoring</p>
       </div>
 
       <div class="feature-card">
-        <div class="feature-image">
-          <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop&crop=center" alt="Sustainable lifestyle changes and long-term results" style="width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 20px;">
+        <div class="dashboard-preview ai-preview">
+          <div class="ai-badge">✨ New</div>
+          <div class="ai-icon">🤖</div>
+          <div class="ai-message">"Your sleep improved this week! This likely contributed to better hunger regulation. Consider maintaining your 7.5hr schedule."</div>
+          <div class="ai-tags">
+            <span class="tag">Sleep Quality</span>
+            <span class="tag">Hormones</span>
+          </div>
         </div>
-        <span class="icon">🔄</span>
-        <h3>Sustainable Results</h3>
-        <p>No quick fixes or fad diets. We focus on building habits that last, with honest feedback on what's working and what needs attention.</p>
+        <h3>Personalised AI Coaching</h3>
+        <p>Get tailored insights based on your unique patterns</p>
       </div>
 
       <div class="feature-card">
-        <div class="feature-image">
-          <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=300&fit=crop&crop=center" alt="Personalized AI insights and data analysis" style="width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 20px;">
+        <div class="dashboard-preview progress-preview">
+          <div class="preview-header">Progress Trends</div>
+          <div class="preview-date">Last 30 days</div>
+          <div class="progress-stats">
+            <div class="stat">↗️ +2.3kg lost</div>
+            <div class="stat">🔥 12 day streak</div>
+          </div>
+          <div class="progress-chart">
+            <div class="chart-bars">
+              <div class="bar" style="height: 40%;"></div>
+              <div class="bar" style="height: 60%;"></div>
+              <div class="bar" style="height: 80%;"></div>
+              <div class="bar" style="height: 70%;"></div>
+              <div class="bar" style="height: 90%;"></div>
+            </div>
+          </div>
         </div>
-        <span class="icon">🎯</span>
-        <h3>Personalised Insights</h3>
-        <p>Daily feedback tailored to your individual circumstances, including hormonal changes and life factors that affect your progress.</p>
+        <h3>Visual Progress Tracking</h3>
+        <p>See your journey with clear, motivating charts and trends</p>
       </div>
     </div>
   </section>
