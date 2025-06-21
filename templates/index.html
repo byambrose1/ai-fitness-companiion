@@ -17,6 +17,43 @@
       font-weight: 400;
     }
 
+    .logo-section {
+      background: linear-gradient(135deg, #f8fdfc 0%, #e6f7f4 100%);
+      padding: 40px 20px 20px;
+      text-align: center;
+      border-bottom: 1px solid #e6f7f4;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .logo-main {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1;
+    }
+
+    .logo-sub {
+      font-size: 0.9rem;
+      color: #2DD4BF;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
     header {
       background: #ffffff;
       padding: 60px 20px 80px;
@@ -263,6 +300,18 @@
       color: #1a1a1a;
       letter-spacing: -0.02em;
       line-height: 1.1;
+      text-align: center;
+    }
+
+    .title-line-1 {
+      display: block;
+      color: #1a1a1a;
+    }
+
+    .title-line-2 {
+      display: block;
+      color: #2DD4BF;
+      margin-top: 8px;
     }
 
     header p {
@@ -349,6 +398,11 @@
       line-height: 1.6;
     }
 
+    .section-subtitle .highlight {
+      color: #2DD4BF;
+      font-weight: 600;
+    }
+
     .features-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -384,6 +438,10 @@
       margin-bottom: 16px;
       color: #1a1a1a;
       font-weight: 600;
+    }
+
+    .feature-card h3 .accent {
+      color: #2DD4BF;
     }
 
     .feature-card p {
@@ -678,6 +736,19 @@
     }
 
     @media (max-width: 768px) {
+      .logo-container {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .logo-text {
+        text-align: center;
+      }
+      
+      .logo-main {
+        font-size: 1.5rem;
+      }
+      
       header h1 { font-size: 2.5rem; }
       section { padding: 60px 20px; }
       .features-grid { grid-template-columns: 1fr; gap: 32px; }
@@ -694,9 +765,29 @@
 </head>
 <body>
 
+  <!-- Logo Section -->
+  <div class="logo-section">
+    <div class="logo-container">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="40" r="38" fill="#2DD4BF" fill-opacity="0.1" stroke="#2DD4BF" stroke-width="4"/>
+        <path d="M25 40L35 50L55 30" stroke="#2DD4BF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="40" cy="25" r="3" fill="#2DD4BF"/>
+        <circle cx="25" cy="55" r="2" fill="#2DD4BF"/>
+        <circle cx="55" cy="55" r="2" fill="#2DD4BF"/>
+      </svg>
+      <div class="logo-text">
+        <span class="logo-main">FitnessCompanion</span>
+        <span class="logo-sub">AI-Powered Fat Loss</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Hero Section -->
   <header>
-    <h1>Fat Loss That Actually Makes Sense</h1>
+    <h1>
+      <span class="title-line-1">Fat Loss That Actually</span>
+      <span class="title-line-2">Makes Sense</span>
+    </h1>
     <p>Not sure where to start with your weight loss journey? Or frustrated because progress feels slow? Get daily personalised guidance that meets you where you are — with clear, honest feedback tailored to your hormones and lifestyle.</p>
     
     <!-- Feature Preview Graphics -->
@@ -807,22 +898,22 @@
   <!-- Why Different Section -->
   <section>
     <h2>Why Fitness Companion is Different</h2>
-    <p class="section-subtitle">Unlike calorie counters or generic fitness apps, we consider your whole life - including sleep, stress, hydration, and lifestyle factors that actually impact fat loss.</p>
+    <p class="section-subtitle">Unlike calorie counters or generic fitness apps, we consider your <span class="highlight">whole life</span> - including sleep, stress, hydration, and lifestyle factors that <span class="highlight">actually impact fat loss</span>.</p>
 
     <div class="features-grid">
       <div class="feature-card">
         <span class="icon">🎯</span>
-        <h3>Holistic Approach</h3>
+        <h3><span class="accent">Holistic</span> Approach</h3>
         <p>We consider sleep, stress, hydration, movement, and nutrition together. Real fat loss happens when all factors work in harmony.</p>
       </div>
       <div class="feature-card">
         <span class="icon">📈</span>
-        <h3>Sustainable Results</h3>
+        <h3><span class="accent">Sustainable</span> Results</h3>
         <p>No quick fixes or fad diets. We focus on building habits that last, with honest feedback on what's working and what needs attention.</p>
       </div>
       <div class="feature-card">
         <span class="icon">💡</span>
-        <h3>Personalised Insights</h3>
+        <h3><span class="accent">Personalised</span> Insights</h3>
         <p>Daily feedback tailored to your individual circumstances, including hormonal changes and life factors that affect your progress.</p>
       </div>
     </div>
@@ -834,17 +925,17 @@
     <div class="scores-grid">
       <div class="score-card">
         <span class="icon">😴</span>
-        <h3>Recovery Score</h3>
+        <h3><span class="accent">Recovery</span> Score</h3>
         <p>How well you're sleeping, managing stress, and allowing your body to recover.</p>
       </div>
       <div class="score-card">
         <span class="icon">🥗</span>
-        <h3>Nutrition Score</h3>
+        <h3><span class="accent">Nutrition</span> Score</h3>
         <p>Simple tracking of your eating patterns and hydration, with personalised tips.</p>
       </div>
       <div class="score-card">
         <span class="icon">🏃‍♀️</span>
-        <h3>Movement Score</h3>
+        <h3><span class="accent">Movement</span> Score</h3>
         <p>Track your activity levels and find the right balance for sustainable fat loss.</p>
       </div>
     </div>
@@ -856,17 +947,17 @@
     <div class="features-grid">
       <div class="feature-card">
         <span class="icon">⚡</span>
-        <h3>1. Quick Setup</h3>
+        <h3>1. <span class="accent">Quick</span> Setup</h3>
         <p>Answer a few personalisation questions to tailor your experience, including any individual considerations.</p>
       </div>
       <div class="feature-card">
         <span class="icon">📝</span>
-        <h3>2. Daily Check-ins</h3>
+        <h3>2. <span class="accent">Daily</span> Check-ins</h3>
         <p>Log your weight, sleep, stress, food, and movement in under 2 minutes. Perfect for busy lifestyles.</p>
       </div>
       <div class="feature-card">
         <span class="icon">🔍</span>
-        <h3>3. Get Honest Insights</h3>
+        <h3>3. Get <span class="accent">Honest</span> Insights</h3>
         <p>Receive practical, personalised feedback on what's working and what needs attention in your fat loss journey.</p>
       </div>
     </div>
