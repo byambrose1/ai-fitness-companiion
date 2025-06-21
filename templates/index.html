@@ -101,6 +101,26 @@
       color: white;
     }
 
+    .hero-badges {
+      margin-top: 40px;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: #f8f9fa;
+      border-radius: 20px;
+      color: #3B7A57;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
     /* Features Section */
     .features {
       background: #ffffff;
@@ -163,6 +183,188 @@
     .feature-card p {
       color: #6b7280;
       line-height: 1.6;
+    }
+
+    /* Daily Scores Section */
+    .daily-scores {
+      background: #f8f9fa;
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .daily-scores h2 {
+      font-size: 2.5rem;
+      margin-bottom: 50px;
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    .scores-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .score-card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-left: 4px solid #3B7A57;
+    }
+
+    .score-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 12px;
+      color: #3B7A57;
+      font-weight: 600;
+    }
+
+    /* How It Works Section */
+    .how-it-works {
+      background: #ffffff;
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .how-it-works h2 {
+      font-size: 2.5rem;
+      margin-bottom: 50px;
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 40px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .step-card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 16px;
+      border: 2px solid #e5e5e5;
+      position: relative;
+    }
+
+    .step-number {
+      background: #3B7A57;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin: 0 auto 20px;
+    }
+
+    .step-card h3 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    /* Problem/Solution Section */
+    .problem-solution {
+      background: #f8f9fa;
+      padding: 80px 20px;
+    }
+
+    .problem-solution .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .problem-solution h2 {
+      font-size: 2.5rem;
+      margin-bottom: 50px;
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+
+    .comparison-card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .frustrations {
+      border-left: 4px solid #e74c3c;
+    }
+
+    .solutions {
+      border-left: 4px solid #3B7A57;
+    }
+
+    .comparison-card h3 {
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .frustrations h3 {
+      color: #e74c3c;
+    }
+
+    .solutions h3 {
+      color: #3B7A57;
+    }
+
+    .comparison-list {
+      list-style: none;
+      text-align: left;
+    }
+
+    .comparison-list li {
+      padding: 8px 0;
+      font-size: 1rem;
+    }
+
+    /* Final CTA Section */
+    .final-cta {
+      background: #ffffff;
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .final-cta h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    .final-cta p {
+      font-size: 1.2rem;
+      color: #6b7280;
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-note {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #6b7280;
     }
 
     /* Modal styles */
@@ -372,6 +574,7 @@
       .cta-buttons { flex-direction: column; align-items: center; }
       .features { padding: 60px 20px; }
       .features-grid { grid-template-columns: 1fr; }
+      .comparison-grid { grid-template-columns: 1fr; }
       .modal-content { width: 95%; margin: 5% auto; }
       .modal-body { padding: 20px; }
       .modal-footer { padding: 20px; }
@@ -381,44 +584,144 @@
 <body>
   <!-- Hero Section -->
   <section class="hero">
-    <h1>AI Fitness Companion</h1>
-    <p class="subtitle">Fat Loss That Actually Makes Sense</p>
-    <p>Get daily personalised guidance that meets you where you are — with clear, honest feedback tailored to your hormones and lifestyle. For men and women ready to understand their bodies and achieve sustainable fat loss.</p>
+    <h1>Fat Loss That Actually Makes Sense</h1>
+    <p>Not sure where to start with your weight loss journey? Or frustrated because progress feels slow? Get daily personalised guidance that meets you where you are — with clear, honest feedback tailored to your hormones and lifestyle.</p>
 
     <div class="cta-buttons">
       <button onclick="openQuiz()" class="btn btn-primary">
-        🚀 Start Your Journey
+        🚀 Start Free Assessment
       </button>
       <button onclick="openLogin()" class="btn btn-secondary">
-        👤 I Already Have an Account
+        👤 Log In
       </button>
+    </div>
+
+    <div class="hero-badges">
+      <div class="badge">
+        <span>✅</span>
+        <span>No restrictive diets</span>
+      </div>
+      <div class="badge">
+        <span>🧬</span>
+        <span>Science-backed</span>
+      </div>
     </div>
   </section>
 
   <!-- Features Section -->
   <section class="features">
-    <h2>What Makes Us Different</h2>
-    <p class="features-subtitle">Hormone-aware, AI-powered, personalised daily insights that actually work for your body and lifestyle.</p>
+    <h2>Why Fitness Companion is Different</h2>
+    <p class="features-subtitle">Unlike calorie counters or generic fitness apps, we consider your whole life - including sleep, stress, hydration, and lifestyle factors that actually impact fat loss.</p>
 
     <div class="features-grid">
       <div class="feature-card">
-        <span class="icon">🧠</span>
-        <h3>Hormone-Aware Insights</h3>
-        <p>Personalised feedback that considers your menstrual cycle, stress levels, and individual hormonal patterns for more accurate progress tracking.</p>
+        <span class="icon">🌟</span>
+        <h3>Holistic Approach</h3>
+        <p>We consider sleep, stress, hydration, movement, and nutrition together. Real fat loss happens when all factors work in harmony.</p>
       </div>
 
       <div class="feature-card">
-        <span class="icon">📊</span>
-        <h3>Daily Smart Tracking</h3>
-        <p>Quick 2-minute daily logs covering sleep, stress, food, and movement with AI analysis of your patterns and progress.</p>
+        <span class="icon">🔄</span>
+        <h3>Sustainable Results</h3>
+        <p>No quick fixes or fad diets. We focus on building habits that last, with honest feedback on what's working and what needs attention.</p>
       </div>
 
       <div class="feature-card">
-        <span class="icon">💡</span>
-        <h3>Personalised AI Coaching</h3>
-        <p>Get answers to questions like "Why didn't I lose weight this week?" with supportive, science-based explanations tailored to you.</p>
+        <span class="icon">🎯</span>
+        <h3>Personalised Insights</h3>
+        <p>Daily feedback tailored to your individual circumstances, including hormonal changes and life factors that affect your progress.</p>
       </div>
     </div>
+  </section>
+
+  <!-- Daily Scores Section -->
+  <section class="daily-scores">
+    <h2>Your Daily Smart Scores</h2>
+
+    <div class="scores-grid">
+      <div class="score-card">
+        <h3>Recovery Score</h3>
+        <p>How well you're sleeping, managing stress, and allowing your body to recover.</p>
+      </div>
+
+      <div class="score-card">
+        <h3>Nutrition Score</h3>
+        <p>Simple tracking of your eating patterns and hydration, with personalised tips.</p>
+      </div>
+
+      <div class="score-card">
+        <h3>Movement Score</h3>
+        <p>Track your activity levels and find the right balance for sustainable fat loss.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works">
+    <h2>How It Works</h2>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3>Quick Setup</h3>
+        <p>Answer a few personalisation questions to tailor your experience, including any individual considerations.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3>Daily Check-ins</h3>
+        <p>Log your weight, sleep, stress, food, and movement in under 2 minutes. Perfect for busy lifestyles.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h3>Get Honest Insights</h3>
+        <p>Receive practical, personalised feedback on what's working and what needs attention in your fat loss journey.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem/Solution Section -->
+  <section class="problem-solution">
+    <div class="container">
+      <h2>Tired of Feeling Lost in Your Fat Loss Journey?</h2>
+
+      <div class="comparison-grid">
+        <div class="comparison-card frustrations">
+          <h3>Common Frustrations:</h3>
+          <ul class="comparison-list">
+            <li>❌ "I ate well this week but gained weight"</li>
+            <li>❌ "My hormones throw everything off track"</li>
+            <li>❌ "I don't know if I'm doing enough exercise"</li>
+            <li>❌ "Scale fluctuations make me want to give up"</li>
+          </ul>
+        </div>
+
+        <div class="comparison-card solutions">
+          <h3>With Fitness Companion:</h3>
+          <ul class="comparison-list">
+            <li>✅ Clear daily progress scores</li>
+            <li>✅ Personalised insights and support</li>
+            <li>✅ Honest feedback on what's really happening</li>
+            <li>✅ Sustainable, realistic approach to fat loss</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA Section -->
+  <section class="final-cta">
+    <h2>Ready to Finally Understand Your Progress?</h2>
+    <p>Join thousands of people who've found clarity in their fat loss journey with honest, personalised daily insights that actually work.</p>
+
+    <div class="cta-buttons">
+      <button onclick="openQuiz()" class="btn btn-primary">
+        🚀 Start Your Questionnaire Now
+      </button>
+    </div>
+
+    <p class="cta-note">No commitment • Cancel anytime • See results in your first week</p>
   </section>
 
   <!-- Questionnaire Modal -->
