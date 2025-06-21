@@ -1,0 +1,49 @@
+Build a clean, modern, and conversion-focused landing page for a fat-loss fitness companion web app designed equally for men, women, and hormonally diverse individuals. The app provides daily AI-powered personalised insights based on user data including hormones, sleep, stress, food intake, and activity levels. The design must use British English, a white background, and green accent colours.
+
+Page style and colour scheme:
+Background color: pure white (#FFFFFF)
+Accent/mint green: #D1F2EB
+Primary action/dark green: #3B7A57
+Font: modern sans-serif like Poppins, Inter, or Work Sans
+Clean layout, clear spacing, easy to read on desktop and mobile
+Top mini-header / notice bar (full width, above all content):
+Background: mint green (#D1F2EB)
+Text: dark green (#3B7A57)
+Content: “🔒 No credit card required — AI-powered, science-backed insights | UK-based support”
+Center aligned, small font, padded
+Hero section (two columns on desktop):
+Left column:
+
+Headline (H1):
+“Understand your body, finally lose fat — with daily support that adapts to you.”
+Subheadline (paragraph):
+“Get personalised feedback based on your hormones, habits, and health patterns — whether you're just getting started or stuck on the scales.”
+Call-to-action buttons stacked or side-by-side:
+Start Free Questionnaire — solid dark green (#3B7A57) background, white text, medium size, rounded corners, subtle hover darkening
+Sign Up — white background, dark green (#3B7A57) border and text, rounded corners, hover background changes to mint green (#D1F2EB)
+Log In — smaller text-only link style or subtle white button, with optional lock icon (🔐), placed below or next to the other buttons
+Below “Start Free Questionnaire” button:
+Small caption text: “No sign-up needed to begin”
+Right column:
+
+Show three dashboard screenshots stacked vertically or slightly overlapping
+Screenshots have rounded corners, subtle drop shadows, and a gentle hover effect (e.g., lift or glow)
+Size approx 300px wide, responsive for smaller screens
+Trust section below hero (optional but recommended):
+Three inline badges or icon-text pairs:
+“✅ Built by UK health professionals”
+“📊 Backed by data & behavioural science”
+“🧠 Supports all genders equally”
+Responsiveness & Accessibility:
+On mobile, stack hero columns vertically
+Buttons stack vertically with spacing
+Screenshots become slider or stacked images
+Use clear, large font sizes for readability
+Optimize images for fast loading
+Use British English spelling and tone throughout
+Additional instructions:
+Keep overall tone friendly, human, supportive, and professional
+Use consistent branding colours and fonts
+Ensure all text is editable and structured for SEO
+Include alt text on images for accessibility
+Ensure page loads quickly and works well on common browsers and devices
