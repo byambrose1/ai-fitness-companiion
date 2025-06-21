@@ -361,6 +361,7 @@
     <div class="cta-buttons">
       <a href="#" onclick="openQuiz()" class="btn btn-primary">Start Free Assessment</a>
       <a href="#" onclick="openLogin()" class="btn btn-secondary">Log In</a>
+      <a href="#" onclick="openSignUp()" class="btn btn-secondary">Sign Up</a>
     </div>
     <div class="trustpilot">
       <p>Free forever • No restrictive diets • Science-backed</p>
@@ -716,7 +717,32 @@
         <form class="quiz-form">
           <label for="loginEmail">Email address:</label>
           <input type="email" id="loginEmail" placeholder="your@email.com" required>
-          <button type="button" onclick="memberLogin()" class="btn-nav btn-submit" style="width: 100%; margin-top: 20px;">Access Dashboard</button>
+          <label for="loginPassword">Password:</label>
+          <input type="password" id="loginPassword" placeholder="Your password" required>
+          <button type="button" onclick="memberLogin()" class="btn-nav btn-submit" style="width: 100%; margin-top: 20px;">Log In</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sign Up Modal -->
+  <div id="signUpModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeSignUp()">&times;</span>
+      <div class="modal-header">
+        <h2>Create Your Account</h2>
+      </div>
+      <div class="modal-body">
+        <form class="quiz-form">
+          <label for="signUpName">First Name:</label>
+          <input type="text" id="signUpName" placeholder="Enter your first name" required>
+          <label for="signUpEmail">Email address:</label>
+          <input type="email" id="signUpEmail" placeholder="your@email.com" required>
+          <label for="signUpPassword">Password:</label>
+          <input type="password" id="signUpPassword" placeholder="Create a password (min 6 characters)" required>
+          <label for="signUpPasswordConfirm">Confirm Password:</label>
+          <input type="password" id="signUpPasswordConfirm" placeholder="Confirm your password" required>
+          <button type="button" onclick="createAccount()" class="btn-nav btn-submit" style="width: 100%; margin-top: 20px;">Create Account & Start Questionnaire</button>
         </form>
       </div>
     </div>
@@ -757,6 +783,16 @@
 
     function closeLogin() {
       document.getElementById('loginModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    function openSignUp() {
+      document.getElementById('signUpModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSignUp() {
+      document.getElementById('signUpModal').style.display = 'none';
       document.body.style.overflow = 'auto';
     }
 
@@ -824,23 +860,50 @@
 
     function memberLogin() {
       const email = document.getElementById('loginEmail').value;
-      if (email) {
-        window.location.href = `/dashboard?email=${encodeURIComponent(email)}`;
-      } else {
-        alert('Please enter your email address.');
+      const password = document.getElementById('loginPassword').value;
+      
+      if (!email || !password) {
+        alert('Please enter both email and password.');
+        return;
       }
+
+      // Login via backend
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('password', password);
+
+      fetch('/login', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          window.location.href = `/dashboard?email=${encodeURIComponent(email)}`;
+        } else {
+          alert(data.message || 'Login failed');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Login failed. Please try again.');
+      });
     }
 
     // Close modals when clicking outside
     window.onclick = function(event) {
       const quizModal = document.getElementById('quizModal');
       const loginModal = document.getElementById('loginModal');
+      const signUpModal = document.getElementById('signUpModal');
 
       if (event.target == quizModal) {
         closeQuiz();
       }
       if (event.target == loginModal) {
         closeLogin();
+      }
+      if (event.target == signUpModal) {
+        closeSignUp();
       }
     }
 
