@@ -1,71 +1,77 @@
+
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Fitness Companion - Fat Loss That Actually Makes Sense</title>
+  <title>AI Fitness Companion - Understand Your Body, Finally Lose Fat</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #ffffff;
+      background: #FFFFFF;
       color: #1a1a1a;
       line-height: 1.6;
       font-weight: 400;
     }
 
+    /* Mini Header */
+    .mini-header {
+      background: #D1F2EB;
+      color: #3B7A57;
+      text-align: center;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      width: 100%;
+    }
+
     /* Hero Section */
     .hero {
-      background: #ffffff;
+      background: #FFFFFF;
       padding: 80px 20px;
-      text-align: center;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
       align-items: center;
     }
 
-    .hero h1 {
-      font-size: 3.5rem;
-      font-weight: 700;
+    .hero-left h1 {
+      font-size: 3.2rem;
+      font-weight: 600;
       margin-bottom: 24px;
       color: #1a1a1a;
       letter-spacing: -0.02em;
       line-height: 1.1;
     }
 
-    .hero .subtitle {
-      font-size: 1.4rem;
-      color: #3B7A57;
-      font-weight: 600;
-      margin-bottom: 16px;
-    }
-
-    .hero p {
-      font-size: 1.2rem;
-      max-width: 700px;
-      margin: 0 auto 40px;
-      color: #1a1a1a;
-      font-weight: 400;
+    .hero-left p {
+      font-size: 1.25rem;
+      margin-bottom: 40px;
+      color: #4a5568;
       line-height: 1.5;
     }
 
     .cta-buttons {
-      margin-top: 30px;
       display: flex;
+      flex-direction: column;
       gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
+      margin-bottom: 12px;
     }
 
     .btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
-      padding: 18px 36px;
+      padding: 18px 32px;
       border-radius: 12px;
       text-decoration: none;
       font-weight: 600;
@@ -74,55 +80,209 @@
       border: 2px solid transparent;
       font-family: 'Inter', sans-serif;
       cursor: pointer;
+      text-align: center;
     }
 
     .btn-primary {
       background-color: #3B7A57;
       color: white;
-      box-shadow: 0 4px 12px rgba(59, 122, 87, 0.3);
+      border: 2px solid #3B7A57;
+      box-shadow: 0 4px 12px rgba(59, 122, 87, 0.2);
     }
 
     .btn-primary:hover {
       background-color: #2d5a42;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(59, 122, 87, 0.4);
+      border-color: #2d5a42;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(59, 122, 87, 0.3);
     }
 
     .btn-secondary {
-      background-color: #ffffff;
+      background-color: #FFFFFF;
       color: #3B7A57;
       border: 2px solid #3B7A57;
-      box-shadow: 0 2px 8px rgba(59, 122, 87, 0.15);
     }
 
     .btn-secondary:hover {
-      background-color: #3B7A57;
-      color: white;
+      background-color: #D1F2EB;
+      border-color: #3B7A57;
     }
 
-    .hero-badges {
-      margin-top: 40px;
+    .btn-tertiary {
+      background: none;
+      color: #3B7A57;
+      border: none;
+      font-size: 1rem;
+      padding: 12px 0;
+      text-decoration: underline;
+    }
+
+    .btn-tertiary:hover {
+      color: #2d5a42;
+    }
+
+    .cta-note {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-top: 8px;
+    }
+
+    /* Hero Right - Screenshots */
+    .hero-right {
+      position: relative;
+    }
+
+    .dashboard-screenshots {
       display: flex;
+      flex-direction: column;
       gap: 20px;
-      justify-content: center;
-      flex-wrap: wrap;
     }
 
-    .badge {
+    .screenshot {
+      background: #f8f9fa;
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .screenshot:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(59, 122, 87, 0.15);
+    }
+
+    .screenshot-header {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .screenshot-content {
+      text-align: center;
+    }
+
+    .daily-score {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #3B7A57;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .score-label {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-bottom: 16px;
+    }
+
+    .mini-scores {
+      display: flex;
+      justify-content: space-around;
+      gap: 16px;
+    }
+
+    .mini-score {
+      font-size: 0.8rem;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .ai-screenshot {
+      text-align: left;
+      position: relative;
+    }
+
+    .ai-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #D1F2EB;
+      color: #3B7A57;
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .ai-icon {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+    }
+
+    .ai-message {
+      font-size: 0.9rem;
+      color: #374151;
+      line-height: 1.4;
+      font-style: italic;
+      margin-bottom: 12px;
+    }
+
+    .progress-screenshot {
+      text-align: center;
+    }
+
+    .progress-stats {
+      display: flex;
+      justify-content: space-around;
+      margin: 16px 0;
+      gap: 16px;
+    }
+
+    .stat {
+      font-size: 0.9rem;
+      color: #3B7A57;
+      font-weight: 600;
+    }
+
+    .progress-chart {
+      margin-top: 16px;
+    }
+
+    .chart-bars {
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      gap: 6px;
+      height: 50px;
+    }
+
+    .bar {
+      width: 12px;
+      background: linear-gradient(to top, #3B7A57, #D1F2EB);
+      border-radius: 2px;
+      min-height: 8px;
+    }
+
+    /* Trust Section */
+    .trust-section {
+      background: #FFFFFF;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .trust-badges {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .trust-badge {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 16px;
-      background: #f8f9fa;
-      border-radius: 20px;
-      color: #A8E6CF;
+      color: #3B7A57;
       font-weight: 500;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
     }
 
     /* Features Section */
     .features {
-      background: #ffffff;
+      background: #f8f9fa;
       padding: 80px 20px;
       text-align: center;
     }
@@ -152,18 +312,18 @@
     }
 
     .feature-card {
-      background: #ffffff;
+      background: #FFFFFF;
       padding: 30px;
       border-radius: 16px;
-      border: 2px solid #e5e5e5;
+      border: 2px solid #e5e7eb;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
     .feature-card:hover {
       transform: translateY(-4px);
-      border-color: #A8E6CF;
-      box-shadow: 0 8px 24px rgba(168, 230, 207, 0.15);
+      border-color: #D1F2EB;
+      box-shadow: 0 8px 24px rgba(59, 122, 87, 0.15);
     }
 
     .feature-card .icon {
@@ -175,7 +335,7 @@
     .feature-card h3 {
       font-size: 1.4rem;
       margin-bottom: 12px;
-      color: #A8E6CF;
+      color: #3B7A57;
       font-weight: 600;
     }
 
@@ -184,173 +344,9 @@
       line-height: 1.6;
     }
 
-    .dashboard-preview {
-      background: #f8fffe;
-      border: 2px solid #e5f4e8;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 20px;
-      text-align: center;
-      position: relative;
-    }
-
-    .preview-header {
-      font-size: 0.9rem;
-      color: #6b7280;
-      margin-bottom: 4px;
-    }
-
-    .preview-date {
-      font-size: 0.8rem;
-      color: #9ca3af;
-      margin-bottom: 12px;
-    }
-
-    .overall-score {
-      font-size: 3rem;
-      font-weight: 700;
-      color: #A8E6CF;
-      line-height: 1;
-    }
-
-    .score-label {
-      font-size: 0.9rem;
-      color: #6b7280;
-      margin-bottom: 16px;
-    }
-
-    .mini-scores {
-      display: flex;
-      justify-content: space-around;
-      gap: 12px;
-    }
-
-    .mini-score {
-      font-size: 0.8rem;
-      color: #6b7280;
-      text-align: center;
-    }
-
-    .ai-preview {
-      text-align: left;
-      position: relative;
-    }
-
-    .ai-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: #A8E6CF;
-      color: #2d5a42;
-      font-size: 0.7rem;
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-weight: 600;
-    }
-
-    .ai-icon {
-      font-size: 2rem;
-      margin-bottom: 12px;
-    }
-
-    .ai-message {
-      font-size: 0.85rem;
-      color: #374151;
-      line-height: 1.4;
-      margin-bottom: 12px;
-      font-style: italic;
-    }
-
-    .ai-tags {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .tag {
-      background: #e5f4e8;
-      color: #2d5a42;
-      font-size: 0.7rem;
-      padding: 4px 8px;
-      border-radius: 8px;
-      font-weight: 500;
-    }
-
-    .progress-preview {
-      text-align: center;
-    }
-
-    .progress-stats {
-      display: flex;
-      justify-content: space-around;
-      margin: 16px 0;
-    }
-
-    .stat {
-      font-size: 0.85rem;
-      color: #2d5a42;
-      font-weight: 600;
-    }
-
-    .progress-chart {
-      margin-top: 16px;
-    }
-
-    .chart-bars {
-      display: flex;
-      align-items: end;
-      justify-content: center;
-      gap: 6px;
-      height: 60px;
-    }
-
-    .bar {
-      width: 12px;
-      background: linear-gradient(to top, #A8E6CF, #7ED3B2);
-      border-radius: 2px;
-      min-height: 8px;
-    }
-
-    /* Daily Scores Section */
-    .daily-scores {
-      background: #f8f9fa;
-      padding: 80px 20px;
-      text-align: center;
-    }
-
-    .daily-scores h2 {
-      font-size: 2.5rem;
-      margin-bottom: 50px;
-      color: #1a1a1a;
-      font-weight: 600;
-    }
-
-    .scores-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 30px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .score-card {
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      border-left: 4px solid #3B7A57;
-    }
-
-    .score-card h3 {
-      font-size: 1.3rem;
-      margin-bottom: 12px;
-      color: #3B7A57;
-      font-weight: 600;
-    }
-
-    /* How It Works Section */
+    /* How It Works */
     .how-it-works {
-      background: #ffffff;
+      background: #FFFFFF;
       padding: 80px 20px;
       text-align: center;
     }
@@ -371,10 +367,10 @@
     }
 
     .step-card {
-      background: #ffffff;
+      background: #FFFFFF;
       padding: 30px;
       border-radius: 16px;
-      border: 2px solid #e5e5e5;
+      border: 2px solid #e5e7eb;
       position: relative;
     }
 
@@ -399,74 +395,9 @@
       font-weight: 600;
     }
 
-    /* Problem/Solution Section */
-    .problem-solution {
-      background: #f8f9fa;
-      padding: 80px 20px;
-    }
-
-    .problem-solution .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .problem-solution h2 {
-      font-size: 2.5rem;
-      margin-bottom: 50px;
-      color: #1a1a1a;
-      font-weight: 600;
-    }
-
-    .comparison-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-      margin-bottom: 50px;
-    }
-
-    .comparison-card {
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .frustrations {
-      border-left: 4px solid #e74c3c;
-    }
-
-    .solutions {
-      border-left: 4px solid #3B7A57;
-    }
-
-    .comparison-card h3 {
-      margin-bottom: 20px;
-      font-size: 1.3rem;
-      font-weight: 600;
-    }
-
-    .frustrations h3 {
-      color: #e74c3c;
-    }
-
-    .solutions h3 {
-      color: #3B7A57;
-    }
-
-    .comparison-list {
-      list-style: none;
-      text-align: left;
-    }
-
-    .comparison-list li {
-      padding: 8px 0;
-      font-size: 1rem;
-    }
-
-    /* Final CTA Section */
+    /* Final CTA */
     .final-cta {
-      background: #ffffff;
+      background: #D1F2EB;
       padding: 80px 20px;
       text-align: center;
     }
@@ -480,14 +411,14 @@
 
     .final-cta p {
       font-size: 1.2rem;
-      color: #6b7280;
+      color: #4a5568;
       margin-bottom: 40px;
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
     }
 
-    .cta-note {
+    .final-cta-note {
       margin-top: 20px;
       font-size: 0.9rem;
       color: #6b7280;
@@ -507,7 +438,7 @@
     }
 
     .modal-content {
-      background-color: #ffffff;
+      background-color: #FFFFFF;
       margin: 2% auto;
       padding: 0;
       border-radius: 20px;
@@ -523,7 +454,7 @@
       background: #f8f9fa;
       padding: 30px;
       text-align: center;
-      border-bottom: 1px solid #e5e5e5;
+      border-bottom: 1px solid #e5e7eb;
     }
 
     .modal-header h2 {
@@ -536,7 +467,7 @@
     .progress-bar {
       width: 100%;
       height: 8px;
-      background: #ffffff;
+      background: #FFFFFF;
       border-radius: 4px;
       margin-top: 20px;
       overflow: hidden;
@@ -567,25 +498,25 @@
       display: block;
       margin: 20px 0 8px 0;
       font-weight: 600;
-      color: #A8E6CF;
+      color: #3B7A57;
       font-size: 1rem;
     }
 
     .quiz-form input, .quiz-form select, .quiz-form textarea {
       width: 100%;
       padding: 16px;
-      border: 2px solid #e5e5e5;
+      border: 2px solid #e5e7eb;
       border-radius: 12px;
       font-size: 16px;
       font-family: 'Inter', sans-serif;
       transition: border-color 0.2s ease;
-      background: #ffffff;
+      background: #FFFFFF;
     }
 
     .quiz-form input:focus, .quiz-form select:focus, .quiz-form textarea:focus {
       outline: none;
-      border-color: #A8E6CF;
-      box-shadow: 0 0 0 4px rgba(168, 230, 207, 0.1);
+      border-color: #3B7A57;
+      box-shadow: 0 0 0 4px rgba(59, 122, 87, 0.1);
     }
 
     .checkbox-group {
@@ -600,7 +531,7 @@
       align-items: center;
       gap: 8px;
       padding: 12px;
-      border: 2px solid #e5e5e5;
+      border: 2px solid #e5e7eb;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -608,7 +539,7 @@
 
     .checkbox-item:hover {
       border-color: #3B7A57;
-      background: #f8fffe;
+      background: #D1F2EB;
     }
 
     .checkbox-item input[type="checkbox"] {
@@ -619,7 +550,7 @@
     .modal-footer {
       padding: 30px;
       background: #f8f9fa;
-      border-top: 1px solid #e5e5e5;
+      border-top: 1px solid #e5e7eb;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -642,7 +573,7 @@
     }
 
     .btn-back:hover {
-      background: #e5e5e5;
+      background: #e5e7eb;
     }
 
     .btn-next {
@@ -694,127 +625,159 @@
       color: #3B7A57;
     }
 
+    /* Responsive Design */
     @media (max-width: 768px) {
-      .hero h1 { font-size: 2.5rem; }
-      .hero p { font-size: 1.1rem; }
-      .cta-buttons { flex-direction: column; align-items: center; }
-      .features { padding: 60px 20px; }
-      .features-grid { grid-template-columns: 1fr; }
-      .comparison-grid { grid-template-columns: 1fr; }
-      .modal-content { width: 95%; margin: 5% auto; }
-      .modal-body { padding: 20px; }
-      .modal-footer { padding: 20px; }
+      .hero-container {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        text-align: center;
+      }
+
+      .hero-left h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero-left p {
+        font-size: 1.1rem;
+      }
+
+      .trust-badges {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .features-grid,
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-content {
+        width: 95%;
+        margin: 5% auto;
+      }
+
+      .modal-body {
+        padding: 20px;
+      }
+
+      .modal-footer {
+        padding: 20px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Mini Header -->
+  <div class="mini-header">
+    🔒 No credit card required — AI-powered, science-backed insights | UK-based support
+  </div>
+
   <!-- Hero Section -->
   <section class="hero">
-    <h1>Fat Loss That Actually Makes Sense</h1>
-    <p>Not sure where to start with your weight loss journey? Or frustrated because progress feels slow? Get daily personalised guidance that meets you where you are — with clear, honest feedback tailored to your hormones and lifestyle.</p>
-
-    <div class="cta-buttons">
-      <button onclick="openQuiz()" class="btn btn-primary">
-        🚀 Free Questionnaire
-      </button>
-      <button onclick="openLogin()" class="btn btn-secondary">
-        👤 Log In
-      </button>
-      <button onclick="openSignup()" class="btn btn-secondary">
-        📝 Sign Up
-      </button>
-    </div>
-
-    <div class="hero-badges">
-      <div class="badge">
-        <span>✅</span>
-        <span>No restrictive diets</span>
+    <div class="hero-container">
+      <div class="hero-left">
+        <h1>Understand your body, finally lose fat — with daily support that adapts to you.</h1>
+        <p>Get personalised feedback based on your hormones, habits, and health patterns — whether you're just getting started or stuck on the scales.</p>
+        
+        <div class="cta-buttons">
+          <button onclick="openQuiz()" class="btn btn-primary">
+            🚀 Start Free Questionnaire
+          </button>
+          <button onclick="openSignup()" class="btn btn-secondary">
+            📝 Sign Up
+          </button>
+          <button onclick="openLogin()" class="btn btn-tertiary">
+            🔐 Log In
+          </button>
+        </div>
+        
+        <p class="cta-note">No sign-up needed to begin</p>
       </div>
-      <div class="badge">
-        <span>🧬</span>
-        <span>Science-backed</span>
+
+      <div class="hero-right">
+        <div class="dashboard-screenshots">
+          <div class="screenshot">
+            <div class="screenshot-header">Daily Check-in</div>
+            <div class="screenshot-content">
+              <div class="daily-score">8.2</div>
+              <div class="score-label">Overall Score</div>
+              <div class="mini-scores">
+                <div class="mini-score">😴<br>9.1</div>
+                <div class="mini-score">🥗<br>7.8</div>
+                <div class="mini-score">🏃‍♀️<br>8.5</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screenshot ai-screenshot">
+            <div class="ai-badge">✨ New</div>
+            <div class="screenshot-content">
+              <div class="ai-icon">🤖</div>
+              <div class="ai-message">"Your sleep improved this week! This likely contributed to better hunger regulation. Consider maintaining your 7.5hr schedule."</div>
+            </div>
+          </div>
+
+          <div class="screenshot progress-screenshot">
+            <div class="screenshot-header">Progress Trends</div>
+            <div class="progress-stats">
+              <div class="stat">↗️ +2.3kg lost</div>
+              <div class="stat">🔥 12 day streak</div>
+            </div>
+            <div class="progress-chart">
+              <div class="chart-bars">
+                <div class="bar" style="height: 40%;"></div>
+                <div class="bar" style="height: 60%;"></div>
+                <div class="bar" style="height: 80%;"></div>
+                <div class="bar" style="height: 70%;"></div>
+                <div class="bar" style="height: 90%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust Section -->
+  <section class="trust-section">
+    <div class="trust-badges">
+      <div class="trust-badge">
+        <span>✅</span>
+        <span>Built by UK health professionals</span>
+      </div>
+      <div class="trust-badge">
+        <span>📊</span>
+        <span>Backed by data & behavioural science</span>
+      </div>
+      <div class="trust-badge">
+        <span>🧠</span>
+        <span>Supports all genders equally</span>
       </div>
     </div>
   </section>
 
   <!-- Features Section -->
   <section class="features">
-    <h2>Why Fitness Companion is Different</h2>
+    <h2>Why Our Approach Actually Works</h2>
     <p class="features-subtitle">Unlike calorie counters or generic fitness apps, we consider your whole life - including sleep, stress, hydration, and lifestyle factors that actually impact fat loss.</p>
 
     <div class="features-grid">
       <div class="feature-card">
-        <div class="dashboard-preview">
-          <div class="preview-header">Daily Check-in</div>
-          <div class="preview-date">Today</div>
-          <div class="overall-score">8.2</div>
-          <div class="score-label">Overall Score</div>
-          <div class="mini-scores">
-            <div class="mini-score">😴<br>9.1</div>
-            <div class="mini-score">🥗<br>7.8</div>
-            <div class="mini-score">🏃‍♀️<br>8.5</div>
-          </div>
-        </div>
-        <h3>Smart Daily Tracking</h3>
-        <p>Log your progress in under 2 minutes with intelligent scoring</p>
+        <span class="icon">🎯</span>
+        <h3>Personalised Daily Insights</h3>
+        <p>Get tailored feedback based on your unique patterns, hormones, and lifestyle factors that actually affect your progress.</p>
       </div>
 
       <div class="feature-card">
-        <div class="dashboard-preview ai-preview">
-          <div class="ai-badge">✨ New</div>
-          <div class="ai-icon">🤖</div>
-          <div class="ai-message">"Your sleep improved this week! This likely contributed to better hunger regulation. Consider maintaining your 7.5hr schedule."</div>
-          <div class="ai-tags">
-            <span class="tag">Sleep Quality</span>
-            <span class="tag">Hormones</span>
-          </div>
-        </div>
-        <h3>Personalised AI Coaching</h3>
-        <p>Get tailored insights based on your unique patterns</p>
+        <span class="icon">🧬</span>
+        <h3>Hormone-Aware Support</h3>
+        <p>Whether you're dealing with periods, menopause, or other hormonal factors, our AI adapts recommendations to your body's needs.</p>
       </div>
 
       <div class="feature-card">
-        <div class="dashboard-preview progress-preview">
-          <div class="preview-header">Progress Trends</div>
-          <div class="preview-date">Last 30 days</div>
-          <div class="progress-stats">
-            <div class="stat">↗️ +2.3kg lost</div>
-            <div class="stat">🔥 12 day streak</div>
-          </div>
-          <div class="progress-chart">
-            <div class="chart-bars">
-              <div class="bar" style="height: 40%;"></div>
-              <div class="bar" style="height: 60%;"></div>
-              <div class="bar" style="height: 80%;"></div>
-              <div class="bar" style="height: 70%;"></div>
-              <div class="bar" style="height: 90%;"></div>
-            </div>
-          </div>
-        </div>
-        <h3>Visual Progress Tracking</h3>
-        <p>See your journey with clear, motivating charts and trends</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Daily Scores Section -->
-  <section class="daily-scores">
-    <h2>Your Daily Smart Scores</h2>
-
-    <div class="scores-grid">
-      <div class="score-card">
-        <h3>Recovery Score</h3>
-        <p>How well you're sleeping, managing stress, and allowing your body to recover.</p>
-      </div>
-
-      <div class="score-card">
-        <h3>Nutrition Score</h3>
-        <p>Simple tracking of your eating patterns and hydration, with personalised tips.</p>
-      </div>
-
-      <div class="score-card">
-        <h3>Movement Score</h3>
-        <p>Track your activity levels and find the right balance for sustainable fat loss.</p>
+        <span class="icon">📈</span>
+        <h3>Progress That Makes Sense</h3>
+        <p>Track meaningful patterns beyond just weight - see how sleep, stress, and habits connect to your fat loss journey.</p>
       </div>
     </div>
   </section>
@@ -844,35 +807,6 @@
     </div>
   </section>
 
-  <!-- Problem/Solution Section -->
-  <section class="problem-solution">
-    <div class="container">
-      <h2>Tired of Feeling Lost in Your Fat Loss Journey?</h2>
-
-      <div class="comparison-grid">
-        <div class="comparison-card frustrations">
-          <h3>Common Frustrations:</h3>
-          <ul class="comparison-list">
-            <li>❌ "I ate well this week but gained weight"</li>
-            <li>❌ "My hormones throw everything off track"</li>
-            <li>❌ "I don't know if I'm doing enough exercise"</li>
-            <li>❌ "Scale fluctuations make me want to give up"</li>
-          </ul>
-        </div>
-
-        <div class="comparison-card solutions">
-          <h3>With Fitness Companion:</h3>
-          <ul class="comparison-list">
-            <li>✅ Clear daily progress scores</li>
-            <li>✅ Personalised insights and support</li>
-            <li>✅ Honest feedback on what's really happening</li>
-            <li>✅ Sustainable, realistic approach to fat loss</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Final CTA Section -->
   <section class="final-cta">
     <h2>Ready to Finally Understand Your Progress?</h2>
@@ -880,11 +814,11 @@
 
     <div class="cta-buttons">
       <button onclick="openQuiz()" class="btn btn-primary">
-        🚀 Start Your Questionnaire Now
+        🚀 Start Your Free Questionnaire Now
       </button>
     </div>
 
-    <p class="cta-note">No commitment • Cancel anytime • See results in your first week</p>
+    <p class="final-cta-note">No commitment • Cancel anytime • See results in your first week</p>
   </section>
 
   <!-- Questionnaire Modal -->
@@ -1048,7 +982,7 @@
 
             <label for="biggestChallenge">What's your biggest challenge with fat loss?</label>
             <select name="biggestChallenge" required>
-<option value="">-- Please select --</option>
+              <option value="">-- Please select --</option>
               <option value="motivation">Staying motivated</option>
               <option value="time">Finding time</option>
               <option value="cravings">Food cravings</option>
@@ -1144,9 +1078,7 @@
     };
 
     function openQuiz() {
-      // Check if user is coming from signup flow
       if (!window.isFromSignup) {
-        // Pre-clear any password field since this is questionnaire-only flow
         const passwordField = document.getElementById('password');
         if (passwordField) {
           passwordField.remove();
@@ -1264,7 +1196,6 @@
         }
       }
 
-      // Age validation on step 1
       if (currentStep === 1) {
         const dob = document.getElementById('dob').value;
         if (dob) {
@@ -1353,7 +1284,6 @@
         return;
       }
 
-      // Age validation
       const birthDate = new Date(dob);
       const today = new Date();
       const age = today.getFullYear() - birthDate.getFullYear() - 
@@ -1378,13 +1308,10 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          // Close signup modal and open questionnaire
           closeSignup();
-          // Pre-fill questionnaire with signup data
           document.getElementById('name').value = name;
           document.getElementById('email').value = email;
           document.getElementById('dob').value = dob;
-          // Set flag that user came from signup
           window.isFromSignup = true;
           window.signupEmail = email;
           openQuiz();
@@ -1398,7 +1325,6 @@
       });
     }
 
-    // Close modals when clicking outside
     window.onclick = function(event) {
       const quizModal = document.getElementById('quizModal');
       const loginModal = document.getElementById('loginModal');
@@ -1415,7 +1341,6 @@
       }
     }
 
-    // Keyboard navigation
     document.addEventListener('keydown', function(e) {
       if (document.getElementById('quizModal').style.display === 'block') {
         if (e.key === 'Enter' && currentStep < totalSteps) {
@@ -1425,7 +1350,6 @@
       }
     });
 
-    // Initialize range displays
     document.addEventListener('DOMContentLoaded', function() {
       updateRangeDisplay('motivationLevel', 5);
       updateRangeDisplay('stressLevel', 5);
