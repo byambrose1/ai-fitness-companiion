@@ -83,69 +83,193 @@ def login_user():
     session['user_email'] = email
     return jsonify({"success": True, "message": "Login successful"})
 
+@app.route("/questionnaire-complete", methods=["POST"])
+def questionnaire_complete():
+    """Handle questionnaire completion and prompt for password if needed"""
+    data = request.form
+    email = data.get("email")
+    
+    # Check if user already exists (came from signup flow)
+    if email in users_data:
+        # User came from signup, just update their profile with questionnaire data
+        existing_user = users_data[email]
+        existing_user['profile_data'].update(dict(data))
+        existing_user['previous_attempts'] = request.form.getlist("previousAttempts")
+        
+        # Redirect to success page
+        return redirect_to_profile_complete(existing_user)
+    else:
+        # User came from questionnaire flow, need to create password
+        # Store questionnaire data temporarily and show password creation
+        questionnaire_data = {
+            'form_data': dict(data),
+            'previous_attempts': request.form.getlist("previousAttempts"),
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        # Store temporarily (in production, use proper session management)
+        session['questionnaire_data'] = questionnaire_data
+        session['questionnaire_email'] = email
+        
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html lang="en-GB">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Create Your Password</title>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+            <style>
+                * { box-sizing: border-box; }
+                body { 
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                    margin: 0; padding: 20px;
+                    background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); 
+                    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+                }
+                .container { 
+                    background: white; padding: 40px; border-radius: 20px; 
+                    max-width: 500px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                }
+                h1 { color: #3B7A57; text-align: center; margin-bottom: 20px; font-size: 2rem; }
+                p { text-align: center; color: #666; margin-bottom: 30px; }
+                label { display: block; margin: 15px 0 8px 0; font-weight: 600; color: #3B7A57; }
+                input { 
+                    width: 100%; padding: 16px; border: 2px solid #e5e5e5; 
+                    border-radius: 12px; font-size: 16px; font-family: 'Inter', sans-serif;
+                }
+                input:focus { outline: none; border-color: #3B7A57; }
+                .button { 
+                    background: #3B7A57; color: white; padding: 16px 32px; 
+                    border: none; border-radius: 12px; font-size: 16px; font-weight: 600; 
+                    cursor: pointer; width: 100%; margin-top: 20px;
+                }
+                .button:hover { background: #2d5a42; }
+                .success-icon { font-size: 3rem; text-align: center; margin-bottom: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="success-icon">🎉</div>
+                <h1>Almost There!</h1>
+                <p>Your questionnaire is complete. Create a password to finish setting up your account and access your personalized dashboard.</p>
+                
+                <form method="POST" action="/complete-signup">
+                    <label for="password">Create Your Password:</label>
+                    <input type="password" name="password" id="password" placeholder="Minimum 6 characters" required>
+                    
+                    <label for="confirmPassword">Confirm Password:</label>
+                    <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Re-enter your password" required>
+                    
+                    <button type="submit" class="button">🚀 Complete Setup & Go to Dashboard</button>
+                </form>
+            </div>
+        </body>
+        </html>
+        """)
+
+@app.route("/complete-signup", methods=["POST"])
+def complete_signup():
+    """Complete signup after questionnaire for password-less users"""
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirmPassword')
+    
+    if not password or len(password) < 6:
+        return "Password must be at least 6 characters", 400
+    
+    if password != confirm_password:
+        return "Passwords do not match", 400
+    
+    # Get questionnaire data from session
+    questionnaire_data = session.get('questionnaire_data')
+    email = session.get('questionnaire_email')
+    
+    if not questionnaire_data or not email:
+        return "Session expired. Please start over.", 400
+    
+    # Calculate age from stored form data
+    dob = questionnaire_data['form_data'].get("dob")
+    if dob:
+        birth_date = datetime.strptime(dob, "%Y-%m-%d")
+        today = datetime.today()
+        age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+    else:
+        age = "Not provided"
+    
+    # Create user profile
+    user_profile = {
+        'name': questionnaire_data['form_data'].get("name"),
+        'email': email,
+        'password': password,  # In production, hash this
+        'dob': dob,
+        'age': age,
+        'created_at': datetime.now().isoformat(),
+        'subscription_tier': 'free',
+        'subscription_status': 'active',
+        'profile_data': questionnaire_data['form_data'],
+        'previous_attempts': questionnaire_data['previous_attempts'],
+        'daily_logs': [],
+        'weekly_checkins': []
+    }
+    
+    # Save user
+    users_data[email] = user_profile
+    
+    # Clear session data
+    session.pop('questionnaire_data', None)
+    session.pop('questionnaire_email', None)
+    
+    return redirect_to_profile_complete(user_profile)
+
+def redirect_to_profile_complete(user_profile):
+    """Generate the profile complete page"""
+    data = user_profile['profile_data']
+    previous_attempts = user_profile.get('previous_attempts', [])
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Setup Complete!</title>
+        <style>
+            body { 
+                font-family: 'Inter', sans-serif; text-align: center; padding: 20px; 
+                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
+                display: flex; align-items: center; justify-content: center;
+            }
+            .container { 
+                max-width: 600px; margin: 0 auto; background: white; 
+                padding: 40px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            }
+            .success-icon { font-size: 4rem; margin-bottom: 20px; }
+            h1 { color: #3B7A57; margin-bottom: 20px; font-size: 2.5rem; }
+            .message { color: #666; font-size: 1.2rem; margin-bottom: 30px; }
+            .button { 
+                background: #3B7A57; color: white; padding: 16px 32px; 
+                text-decoration: none; border-radius: 12px; font-weight: 600; 
+                font-size: 1.1rem; display: inline-block; margin: 10px;
+            }
+            .button:hover { background: #2d5a42; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="success-icon">🎉</div>
+            <h1>Welcome to Your Fitness Journey!</h1>
+            <p class="message">Your account has been created successfully and your personalized profile is ready. Let's start building healthy habits together!</p>
+            
+            <a href="/dashboard?email={{ email }}" class="button">🏠 Go to Your Dashboard</a>
+            <a href="/daily-log?email={{ email }}" class="button">📝 Start Daily Log</a>
+        </div>
+    </body>
+    </html>
+    """, email=user_profile['email'])
+
 @app.route("/", methods=["GET", "POST"])
 def form():
     if request.method == "POST":
-        data = request.form
-
-        # Calculate age from date of birth
-        dob = data.get("dob")
-        if dob:
-            birth_date = datetime.strptime(dob, "%Y-%m-%d")
-            today = datetime.today()
-            age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
-        else:
-            age = "Not provided"
-
-        # Age validation
-        if isinstance(age, int) and age < 18:
-            return render_template_string("""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Age Restriction</title>
-                <style>
-                    body { font-family: 'Inter', sans-serif; text-align: center; padding: 50px; background: #D1F2EB; }
-                    .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-                    .error { color: #e74c3c; font-size: 18px; margin: 20px 0; }
-                    .btn { background: #3B7A57; color: white; padding: 12px 24px; text-decoration: none; border-radius: 10px; font-weight: 600; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h2>⚠️ Age Restriction</h2>
-                    <div class="error">You must be 18 or older to use this service.</div>
-                    <a href="/" class="btn">← Go Back</a>
-                </div>
-            </body>
-            </html>
-            """)
-
-        # Store user data
-        email = data.get("email")
-        name = data.get("name")
-        password = data.get("password")
-
-        # Process previous attempts checkboxes
-        previous_attempts = request.form.getlist("previousAttempts")
-
-        user_profile = {
-            'name': name,
-            'email': email,
-            'password': password,  # In production, hash this
-            'dob': dob,
-            'age': age,
-            'created_at': datetime.now().isoformat(),
-            'subscription_tier': 'free',
-            'subscription_status': 'active',
-            'profile_data': dict(data),
-            'previous_attempts': previous_attempts,
-            'daily_logs': [],
-            'weekly_checkins': []
-        }
-
-        # Simple storage by email (replace with proper user management)
-        users_data[email] = user_profile
+        # This now redirects to questionnaire_complete for processing
+        return questionnaire_complete()
 
         # Extract all form data for display
         gender = data.get("gender")
@@ -417,6 +541,10 @@ def dashboard():
         return "User not found. Please complete your profile first."
 
     user = users_data[email]
+    
+    # Check if user has completed questionnaire
+    if not user.get('profile_data'):
+        return "Please complete your questionnaire first. <a href='/'>Start here</a>"
     return render_template_string("""
     <!DOCTYPE html>
     <html lang="en-GB">
