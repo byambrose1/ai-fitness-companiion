@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import json
 import os
 import openai
+import stripe
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-this'  # Change this in production
@@ -11,8 +12,29 @@ app.secret_key = 'your-secret-key-change-this'  # Change this in production
 # OpenAI setup - you'll need to add your API key via Secrets
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
+# Stripe setup - you'll need to add your keys via Secrets
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+stripe_publishable_key = os.getenv('STRIPE_PUBLISHABLE_KEY')
+
 # Simple in-memory storage (replace with database in production)
 users_data = {}
+
+# Subscription tiers
+SUBSCRIPTION_TIERS = {
+    'free': {
+        'name': 'Free',
+        'price': 0,
+        'features': ['Basic daily logging', 'Limited AI insights', '7-day data history'],
+        'limits': {'daily_logs': 7, 'ai_questions': 3, 'weekly_checkins': 1}
+    },
+    'premium': {
+        'name': 'Premium',
+        'price': 997,  # £9.97 in pence
+        'stripe_price_id': 'price_premium_monthly',  # You'll set this in Stripe dashboard
+        'features': ['Unlimited daily logging', 'Full AI insights', 'Unlimited data history', 'Weekly meal plans', 'Priority support'],
+        'limits': {'daily_logs': -1, 'ai_questions': -1, 'weekly_checkins': -1}  # -1 = unlimited
+    }
+}
 
 @app.route("/register", methods=["POST"])
 def register_user():
@@ -34,6 +56,10 @@ def register_user():
         'email': email,
         'password': password,  # In production, use proper password hashing
         'created_at': datetime.now().isoformat(),
+        'subscription_tier': 'free',
+        'subscription_status': 'active',
+        'stripe_customer_id': None,
+        'subscription_end_date': None,
         'profile_data': {},
         'daily_logs': [],
         'weekly_checkins': []
@@ -452,10 +478,25 @@ def dashboard():
             </div>
             
             <h2>🚀 Quick Actions</h2>
+            <div class="card">
+                <h3>💳 Subscription Status</h3>
+                <p><strong>Plan:</strong> {{ user.subscription_tier|title }} 
+                {% if user.subscription_tier == 'free' %}
+                    <a href="/subscription?email={{ user.email }}" style="color: #7ED3B2; font-weight: bold;">Upgrade →</a>
+                {% endif %}
+                </p>
+                {% if user.subscription_tier == 'free' %}
+                <p><small>Limited to 3 AI questions per week, 7-day history</small></p>
+                {% else %}
+                <p><small>✨ Unlimited access to all features</small></p>
+                {% endif %}
+            </div>
+            
             <div style="text-align: center;">
                 <a href="/daily-log?email={{ user.email }}" class="button">📝 Daily Log</a>
                 <a href="/weekly-checkin?email={{ user.email }}" class="button">📅 Weekly Check-in</a>
                 <a href="/ai-chat?email={{ user.email }}" class="button">🤖 Ask AI</a>
+                <a href="/subscription?email={{ user.email }}" class="button">💳 Subscription</a>
                 <a href="/" class="button">⚙️ Update Profile</a>
             </div>
         </div>
@@ -609,6 +650,305 @@ def save_daily_log():
     </body>
     </html>
     """, email=email)
+
+@app.route("/subscription")
+def subscription_page():
+    email = request.args.get('email')
+    if not email or email not in users_data:
+        return "User not found"
+    
+    user = users_data[email]
+    current_tier = user.get('subscription_tier', 'free')
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html lang="en-GB">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Subscription Plans</title>
+        <script src="https://js.stripe.com/v3/"></script>
+        <style>
+            * { box-sizing: border-box; }
+            body { 
+                font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;
+                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
+            }
+            .container { background: white; padding: 2em; border-radius: 20px; max-width: 900px; margin: 0 auto; }
+            .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin: 30px 0; }
+            .plan-card { 
+                background: white; border-radius: 15px; padding: 30px; text-align: center;
+                border: 3px solid #e0e0e0; transition: all 0.3s ease;
+            }
+            .plan-card.current { border-color: #A8E6CF; background: #f8fffe; }
+            .plan-card.premium { border-color: #7ED3B2; }
+            .plan-card:hover { transform: translateY(-5px); }
+            .price { font-size: 2.5rem; font-weight: bold; color: #2d5a3d; margin: 15px 0; }
+            .features { list-style: none; padding: 0; margin: 20px 0; }
+            .features li { padding: 8px 0; border-bottom: 1px solid #eee; }
+            .features li:before { content: "✅ "; color: #00b894; }
+            .button { 
+                display: inline-block; padding: 15px 30px; 
+                background: linear-gradient(135deg, #A8E6CF, #7ED3B2);
+                color: #2d5a3d; text-decoration: none; border-radius: 12px; 
+                font-weight: 600; cursor: pointer; border: none; font-size: 16px;
+                transition: all 0.3s ease; width: 100%;
+            }
+            .button:hover { transform: translateY(-2px); }
+            .button:disabled { opacity: 0.5; cursor: not-allowed; }
+            .current-badge { 
+                background: #00b894; color: white; padding: 5px 15px; 
+                border-radius: 20px; font-size: 12px; margin-bottom: 10px;
+            }
+            h1 { color: #2d5a3d; text-align: center; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>💳 Choose Your Plan</h1>
+            <p style="text-align: center; color: #666; margin-bottom: 30px;">
+                Unlock the full potential of your fitness journey
+            </p>
+            
+            <div class="plans-grid">
+                <div class="plan-card {% if current_tier == 'free' %}current{% endif %}">
+                    {% if current_tier == 'free' %}
+                    <div class="current-badge">Current Plan</div>
+                    {% endif %}
+                    <h2>🆓 Free</h2>
+                    <div class="price">£0<span style="font-size: 1rem;">/month</span></div>
+                    <ul class="features">
+                        <li>Basic daily logging</li>
+                        <li>Limited AI insights (3/week)</li>
+                        <li>7-day data history</li>
+                        <li>1 weekly check-in</li>
+                    </ul>
+                    {% if current_tier != 'free' %}
+                    <form method="POST" action="/downgrade">
+                        <input type="hidden" name="email" value="{{ email }}">
+                        <button type="submit" class="button">Downgrade to Free</button>
+                    </form>
+                    {% else %}
+                    <button class="button" disabled>Current Plan</button>
+                    {% endif %}
+                </div>
+                
+                <div class="plan-card premium {% if current_tier == 'premium' %}current{% endif %}">
+                    {% if current_tier == 'premium' %}
+                    <div class="current-badge">Current Plan</div>
+                    {% endif %}
+                    <h2>✨ Premium</h2>
+                    <div class="price">£9.97<span style="font-size: 1rem;">/month</span></div>
+                    <ul class="features">
+                        <li>Unlimited daily logging</li>
+                        <li>Full AI insights & chat</li>
+                        <li>Unlimited data history</li>
+                        <li>Weekly meal plans</li>
+                        <li>Priority support</li>
+                        <li>Advanced analytics</li>
+                    </ul>
+                    {% if current_tier != 'premium' %}
+                    <button onclick="createCheckoutSession('{{ email }}')" class="button">Upgrade to Premium</button>
+                    {% else %}
+                    <button class="button" disabled>Current Plan</button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
+            </div>
+        </div>
+        
+        <script>
+            const stripe = Stripe('{{ stripe_publishable_key }}');
+            
+            async function createCheckoutSession(email) {
+                const response = await fetch('/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${email}`
+                });
+                
+                const session = await response.json();
+                
+                if (session.error) {
+                    alert('Error: ' + session.error);
+                    return;
+                }
+                
+                // Redirect to Stripe Checkout
+                const result = await stripe.redirectToCheckout({
+                    sessionId: session.id
+                });
+                
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            }
+        </script>
+    </body>
+    </html>
+    """, email=email, current_tier=current_tier, stripe_publishable_key=stripe_publishable_key)
+
+@app.route("/create-checkout-session", methods=["POST"])
+def create_checkout_session():
+    email = request.form.get('email')
+    
+    if not email or email not in users_data:
+        return jsonify({'error': 'User not found'}), 404
+    
+    if not stripe.api_key:
+        return jsonify({'error': 'Stripe not configured'}), 500
+    
+    try:
+        user = users_data[email]
+        
+        # Create or get Stripe customer
+        if not user.get('stripe_customer_id'):
+            customer = stripe.Customer.create(
+                email=email,
+                name=user['name']
+            )
+            users_data[email]['stripe_customer_id'] = customer.id
+        else:
+            customer_id = user['stripe_customer_id']
+        
+        # Create checkout session
+        session = stripe.checkout.Session.create(
+            customer=user.get('stripe_customer_id'),
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'gbp',
+                    'product_data': {
+                        'name': 'Fitness Companion Premium',
+                        'description': 'Unlimited AI insights, meal plans, and advanced features'
+                    },
+                    'unit_amount': SUBSCRIPTION_TIERS['premium']['price'],
+                    'recurring': {
+                        'interval': 'month'
+                    }
+                },
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=request.url_root + f'subscription-success?session_id={{CHECKOUT_SESSION_ID}}&email={email}',
+            cancel_url=request.url_root + f'subscription?email={email}',
+            metadata={
+                'user_email': email
+            }
+        )
+        
+        return jsonify({'id': session.id})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route("/subscription-success")
+def subscription_success():
+    session_id = request.args.get('session_id')
+    email = request.args.get('email')
+    
+    if not session_id or not email:
+        return "Missing parameters"
+    
+    try:
+        # Retrieve the session
+        session = stripe.checkout.Session.retrieve(session_id)
+        
+        if session.payment_status == 'paid':
+            # Update user subscription
+            if email in users_data:
+                users_data[email]['subscription_tier'] = 'premium'
+                users_data[email]['subscription_status'] = 'active'
+                users_data[email]['subscription_end_date'] = None  # Will be managed by Stripe
+        
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Subscription Success</title>
+            <style>
+                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); }
+                .container { max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; }
+                .success { color: #00b894; font-size: 24px; margin: 20px 0; }
+                .button { background: #A8E6CF; color: #2d5a3d; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🎉 Welcome to Premium!</h1>
+                <div class="success">✅ Subscription activated successfully</div>
+                <p>You now have access to all premium features including unlimited AI insights, meal plans, and advanced analytics.</p>
+                <a href="/dashboard?email={{ email }}" class="button">Go to Dashboard</a>
+            </div>
+        </body>
+        </html>
+        """, email=email)
+        
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+@app.route("/downgrade", methods=["POST"])
+def downgrade_subscription():
+    email = request.form.get('email')
+    
+    if not email or email not in users_data:
+        return "User not found"
+    
+    # Update user to free tier
+    users_data[email]['subscription_tier'] = 'free'
+    users_data[email]['subscription_status'] = 'active'
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Downgraded to Free</title>
+        <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); }
+            .container { max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; }
+            .button { background: #A8E6CF; color: #2d5a3d; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>📱 Downgraded to Free Plan</h2>
+            <p>You've been moved to the free plan. You can upgrade anytime!</p>
+            <a href="/dashboard?email={{ email }}" class="button">Go to Dashboard</a>
+        </div>
+    </body>
+    </html>
+    """, email=email)
+
+def check_subscription_limits(email, action_type):
+    """Check if user has reached their subscription limits"""
+    if email not in users_data:
+        return False
+    
+    user = users_data[email]
+    tier = user.get('subscription_tier', 'free')
+    limits = SUBSCRIPTION_TIERS[tier]['limits']
+    
+    if limits.get(action_type, 0) == -1:  # Unlimited
+        return True
+    
+    # Count current usage
+    if action_type == 'daily_logs':
+        current_count = len(user['daily_logs'])
+    elif action_type == 'weekly_checkins':
+        current_count = len(user['weekly_checkins'])
+    elif action_type == 'ai_questions':
+        # Count AI questions from today
+        today = datetime.now().strftime("%Y-%m-%d")
+        current_count = sum(1 for log in user.get('ai_logs', []) if log.get('date') == today)
+    else:
+        return True
+    
+    return current_count < limits.get(action_type, 0)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
@@ -857,6 +1197,38 @@ def ai_response():
     
     if email not in users_data:
         return "User not found"
+    
+    # Check subscription limits
+    if not check_subscription_limits(email, 'ai_questions'):
+        user = users_data[email]
+        tier = user.get('subscription_tier', 'free')
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Subscription Limit Reached</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); }
+                .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; text-align: center; }
+                .limit-warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 10px; margin: 20px 0; }
+                .button { background: #A8E6CF; color: #2d5a3d; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 5px; }
+                .upgrade-btn { background: linear-gradient(135deg, #7ED3B2, #A8E6CF); }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h2>🔒 AI Question Limit Reached</h2>
+                <div class="limit-warning">
+                    <p>You've reached your {{ tier }} plan limit for AI questions this week.</p>
+                    <p><strong>Free Plan:</strong> 3 AI questions per week</p>
+                    <p><strong>Premium Plan:</strong> Unlimited AI questions</p>
+                </div>
+                <a href="/subscription?email={{ email }}" class="button upgrade-btn">✨ Upgrade to Premium</a>
+                <a href="/dashboard?email={{ email }}" class="button">← Back to Dashboard</a>
+            </div>
+        </body>
+        </html>
+        """, email=email, tier=tier)
     
     # Generate AI response if OpenAI key is available
     ai_response = "AI assistant temporarily unavailable. Please ensure OpenAI API key is configured in Secrets."
