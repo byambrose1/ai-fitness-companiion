@@ -1,181 +1,267 @@
+
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fat Loss That Actually Makes Sense</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: #F8FCFA;
-      color: #2E2E2E;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #ffffff;
+      color: #1a1a1a;
       line-height: 1.6;
+      font-weight: 400;
     }
 
     header {
-      background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);
-      padding: 80px 20px;
+      background: #ffffff;
+      padding: 60px 20px 80px;
       text-align: center;
+      border-bottom: 1px solid #f5f5f5;
     }
 
     header h1 {
       font-family: 'Poppins', sans-serif;
-      font-size: 3rem;
+      font-size: 3.5rem;
       font-weight: 700;
-      margin-bottom: 20px;
-      color: #2E2E2E;
+      margin-bottom: 24px;
+      color: #1a1a1a;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
     }
 
     header p {
-      font-size: 1.2rem;
-      max-width: 800px;
-      margin: 0 auto 30px;
+      font-size: 1.25rem;
+      max-width: 720px;
+      margin: 0 auto 40px;
+      color: #4a4a4a;
+      font-weight: 400;
+      line-height: 1.5;
     }
 
     .cta-buttons {
-      margin-top: 30px;
+      margin-top: 40px;
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
     }
 
     .cta-buttons .btn {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       padding: 16px 32px;
-      margin: 8px;
-      border-radius: 8px;
+      border-radius: 12px;
       text-decoration: none;
       font-weight: 600;
-      font-size: 1.1rem;
-      transition: all 0.3s ease;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+      font-family: 'Inter', sans-serif;
     }
 
     .btn-primary {
-      background-color: #3B7A57;
+      background-color: #22c55e;
       color: white;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
     }
 
     .btn-primary:hover {
-      background-color: #2d5a3d;
-      transform: translateY(-2px);
+      background-color: #16a34a;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
     }
 
     .btn-secondary {
-      background-color: white;
-      color: #3B7A57;
-      border: 2px solid #3B7A57;
+      background-color: transparent;
+      color: #1a1a1a;
+      border: 2px solid #e5e5e5;
+    }
+
+    .btn-secondary:hover {
+      background-color: #f9f9f9;
+      border-color: #d4d4d4;
     }
 
     section {
-      padding: 60px 20px;
+      padding: 80px 20px;
       max-width: 1200px;
       margin: auto;
     }
 
     section h2 {
       font-family: 'Poppins', sans-serif;
-      font-size: 2.2rem;
-      margin-bottom: 20px;
+      font-size: 2.5rem;
+      margin-bottom: 24px;
       text-align: center;
-      color: #2E2E2E;
+      color: #1a1a1a;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-bottom: 60px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      color: #6b7280;
+      line-height: 1.6;
     }
 
     .features-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 40px;
-      margin: 50px 0;
+      margin: 60px 0;
     }
 
     .feature-card {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-      text-align: center;
-      border-top: 4px solid #A8E6CF;
+      background: #ffffff;
+      padding: 40px 32px;
+      border-radius: 20px;
+      text-align: left;
+      border: 1px solid #f0f0f0;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border-color: #e5e5e5;
+    }
+
+    .feature-card .icon {
+      font-size: 3rem;
+      margin-bottom: 24px;
+      display: block;
     }
 
     .feature-card h3 {
       font-family: 'Poppins', sans-serif;
-      font-size: 1.4rem;
-      margin-bottom: 15px;
-      color: #3B7A57;
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    .feature-card p {
+      color: #6b7280;
+      line-height: 1.6;
+      font-size: 1rem;
     }
 
     .scores-section {
-      background: #E6F3EE;
-      padding: 60px 20px;
+      background: #fafafa;
+      border-top: 1px solid #f0f0f0;
+      border-bottom: 1px solid #f0f0f0;
     }
 
     .scores-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 30px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 32px;
       max-width: 1000px;
       margin: 40px auto 0;
     }
 
     .score-card {
       background: white;
-      padding: 25px;
-      border-radius: 12px;
+      padding: 32px 24px;
+      border-radius: 16px;
       text-align: center;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      border: 1px solid #f0f0f0;
+      transition: all 0.3s ease;
+    }
+
+    .score-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .score-card .icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .score-card h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    .score-card p {
+      color: #6b7280;
+      line-height: 1.5;
     }
 
     .comparison-section {
-      background: #F0F8F4;
-      padding: 60px 20px;
+      background: #ffffff;
     }
 
     .comparison-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 40px;
+      gap: 48px;
       max-width: 1000px;
       margin: 40px auto 0;
     }
 
     .comparison-card {
       background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      padding: 40px 32px;
+      border-radius: 20px;
+      border: 1px solid #f0f0f0;
     }
 
     .comparison-card h3 {
       font-family: 'Poppins', sans-serif;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      font-size: 1.5rem;
+      font-weight: 600;
     }
 
-    .frustrations h3 { color: #E74C3C; }
-    .solutions h3 { color: #27AE60; }
+    .frustrations h3 { color: #ef4444; }
+    .solutions h3 { color: #22c55e; }
 
     .comparison-card ul {
       list-style: none;
     }
 
     .comparison-card li {
-      margin: 10px 0;
-      padding-left: 25px;
+      margin: 16px 0;
+      padding-left: 32px;
       position: relative;
+      color: #4a4a4a;
+      line-height: 1.5;
     }
 
     .frustrations li::before {
       content: "❌";
       position: absolute;
       left: 0;
+      font-size: 1.2rem;
     }
 
     .solutions li::before {
       content: "✅";
       position: absolute;
       left: 0;
+      font-size: 1.2rem;
     }
 
     .final-cta {
-      background: linear-gradient(135deg, #3B7A57 0%, #2d5a3d 100%);
+      background: #1a1a1a;
       color: white;
       padding: 80px 20px;
       text-align: center;
@@ -186,10 +272,8 @@
       margin-bottom: 20px;
     }
 
-    .trustpilot {
-      margin-top: 30px;
-      font-size: 0.9rem;
-      opacity: 0.9;
+    .final-cta p {
+      color: #d4d4d4;
     }
 
     /* Modal styles */
@@ -201,48 +285,51 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.5);
-      backdrop-filter: blur(5px);
+      background-color: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
     }
 
     .modal-content {
-      background-color: #F8FCFA;
+      background-color: #ffffff;
       margin: 2% auto;
       padding: 0;
-      border-radius: 20px;
+      border-radius: 24px;
       width: 90%;
       max-width: 600px;
       max-height: 90vh;
       overflow: hidden;
       position: relative;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+      border: 1px solid #f0f0f0;
     }
 
     .modal-header {
-      background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);
-      padding: 30px;
+      background: #fafafa;
+      padding: 32px;
       text-align: center;
+      border-bottom: 1px solid #f0f0f0;
     }
 
     .modal-header h2 {
-      color: #2E2E2E;
+      color: #1a1a1a;
       margin: 0;
-      font-size: 1.8rem;
+      font-size: 1.75rem;
+      font-weight: 600;
     }
 
     .progress-bar {
       width: 100%;
-      height: 6px;
-      background: rgba(255,255,255,0.3);
-      border-radius: 3px;
-      margin-top: 20px;
+      height: 8px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      margin-top: 24px;
       overflow: hidden;
     }
 
     .progress-fill {
       height: 100%;
-      background: white;
-      border-radius: 3px;
+      background: #22c55e;
+      border-radius: 4px;
       transition: width 0.3s ease;
     }
 
@@ -262,32 +349,33 @@
 
     .quiz-form label {
       display: block;
-      margin: 20px 0 8px 0;
+      margin: 24px 0 8px 0;
       font-weight: 600;
-      color: #2E2E2E;
+      color: #1a1a1a;
       font-size: 1rem;
     }
 
     .quiz-form input, .quiz-form select, .quiz-form textarea {
       width: 100%;
-      padding: 14px;
-      border: 2px solid #E0E0E0;
-      border-radius: 10px;
+      padding: 16px;
+      border: 2px solid #f0f0f0;
+      border-radius: 12px;
       font-size: 16px;
-      font-family: inherit;
-      transition: border-color 0.3s ease;
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s ease;
+      background: #ffffff;
     }
 
     .quiz-form input:focus, .quiz-form select:focus, .quiz-form textarea:focus {
       outline: none;
-      border-color: #A8E6CF;
-      box-shadow: 0 0 0 3px rgba(168, 230, 207, 0.1);
+      border-color: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
     }
 
     .modal-footer {
-      padding: 30px 40px;
-      background: #F8FCFA;
-      border-top: 1px solid #E0E0E0;
+      padding: 32px 40px;
+      background: #fafafa;
+      border-top: 1px solid #f0f0f0;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -300,55 +388,71 @@
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
     }
 
     .btn-back {
-      background: #E0E0E0;
+      background: #f5f5f5;
       color: #666;
     }
 
     .btn-back:hover {
-      background: #D0D0D0;
+      background: #e5e5e5;
     }
 
     .btn-next {
-      background: linear-gradient(135deg, #A8E6CF, #7ED3B2);
-      color: #2E2E2E;
+      background: #22c55e;
+      color: white;
     }
 
     .btn-next:hover {
-      transform: translateY(-2px);
+      background: #16a34a;
+      transform: translateY(-1px);
     }
 
     .btn-submit {
-      background: linear-gradient(135deg, #3B7A57, #2d5a3d);
+      background: #1a1a1a;
       color: white;
+    }
+
+    .btn-submit:hover {
+      background: #2a2a2a;
     }
 
     .close {
       position: absolute;
-      right: 20px;
-      top: 20px;
-      font-size: 28px;
+      right: 24px;
+      top: 24px;
+      font-size: 24px;
       font-weight: bold;
       cursor: pointer;
-      color: #666;
+      color: #999;
       z-index: 10;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
     }
 
     .close:hover {
-      color: #3B7A57;
+      color: #1a1a1a;
+      background: #f5f5f5;
     }
 
     @media (max-width: 768px) {
-      header h1 { font-size: 2.2rem; }
-      .features-grid { grid-template-columns: 1fr; }
-      .comparison-grid { grid-template-columns: 1fr; }
+      header h1 { font-size: 2.5rem; }
+      section { padding: 60px 20px; }
+      .features-grid { grid-template-columns: 1fr; gap: 32px; }
+      .comparison-grid { grid-template-columns: 1fr; gap: 32px; }
       .scores-grid { grid-template-columns: 1fr; }
-      .modal-content { width: 95%; margin: 5% auto; }
-      .modal-body { padding: 30px 20px; }
+      .modal-content { width: 95%; margin: 5% auto; border-radius: 16px; }
+      .modal-body { padding: 24px 20px; }
       .modal-footer { padding: 20px; }
+      .cta-buttons { flex-direction: column; align-items: center; }
     }
   </style>
 </head>
@@ -359,30 +463,36 @@
     <h1>Fat Loss That Actually Makes Sense</h1>
     <p>Not sure where to start with your weight loss journey? Or frustrated because progress feels slow? Get daily personalised guidance that meets you where you are — with clear, honest feedback tailored to your hormones and lifestyle.</p>
     <div class="cta-buttons">
-      <a href="#" onclick="openQuiz()" class="btn btn-primary">Start Free Assessment</a>
-      <a href="#" onclick="openLogin()" class="btn btn-secondary">Log In</a>
-      <a href="#" onclick="openSignUp()" class="btn btn-secondary">Sign Up</a>
-    </div>
-    <div class="trustpilot">
-      <p>Free forever • No restrictive diets • Science-backed</p>
+      <a href="#" onclick="openQuiz()" class="btn btn-primary">
+        <span>📋</span> Start Free Assessment
+      </a>
+      <a href="#" onclick="openLogin()" class="btn btn-secondary">
+        <span>👤</span> Log In
+      </a>
+      <a href="#" onclick="openSignUp()" class="btn btn-secondary">
+        <span>✨</span> Sign Up
+      </a>
     </div>
   </header>
 
   <!-- Why Different Section -->
   <section>
     <h2>Why Fitness Companion is Different</h2>
-    <p style="text-align: center; font-size: 1.1rem; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto;">Unlike calorie counters or generic fitness apps, we consider your whole life - including sleep, stress, hydration, and lifestyle factors that actually impact fat loss.</p>
+    <p class="section-subtitle">Unlike calorie counters or generic fitness apps, we consider your whole life - including sleep, stress, hydration, and lifestyle factors that actually impact fat loss.</p>
 
     <div class="features-grid">
       <div class="feature-card">
+        <span class="icon">🎯</span>
         <h3>Holistic Approach</h3>
         <p>We consider sleep, stress, hydration, movement, and nutrition together. Real fat loss happens when all factors work in harmony.</p>
       </div>
       <div class="feature-card">
+        <span class="icon">📈</span>
         <h3>Sustainable Results</h3>
         <p>No quick fixes or fad diets. We focus on building habits that last, with honest feedback on what's working and what needs attention.</p>
       </div>
       <div class="feature-card">
+        <span class="icon">💡</span>
         <h3>Personalised Insights</h3>
         <p>Daily feedback tailored to your individual circumstances, including hormonal changes and life factors that affect your progress.</p>
       </div>
@@ -394,14 +504,17 @@
     <h2>Your Daily Smart Scores</h2>
     <div class="scores-grid">
       <div class="score-card">
+        <span class="icon">😴</span>
         <h3>Recovery Score</h3>
         <p>How well you're sleeping, managing stress, and allowing your body to recover.</p>
       </div>
       <div class="score-card">
+        <span class="icon">🥗</span>
         <h3>Nutrition Score</h3>
         <p>Simple tracking of your eating patterns and hydration, with personalised tips.</p>
       </div>
       <div class="score-card">
+        <span class="icon">🏃‍♀️</span>
         <h3>Movement Score</h3>
         <p>Track your activity levels and find the right balance for sustainable fat loss.</p>
       </div>
@@ -413,14 +526,17 @@
     <h2>How It Works</h2>
     <div class="features-grid">
       <div class="feature-card">
+        <span class="icon">⚡</span>
         <h3>1. Quick Setup</h3>
         <p>Answer a few personalisation questions to tailor your experience, including any individual considerations.</p>
       </div>
       <div class="feature-card">
+        <span class="icon">📝</span>
         <h3>2. Daily Check-ins</h3>
         <p>Log your weight, sleep, stress, food, and movement in under 2 minutes. Perfect for busy lifestyles.</p>
       </div>
       <div class="feature-card">
+        <span class="icon">🔍</span>
         <h3>3. Get Honest Insights</h3>
         <p>Receive practical, personalised feedback on what's working and what needs attention in your fat loss journey.</p>
       </div>
@@ -456,8 +572,9 @@
   <section class="final-cta">
     <h2>Ready to Finally Understand Your Progress?</h2>
     <p style="font-size: 1.1rem; margin-bottom: 30px;">Join thousands of people who've found clarity in their fat loss journey with honest, personalised daily insights that actually work.</p>
-    <a href="#" onclick="openQuiz()" class="btn btn-primary" style="background: white; color: #3B7A57; font-size: 1.2rem; padding: 18px 36px;">Start Your Questionnaire Now</a>
-    <p class="trustpilot">No commitment • Cancel anytime • See results in your first week</p>
+    <a href="#" onclick="openQuiz()" class="btn btn-primary" style="background: white; color: #1a1a1a; font-size: 1.2rem; padding: 18px 36px; box-shadow: none;">
+      <span>🚀</span> Start Your Questionnaire Now
+    </a>
   </section>
 
   <!-- Multi-step Quiz Modal -->
