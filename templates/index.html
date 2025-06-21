@@ -1,322 +1,52 @@
-
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fat Loss That Actually Makes Sense</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>AI Fitness Companion - Fat Loss That Actually Makes Sense</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background-color: #ffffff;
+      background: #D1F2EB;
       color: #1a1a1a;
       line-height: 1.6;
       font-weight: 400;
     }
 
-    .logo-section {
-      background: linear-gradient(135deg, #f8fdfc 0%, #e6f7f4 100%);
-      padding: 40px 20px 20px;
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #D1F2EB 0%, #A8E6CF 100%);
+      padding: 80px 20px;
       text-align: center;
-      border-bottom: 1px solid #e6f7f4;
-    }
-
-    .logo-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      max-width: 400px;
-      margin: 0 auto;
-    }
-
-    .logo-text {
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      text-align: left;
-    }
-
-    .logo-main {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #1a1a1a;
-      line-height: 1;
-    }
-
-    .logo-sub {
-      font-size: 0.9rem;
-      color: #2DD4BF;
-      font-weight: 600;
-      margin-top: 4px;
-    }
-
-    header {
-      background: #ffffff;
-      padding: 60px 20px 80px;
-      text-align: center;
-      border-bottom: 1px solid #f5f5f5;
-    }
-
-    .hero-features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 40px;
-      margin: 50px 0 40px;
-      max-width: 1000px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .feature-preview {
-      text-align: center;
-    }
-
-    .phone-mockup {
-      width: 200px;
-      height: 320px;
-      background: #1a1a1a;
-      border-radius: 25px;
-      padding: 8px;
-      margin: 0 auto 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-      position: relative;
-    }
-
-    .phone-mockup::before {
-      content: '';
-      position: absolute;
-      top: 15px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 40px;
-      height: 4px;
-      background: #666;
-      border-radius: 2px;
-    }
-
-    .phone-screen {
-      width: 100%;
-      height: 100%;
-      background: #ffffff;
-      border-radius: 18px;
-      padding: 20px 15px 15px;
-      overflow: hidden;
-    }
-
-    .preview-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    .preview-title {
-      font-weight: 600;
-      color: #1a1a1a;
-      font-size: 14px;
-    }
-
-    .preview-date, .preview-period {
-      font-size: 12px;
-      color: #666;
-    }
-
-    .preview-status {
-      background: #2DD4BF;
-      color: white;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 10px;
-      font-weight: 600;
-    }
-
-    .score-circle {
-      width: 80px;
-      height: 80px;
-      border: 4px solid #2DD4BF;
-      border-radius: 50%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
-      margin: 0 auto 15px;
-    }
-
-    .score-number {
-      font-size: 24px;
-      font-weight: 700;
-      color: #1a1a1a;
-    }
-
-    .score-label {
-      font-size: 10px;
-      color: #666;
-    }
-
-    .mini-scores {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 10px;
-    }
-
-    .mini-score {
-      display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 4px;
     }
 
-    .mini-icon {
-      font-size: 16px;
-    }
-
-    .mini-value {
-      font-size: 12px;
-      font-weight: 600;
-      color: #1a1a1a;
-    }
-
-    .ai-message {
-      display: flex;
-      gap: 10px;
-      text-align: left;
-      margin-bottom: 15px;
-    }
-
-    .ai-avatar {
-      width: 30px;
-      height: 30px;
-      background: #f0f8ff;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      flex-shrink: 0;
-    }
-
-    .ai-text {
-      flex: 1;
-    }
-
-    .ai-text p {
-      font-size: 11px;
-      line-height: 1.4;
-      margin: 0;
-      color: #1a1a1a;
-      background: #f8f9fa;
-      padding: 8px 10px;
-      border-radius: 12px;
-    }
-
-    .insight-tags {
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-    }
-
-    .tag {
-      background: #e6f3ff;
-      color: #2DD4BF;
-      padding: 4px 8px;
-      border-radius: 8px;
-      font-size: 9px;
-      font-weight: 500;
-    }
-
-    .trend-chart {
-      height: 60px;
-      margin-bottom: 15px;
-      position: relative;
-    }
-
-    .chart-line {
-      height: 100%;
-      position: relative;
-    }
-
-    .chart-points {
-      display: flex;
-      align-items: end;
-      height: 100%;
-      gap: 3px;
-      padding: 0 10px;
-    }
-
-    .point {
-      flex: 1;
-      background: linear-gradient(to top, #2DD4BF, #7fecdb);
-      border-radius: 2px 2px 0 0;
-      min-height: 8px;
-      animation: growUp 1.5s ease-out;
-    }
-
-    @keyframes growUp {
-      from { height: 0; }
-      to { height: var(--final-height); }
-    }
-
-    .trend-summary {
-      display: flex;
-      justify-content: space-between;
-      font-size: 10px;
-    }
-
-    .trend-up {
-      color: #2DD4BF;
-      font-weight: 600;
-    }
-
-    .trend-streak {
-      color: #ff6b35;
-      font-weight: 600;
-    }
-
-    .feature-preview h3 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.2rem;
-      margin-bottom: 8px;
-      color: #1a1a1a;
-      font-weight: 600;
-    }
-
-    .feature-preview p {
-      color: #6b7280;
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-
-    header h1 {
-      font-family: 'Poppins', sans-serif;
+    .hero h1 {
       font-size: 3.5rem;
       font-weight: 700;
       margin-bottom: 24px;
       color: #1a1a1a;
       letter-spacing: -0.02em;
       line-height: 1.1;
-      text-align: center;
     }
 
-    .title-line-1 {
-      display: block;
-      color: #1a1a1a;
+    .hero .subtitle {
+      font-size: 1.4rem;
+      color: #3B7A57;
+      font-weight: 600;
+      margin-bottom: 16px;
     }
 
-    .title-line-2 {
-      display: block;
-      color: #2DD4BF;
-      margin-top: 8px;
-    }
-
-    header p {
-      font-size: 1.25rem;
-      max-width: 720px;
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 700px;
       margin: 0 auto 40px;
       color: #4a4a4a;
       font-weight: 400;
@@ -324,248 +54,113 @@
     }
 
     .cta-buttons {
-      margin-top: 40px;
+      margin-top: 30px;
       display: flex;
       gap: 16px;
       justify-content: center;
       flex-wrap: wrap;
     }
 
-    .cta-buttons .btn {
+    .btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 16px 32px;
+      padding: 18px 36px;
       border-radius: 12px;
       text-decoration: none;
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 1.1rem;
       transition: all 0.2s ease;
       border: 2px solid transparent;
       font-family: 'Inter', sans-serif;
+      cursor: pointer;
     }
 
     .btn-primary {
-      background-color: #2DD4BF;
+      background-color: #3B7A57;
       color: white;
-      box-shadow: 0 4px 12px rgba(45, 212, 191, 0.3);
+      box-shadow: 0 4px 12px rgba(59, 122, 87, 0.3);
     }
 
     .btn-primary:hover {
-      background-color: #14B8A6;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(45, 212, 191, 0.4);
+      background-color: #2d5a42;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(59, 122, 87, 0.4);
     }
 
     .btn-secondary {
       background-color: #ffffff;
-      color: #1a1a1a;
-      border: 2px solid #2DD4BF;
-      box-shadow: 0 2px 8px rgba(45, 212, 191, 0.15);
+      color: #3B7A57;
+      border: 2px solid #3B7A57;
+      box-shadow: 0 2px 8px rgba(59, 122, 87, 0.15);
     }
 
     .btn-secondary:hover {
-      background-color: #2DD4BF;
+      background-color: #3B7A57;
       color: white;
-      border-color: #2DD4BF;
-      box-shadow: 0 4px 12px rgba(45, 212, 191, 0.25);
     }
 
-    section {
+    /* Features Section */
+    .features {
+      background: #ffffff;
       padding: 80px 20px;
-      max-width: 1200px;
-      margin: auto;
+      text-align: center;
     }
 
-    section h2 {
-      font-family: 'Poppins', sans-serif;
+    .features h2 {
       font-size: 2.5rem;
-      margin-bottom: 24px;
-      text-align: center;
+      margin-bottom: 20px;
       color: #1a1a1a;
       font-weight: 600;
-      letter-spacing: -0.01em;
     }
 
-    .section-subtitle {
-      text-align: center;
+    .features-subtitle {
       font-size: 1.2rem;
-      margin-bottom: 60px;
+      color: #6b7280;
+      margin-bottom: 50px;
       max-width: 800px;
       margin-left: auto;
       margin-right: auto;
-      color: #6b7280;
-      line-height: 1.6;
-    }
-
-    .section-subtitle .highlight {
-      color: #2DD4BF;
-      font-weight: 600;
     }
 
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 40px;
-      margin: 60px 0;
+      max-width: 1000px;
+      margin: 0 auto;
     }
 
     .feature-card {
       background: #ffffff;
-      padding: 40px 32px;
-      border-radius: 20px;
-      text-align: left;
-      border: 1px solid #f0f0f0;
+      padding: 30px;
+      border-radius: 16px;
+      border: 2px solid #D1F2EB;
       transition: all 0.3s ease;
-      position: relative;
     }
 
     .feature-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      border-color: #e5e5e5;
+      border-color: #3B7A57;
+      box-shadow: 0 8px 24px rgba(59, 122, 87, 0.15);
     }
 
     .feature-card .icon {
       font-size: 3rem;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       display: block;
     }
 
     .feature-card h3 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.5rem;
-      margin-bottom: 16px;
-      color: #1a1a1a;
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      color: #3B7A57;
       font-weight: 600;
-    }
-
-    .feature-card h3 .accent {
-      color: #2DD4BF;
     }
 
     .feature-card p {
       color: #6b7280;
       line-height: 1.6;
-      font-size: 1rem;
-    }
-
-    .scores-section {
-      background: #fafafa;
-      border-top: 1px solid #f0f0f0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    .scores-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 32px;
-      max-width: 1000px;
-      margin: 40px auto 0;
-    }
-
-    .score-card {
-      background: white;
-      padding: 32px 24px;
-      border-radius: 16px;
-      text-align: center;
-      border: 1px solid #f0f0f0;
-      transition: all 0.3s ease;
-    }
-
-    .score-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-    }
-
-    .score-card .icon {
-      font-size: 2.5rem;
-      margin-bottom: 16px;
-      display: block;
-    }
-
-    .score-card h3 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.25rem;
-      margin-bottom: 12px;
-      color: #1a1a1a;
-      font-weight: 600;
-    }
-
-    .score-card p {
-      color: #6b7280;
-      line-height: 1.5;
-    }
-
-    .comparison-section {
-      background: #ffffff;
-    }
-
-    .comparison-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
-      max-width: 1000px;
-      margin: 40px auto 0;
-    }
-
-    .comparison-card {
-      background: white;
-      padding: 40px 32px;
-      border-radius: 20px;
-      border: 1px solid #f0f0f0;
-    }
-
-    .comparison-card h3 {
-      font-family: 'Poppins', sans-serif;
-      margin-bottom: 24px;
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-
-    .frustrations h3 { color: #ef4444; }
-    .solutions h3 { color: #2DD4BF; }
-
-    .comparison-card ul {
-      list-style: none;
-    }
-
-    .comparison-card li {
-      margin: 16px 0;
-      padding-left: 32px;
-      position: relative;
-      color: #4a4a4a;
-      line-height: 1.5;
-    }
-
-    .frustrations li::before {
-      content: "❌";
-      position: absolute;
-      left: 0;
-      font-size: 1.2rem;
-    }
-
-    .solutions li::before {
-      content: "✅";
-      position: absolute;
-      left: 0;
-      font-size: 1.2rem;
-    }
-
-    .final-cta {
-      background: #1a1a1a;
-      color: white;
-      padding: 80px 20px;
-      text-align: center;
-    }
-
-    .final-cta h2 {
-      color: white;
-      margin-bottom: 20px;
-    }
-
-    .final-cta p {
-      color: #d4d4d4;
     }
 
     /* Modal styles */
@@ -577,7 +172,7 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.6);
+      background-color: rgba(0,0,0,0.5);
       backdrop-filter: blur(8px);
     }
 
@@ -585,42 +180,41 @@
       background-color: #ffffff;
       margin: 2% auto;
       padding: 0;
-      border-radius: 24px;
+      border-radius: 20px;
       width: 90%;
       max-width: 600px;
       max-height: 90vh;
       overflow: hidden;
       position: relative;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-      border: 1px solid #f0f0f0;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     }
 
     .modal-header {
-      background: #fafafa;
-      padding: 32px;
+      background: #D1F2EB;
+      padding: 30px;
       text-align: center;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid #A8E6CF;
     }
 
     .modal-header h2 {
-      color: #1a1a1a;
+      color: #3B7A57;
       margin: 0;
-      font-size: 1.75rem;
+      font-size: 1.8rem;
       font-weight: 600;
     }
 
     .progress-bar {
       width: 100%;
       height: 8px;
-      background: #f0f0f0;
+      background: #ffffff;
       border-radius: 4px;
-      margin-top: 24px;
+      margin-top: 20px;
       overflow: hidden;
     }
 
     .progress-fill {
       height: 100%;
-      background: #2DD4BF;
+      background: #3B7A57;
       border-radius: 4px;
       transition: width 0.3s ease;
     }
@@ -641,16 +235,16 @@
 
     .quiz-form label {
       display: block;
-      margin: 24px 0 8px 0;
+      margin: 20px 0 8px 0;
       font-weight: 600;
-      color: #1a1a1a;
+      color: #3B7A57;
       font-size: 1rem;
     }
 
     .quiz-form input, .quiz-form select, .quiz-form textarea {
       width: 100%;
       padding: 16px;
-      border: 2px solid #f0f0f0;
+      border: 2px solid #D1F2EB;
       border-radius: 12px;
       font-size: 16px;
       font-family: 'Inter', sans-serif;
@@ -660,14 +254,42 @@
 
     .quiz-form input:focus, .quiz-form select:focus, .quiz-form textarea:focus {
       outline: none;
-      border-color: #2DD4BF;
-      box-shadow: 0 0 0 4px rgba(45, 212, 191, 0.1);
+      border-color: #3B7A57;
+      box-shadow: 0 0 0 4px rgba(59, 122, 87, 0.1);
+    }
+
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      border: 2px solid #D1F2EB;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .checkbox-item:hover {
+      border-color: #3B7A57;
+      background: #f8fffe;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: auto;
+      margin: 0;
     }
 
     .modal-footer {
-      padding: 32px 40px;
-      background: #fafafa;
-      border-top: 1px solid #f0f0f0;
+      padding: 30px;
+      background: #f8fffe;
+      border-top: 1px solid #D1F2EB;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -676,7 +298,7 @@
     .btn-nav {
       padding: 12px 24px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
@@ -694,12 +316,12 @@
     }
 
     .btn-next {
-      background: #2DD4BF;
+      background: #3B7A57;
       color: white;
     }
 
     .btn-next:hover {
-      background: #14B8A6;
+      background: #2d5a42;
       transform: translateY(-1px);
     }
 
@@ -714,8 +336,8 @@
 
     .close {
       position: absolute;
-      right: 24px;
-      top: 24px;
+      right: 20px;
+      top: 20px;
       font-size: 24px;
       font-weight: bold;
       cursor: pointer;
@@ -731,273 +353,73 @@
     }
 
     .close:hover {
-      color: #1a1a1a;
+      color: #3B7A57;
       background: #f5f5f5;
     }
 
+    .range-display {
+      text-align: center;
+      margin: 8px 0;
+      font-weight: 600;
+      color: #3B7A57;
+    }
+
     @media (max-width: 768px) {
-      .logo-container {
-        flex-direction: column;
-        gap: 15px;
-      }
-      
-      .logo-text {
-        text-align: center;
-      }
-      
-      .logo-main {
-        font-size: 1.5rem;
-      }
-      
-      header h1 { font-size: 2.5rem; }
-      section { padding: 60px 20px; }
-      .features-grid { grid-template-columns: 1fr; gap: 32px; }
-      .comparison-grid { grid-template-columns: 1fr; gap: 32px; }
-      .scores-grid { grid-template-columns: 1fr; }
-      .modal-content { width: 95%; margin: 5% auto; border-radius: 16px; }
-      .modal-body { padding: 24px 20px; }
-      .modal-footer { padding: 20px; }
+      .hero h1 { font-size: 2.5rem; }
+      .hero p { font-size: 1.1rem; }
       .cta-buttons { flex-direction: column; align-items: center; }
-      .hero-features { grid-template-columns: 1fr; gap: 30px; margin: 40px 0 30px; }
-      .phone-mockup { width: 180px; height: 280px; }
+      .features { padding: 60px 20px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .modal-content { width: 95%; margin: 5% auto; }
+      .modal-body { padding: 20px; }
+      .modal-footer { padding: 20px; }
     }
   </style>
 </head>
 <body>
-
-  <!-- Logo Section -->
-  <div class="logo-section">
-    <div class="logo-container">
-      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="40" cy="40" r="38" fill="#2DD4BF" fill-opacity="0.1" stroke="#2DD4BF" stroke-width="4"/>
-        <path d="M25 40L35 50L55 30" stroke="#2DD4BF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="40" cy="25" r="3" fill="#2DD4BF"/>
-        <circle cx="25" cy="55" r="2" fill="#2DD4BF"/>
-        <circle cx="55" cy="55" r="2" fill="#2DD4BF"/>
-      </svg>
-      <div class="logo-text">
-        <span class="logo-main">FitnessCompanion</span>
-        <span class="logo-sub">AI-Powered Fat Loss</span>
-      </div>
-    </div>
-  </div>
-
   <!-- Hero Section -->
-  <header>
-    <h1>
-      <span class="title-line-1">Fat Loss That Actually</span>
-      <span class="title-line-2">Makes Sense</span>
-    </h1>
-    <p>Not sure where to start with your weight loss journey? Or frustrated because progress feels slow? Get daily personalised guidance that meets you where you are — with clear, honest feedback tailored to your hormones and lifestyle.</p>
-    
-    <!-- Feature Preview Graphics -->
-    <div class="hero-features">
-      <div class="feature-preview">
-        <div class="phone-mockup">
-          <div class="phone-screen">
-            <div class="preview-header">
-              <span class="preview-title">Daily Check-in</span>
-              <span class="preview-date">Today</span>
-            </div>
-            <div class="preview-content">
-              <div class="score-circle">
-                <div class="score-number">8.2</div>
-                <div class="score-label">Overall Score</div>
-              </div>
-              <div class="mini-scores">
-                <div class="mini-score">
-                  <span class="mini-icon">😴</span>
-                  <span class="mini-value">9.1</span>
-                </div>
-                <div class="mini-score">
-                  <span class="mini-icon">🥗</span>
-                  <span class="mini-value">7.8</span>
-                </div>
-                <div class="mini-score">
-                  <span class="mini-icon">🏃‍♀️</span>
-                  <span class="mini-value">8.5</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <h3>Smart Daily Tracking</h3>
-        <p>Log your progress in under 2 minutes with intelligent scoring</p>
-      </div>
-
-      <div class="feature-preview">
-        <div class="phone-mockup">
-          <div class="phone-screen">
-            <div class="preview-header">
-              <span class="preview-title">AI Insights</span>
-              <span class="preview-status">✨ New</span>
-            </div>
-            <div class="preview-content">
-              <div class="ai-message">
-                <div class="ai-avatar">🤖</div>
-                <div class="ai-text">
-                  <p>"Your sleep improved this week! This likely contributed to better hunger regulation. Consider maintaining your 7.5hr schedule."</p>
-                </div>
-              </div>
-              <div class="insight-tags">
-                <span class="tag">Sleep Quality</span>
-                <span class="tag">Hormones</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <h3>Personalised AI Coaching</h3>
-        <p>Get tailored insights based on your unique patterns</p>
-      </div>
-
-      <div class="feature-preview">
-        <div class="phone-mockup">
-          <div class="phone-screen">
-            <div class="preview-header">
-              <span class="preview-title">Progress Trends</span>
-              <span class="preview-period">Last 30 days</span>
-            </div>
-            <div class="preview-content">
-              <div class="trend-chart">
-                <div class="chart-line">
-                  <div class="chart-points">
-                    <div class="point" style="height: 20%"></div>
-                    <div class="point" style="height: 35%"></div>
-                    <div class="point" style="height: 45%"></div>
-                    <div class="point" style="height: 60%"></div>
-                    <div class="point" style="height: 70%"></div>
-                    <div class="point" style="height: 85%"></div>
-                  </div>
-                </div>
-              </div>
-              <div class="trend-summary">
-                <span class="trend-up">↗️ +2.3kg lost</span>
-                <span class="trend-streak">🔥 12 day streak</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <h3>Visual Progress Tracking</h3>
-        <p>See your journey with clear, motivating charts and trends</p>
-      </div>
-    </div>
+  <section class="hero">
+    <h1>AI Fitness Companion</h1>
+    <p class="subtitle">Fat Loss That Actually Makes Sense</p>
+    <p>Get daily personalised guidance that meets you where you are — with clear, honest feedback tailored to your hormones and lifestyle. For men and women ready to understand their bodies and achieve sustainable fat loss.</p>
 
     <div class="cta-buttons">
-      <a href="#" onclick="openQuiz()" class="btn btn-primary">
-        <span>📋</span> Start Free Assessment
-      </a>
-      <a href="#" onclick="openLogin()" class="btn btn-secondary">
-        <span>👤</span> Log In
-      </a>
-      <a href="#" onclick="openSignUp()" class="btn btn-secondary">
-        <span>✨</span> Sign Up
-      </a>
+      <button onclick="openQuiz()" class="btn btn-primary">
+        🚀 Start Your Journey
+      </button>
+      <button onclick="openLogin()" class="btn btn-secondary">
+        👤 I Already Have an Account
+      </button>
     </div>
-  </header>
+  </section>
 
-  <!-- Why Different Section -->
-  <section>
-    <h2>Why Fitness Companion is Different</h2>
-    <p class="section-subtitle">Unlike calorie counters or generic fitness apps, we consider your <span class="highlight">whole life</span> - including sleep, stress, hydration, and lifestyle factors that <span class="highlight">actually impact fat loss</span>.</p>
+  <!-- Features Section -->
+  <section class="features">
+    <h2>What Makes Us Different</h2>
+    <p class="features-subtitle">Hormone-aware, AI-powered, personalised daily insights that actually work for your body and lifestyle.</p>
 
     <div class="features-grid">
       <div class="feature-card">
-        <span class="icon">🎯</span>
-        <h3><span class="accent">Holistic</span> Approach</h3>
-        <p>We consider sleep, stress, hydration, movement, and nutrition together. Real fat loss happens when all factors work in harmony.</p>
+        <span class="icon">🧠</span>
+        <h3>Hormone-Aware Insights</h3>
+        <p>Personalised feedback that considers your menstrual cycle, stress levels, and individual hormonal patterns for more accurate progress tracking.</p>
       </div>
+
       <div class="feature-card">
-        <span class="icon">📈</span>
-        <h3><span class="accent">Sustainable</span> Results</h3>
-        <p>No quick fixes or fad diets. We focus on building habits that last, with honest feedback on what's working and what needs attention.</p>
+        <span class="icon">📊</span>
+        <h3>Daily Smart Tracking</h3>
+        <p>Quick 2-minute daily logs covering sleep, stress, food, and movement with AI analysis of your patterns and progress.</p>
       </div>
+
       <div class="feature-card">
         <span class="icon">💡</span>
-        <h3><span class="accent">Personalised</span> Insights</h3>
-        <p>Daily feedback tailored to your individual circumstances, including hormonal changes and life factors that affect your progress.</p>
+        <h3>Personalised AI Coaching</h3>
+        <p>Get answers to questions like "Why didn't I lose weight this week?" with supportive, science-based explanations tailored to you.</p>
       </div>
     </div>
   </section>
 
-  <!-- Daily Smart Scores -->
-  <section class="scores-section">
-    <h2>Your Daily Smart Scores</h2>
-    <div class="scores-grid">
-      <div class="score-card">
-        <span class="icon">😴</span>
-        <h3><span class="accent">Recovery</span> Score</h3>
-        <p>How well you're sleeping, managing stress, and allowing your body to recover.</p>
-      </div>
-      <div class="score-card">
-        <span class="icon">🥗</span>
-        <h3><span class="accent">Nutrition</span> Score</h3>
-        <p>Simple tracking of your eating patterns and hydration, with personalised tips.</p>
-      </div>
-      <div class="score-card">
-        <span class="icon">🏃‍♀️</span>
-        <h3><span class="accent">Movement</span> Score</h3>
-        <p>Track your activity levels and find the right balance for sustainable fat loss.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- How It Works -->
-  <section>
-    <h2>How It Works</h2>
-    <div class="features-grid">
-      <div class="feature-card">
-        <span class="icon">⚡</span>
-        <h3>1. <span class="accent">Quick</span> Setup</h3>
-        <p>Answer a few personalisation questions to tailor your experience, including any individual considerations.</p>
-      </div>
-      <div class="feature-card">
-        <span class="icon">📝</span>
-        <h3>2. <span class="accent">Daily</span> Check-ins</h3>
-        <p>Log your weight, sleep, stress, food, and movement in under 2 minutes. Perfect for busy lifestyles.</p>
-      </div>
-      <div class="feature-card">
-        <span class="icon">🔍</span>
-        <h3>3. Get <span class="accent">Honest</span> Insights</h3>
-        <p>Receive practical, personalised feedback on what's working and what needs attention in your fat loss journey.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Comparison Section -->
-  <section class="comparison-section">
-    <h2>Tired of Feeling Lost in Your Fat Loss Journey?</h2>
-    <div class="comparison-grid">
-      <div class="comparison-card frustrations">
-        <h3>Common Frustrations:</h3>
-        <ul>
-          <li>"I ate well this week but gained weight"</li>
-          <li>"My hormones throw everything off track"</li>
-          <li>"I don't know if I'm doing enough exercise"</li>
-          <li>"Scale fluctuations make me want to give up"</li>
-        </ul>
-      </div>
-      <div class="comparison-card solutions">
-        <h3>With Fitness Companion:</h3>
-        <ul>
-          <li>Clear daily progress scores</li>
-          <li>Personalised insights and support</li>
-          <li>Honest feedback on what's really happening</li>
-          <li>Sustainable, realistic approach to fat loss</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- Final CTA -->
-  <section class="final-cta">
-    <h2>Ready to Finally Understand Your Progress?</h2>
-    <p style="font-size: 1.1rem; margin-bottom: 30px;">Join thousands of people who've found clarity in their fat loss journey with honest, personalised daily insights that actually work.</p>
-    <a href="#" onclick="openQuiz()" class="btn btn-primary" style="background: white; color: #1a1a1a; font-size: 1.2rem; padding: 18px 36px; box-shadow: none;">
-      <span>🚀</span> Start Your Questionnaire Now
-    </a>
-  </section>
-
-  <!-- Multi-step Quiz Modal -->
+  <!-- Questionnaire Modal -->
   <div id="quizModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeQuiz()">&times;</span>
@@ -1012,7 +434,7 @@
       <form method="POST" action="/" class="quiz-form" id="quizForm">
         <div class="modal-body">
 
-          <!-- Step 1: Basic Info -->
+          <!-- Step 1: Personal Info -->
           <div class="quiz-step active" data-step="1">
             <label for="name">What's your first name?</label>
             <input type="text" name="name" id="name" placeholder="Enter your first name" required>
@@ -1020,20 +442,62 @@
             <label for="email">Email address:</label>
             <input type="email" name="email" id="email" placeholder="your@email.com" required>
 
+            <label for="password">Create a password:</label>
+            <input type="password" name="password" id="password" placeholder="Minimum 6 characters" required>
+
             <label for="dob">Date of birth:</label>
             <input type="date" name="dob" id="dob" required>
-          </div>
 
-          <!-- Step 2: Physical Stats -->
-          <div class="quiz-step" data-step="2">
-            <label for="gender">Biological sex:</label>
-            <select name="gender" required>
+            <label for="gender">Sex assigned at birth:</label>
+            <select name="gender" id="gender" onchange="handleGenderChange()" required>
               <option value="">-- Please select --</option>
               <option value="female">Female</option>
               <option value="male">Male</option>
               <option value="other">Other / Prefer not to say</option>
             </select>
 
+            <div id="periodQuestion" style="display: none;">
+              <label for="hasPeriods">Do you have periods?</label>
+              <select name="hasPeriods" id="hasPeriods" onchange="handlePeriodChange()">
+                <option value="">-- Please select --</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+
+            <div id="cycleQuestion" style="display: none;">
+              <label for="menstrualCycle">Where are you in your cycle today?</label>
+              <select name="menstrualCycle" id="menstrualCycle">
+                <option value="">-- Please select --</option>
+                <option value="just_started">Just started</option>
+                <option value="middle">Middle of cycle</option>
+                <option value="about_to_start">About to start</option>
+                <option value="not_sure">Not sure</option>
+              </select>
+            </div>
+
+            <div id="menopauseQuestion" style="display: none;">
+              <label for="menopause">Are you going through menopause?</label>
+              <select name="menopause" id="menopause" onchange="handleMenopauseChange()">
+                <option value="">-- Please select --</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+
+            <div id="menopauseStage" style="display: none;">
+              <label for="menopauseStage">Which stage?</label>
+              <select name="menopauseStage" id="menopauseStageSelect">
+                <option value="">-- Please select --</option>
+                <option value="perimenopausal">Perimenopausal</option>
+                <option value="menopausal">Menopausal</option>
+                <option value="postmenopausal">Postmenopausal</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Step 2: Physical Stats & Goals -->
+          <div class="quiz-step" data-step="2">
             <label for="height">Height (cm):</label>
             <input type="number" name="height" min="100" max="250" placeholder="170" required>
 
@@ -1042,103 +506,75 @@
 
             <label for="goalWeight">Goal weight (kg) - optional:</label>
             <input type="number" name="goalWeight" min="30" max="300" step="0.1" placeholder="65.0">
+
+            <label for="motivation">What's your main motivation for fat loss?</label>
+            <textarea name="motivation" placeholder="Tell us what's driving you to make this change..." rows="3" required></textarea>
+
+            <label for="motivationLevel">Current motivation level (1-10):</label>
+            <input type="range" name="motivationLevel" min="1" max="10" value="5" oninput="updateRangeDisplay('motivationLevel', this.value)">
+            <div class="range-display" id="motivationLevelDisplay">5/10</div>
           </div>
 
-          <!-- Step 3: Goals & Motivation -->
+          <!-- Step 3: Health & Lifestyle -->
           <div class="quiz-step" data-step="3">
-            <label for="goal">What is your primary fitness goal?</label>
-            <select name="goal" required>
-              <option value="">-- Please select --</option>
-              <option value="fat_loss">Fat loss</option>
-              <option value="muscle_gain">Muscle gain</option>
-              <option value="general_health">General health</option>
-              <option value="mental_wellbeing">Mental wellbeing</option>
-            </select>
-
-            <label for="goalReason">Why do you want to achieve this goal?</label>
-            <select name="goalReason">
-              <option value="">-- Select a reason --</option>
-              <option value="recent_breakup">Recent breakup</option>
-              <option value="grief">Dealing with grief</option>
-              <option value="confidence">Building confidence</option>
-              <option value="health_scare">Health concerns</option>
-              <option value="self_love">Self-love journey</option>
-              <option value="other">Other</option>
-            </select>
-
-            <label for="motivation">Tell us more about your motivation:</label>
-            <textarea name="motivation" placeholder="Share what's driving you to make this change..." rows="3" required></textarea>
-          </div>
-
-          <!-- Step 4: Mental & Physical State -->
-          <div class="quiz-step" data-step="4">
-            <label for="mentalState">Current mental/emotional state:</label>
-            <textarea name="mentalState" placeholder="How are you feeling mentally and emotionally right now?" rows="2" required></textarea>
-
-            <label for="motivationLevel">Motivation level (1-10):</label>
-            <input type="range" name="motivationLevel" min="1" max="10" value="5">
-
-            <label for="mood">How would you describe your mood most days?</label>
-            <select name="mood">
-              <option value="">-- Please select --</option>
-              <option value="happy">Happy</option>
-              <option value="neutral">Neutral</option>
-              <option value="stressed">Stressed</option>
-              <option value="anxious">Anxious</option>
-              <option value="sad">Sad</option>
-              <option value="unmotivated">Unmotivated</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <!-- Step 5: Health & Medications -->
-          <div class="quiz-step" data-step="5">
-            <label for="medications">Are you on any medications?</label>
-            <select name="medications">
-              <option value="">-- Please select --</option>
-              <option value="no">No</option>
-              <option value="yes">Yes</option>
-            </select>
-
-            <label for="medicationList">Please list your medications (if any):</label>
-            <textarea name="medicationList" placeholder="List any medications you're taking..." rows="2"></textarea>
-
-            <label for="healthConditions">Any diagnosed health conditions?</label>
-            <textarea name="healthConditions" placeholder="e.g., thyroid issues, PCOS, diabetes... (optional)" rows="2"></textarea>
-
-            <label for="menstrualCycle">Menstrual cycle status (if applicable):</label>
-            <select name="menstrualCycle">
-              <option value="">-- Please select or skip --</option>
-              <option value="on_period">Currently on my period</option>
-              <option value="approaching">Approaching my period</option>
-              <option value="mid_cycle">Mid-cycle</option>
-              <option value="unsure">Unsure</option>
-            </select>
-          </div>
-
-          <!-- Step 6: Sleep & Recovery -->
-          <div class="quiz-step" data-step="6">
             <label for="sleepHours">Average hours of sleep per night:</label>
             <input type="number" name="sleepHours" min="0" max="24" step="0.5" placeholder="7.5" required>
 
-            <label for="wakingFeeling">How do you feel when waking up?</label>
-            <select name="wakingFeeling" required>
+            <label for="stressLevel">Average stress level (1-10):</label>
+            <input type="range" name="stressLevel" min="1" max="10" value="5" oninput="updateRangeDisplay('stressLevel', this.value)">
+            <div class="range-display" id="stressLevelDisplay">5/10</div>
+
+            <label for="activityLevel">Activity level:</label>
+            <select name="activityLevel" required>
               <option value="">-- Please select --</option>
-              <option value="refreshed">Refreshed</option>
-              <option value="tired">Tired</option>
-              <option value="exhausted">Exhausted</option>
+              <option value="sedentary">Sedentary (desk job, little exercise)</option>
+              <option value="lightly_active">Lightly active (light exercise 1-3 days/week)</option>
+              <option value="moderately_active">Moderately active (moderate exercise 3-5 days/week)</option>
+              <option value="very_active">Very active (hard exercise 6-7 days/week)</option>
             </select>
 
-            <label for="stressLevel">Weekly stress level (1-10):</label>
-            <input type="range" name="stressLevel" min="1" max="10" value="5">
+            <label for="wearables">Do you use a fitness tracker?</label>
+            <select name="wearables">
+              <option value="">-- Please select --</option>
+              <option value="apple_watch">Apple Watch</option>
+              <option value="fitbit">Fitbit</option>
+              <option value="garmin">Garmin</option>
+              <option value="other">Other fitness tracker</option>
+              <option value="none">No fitness tracker</option>
+            </select>
+
+            <label>What have you tried before for fat loss? (Select all that apply)</label>
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" name="previousAttempts" value="calorie_counting" id="calorie_counting">
+                <label for="calorie_counting">Calorie counting</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" name="previousAttempts" value="low_carb" id="low_carb">
+                <label for="low_carb">Low carb/keto</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" name="previousAttempts" value="intermittent_fasting" id="intermittent_fasting">
+                <label for="intermittent_fasting">Intermittent fasting</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" name="previousAttempts" value="gym_membership" id="gym_membership">
+                <label for="gym_membership">Gym membership</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" name="previousAttempts" value="personal_trainer" id="personal_trainer">
+                <label for="personal_trainer">Personal trainer</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" name="previousAttempts" value="nothing" id="nothing">
+                <label for="nothing">This is my first serious attempt</label>
+              </div>
+            </div>
           </div>
 
-          <!-- Step 7: Nutrition -->
-          <div class="quiz-step" data-step="7">
-            <label for="proteinSources">Typical protein sources:</label>
-            <textarea name="proteinSources" placeholder="e.g., 2 chicken breasts, 1 protein shake, tofu, eggs..." rows="2" required></textarea>
-
-            <label for="mealsPerDay">Typical number of meals/snacks per day:</label>
+          <!-- Step 4: Current Habits -->
+          <div class="quiz-step" data-step="4">
+            <label for="mealsPerDay">How many meals/snacks do you typically eat per day?</label>
             <input type="number" name="mealsPerDay" min="1" max="10" placeholder="3" required>
 
             <label for="waterIntake">Daily water intake estimate:</label>
@@ -1157,75 +593,20 @@
               <option value="lots_of_takeaway">Lots of takeaways</option>
               <option value="mix">A mix of both</option>
             </select>
-          </div>
 
-          <!-- Step 8: Activity & Exercise -->
-          <div class="quiz-step" data-step="8">
-            <label for="activityLevel">Activity level:</label>
-            <select name="activityLevel" required>
-              <option value="">-- Please select --</option>
-              <option value="sedentary">Sedentary (desk job, little exercise)</option>
-              <option value="lightly_active">Lightly active (light exercise 1-3 days/week)</option>
-              <option value="moderately_active">Moderately active (moderate exercise 3-5 days/week)</option>
-              <option value="very_active">Very active (hard exercise 6-7 days/week)</option>
-              <option value="extremely_active">Extremely active (very hard exercise, physical job)</option>
-            </select>
-
-            <label for="exerciseDetails">Exercise type/frequency:</label>
+            <label for="exerciseDetails">Current exercise routine:</label>
             <textarea name="exerciseDetails" placeholder="e.g., 30-min walk daily, gym 3x weekly, yoga twice a week..." rows="2" required></textarea>
 
-            <label for="wearables">Do you use any fitness wearables?</label>
-            <select name="wearables">
+            <label for="biggestChallenge">What's your biggest challenge with fat loss?</label>
+            <select name="biggestChallenge">
               <option value="">-- Please select --</option>
-              <option value="apple_watch">Apple Watch</option>
-              <option value="fitbit">Fitbit</option>
-              <option value="garmin">Garmin</option>
-              <option value="other">Other</option>
-              <option value="none">None</option>
-            </select>
-          </div>
-
-          <!-- Step 9: Current State & Progress -->
-          <div class="quiz-step" data-step="9">
-            <label for="weightChanges">Recent weight changes:</label>
-            <select name="weightChanges" required>
-              <option value="">-- Please select --</option>
-              <option value="gained">Gained weight</option>
-              <option value="lost">Lost weight</option>
-              <option value="no_change">No change</option>
-              <option value="not_sure">Not sure</option>
-            </select>
-
-            <label for="bodyFeeling">How do you feel in your body?</label>
-            <textarea name="bodyFeeling" placeholder="Describe how you feel about your body and physical state..." rows="2" required></textarea>
-
-            <label for="weeklyWeighIn">Would you like weekly weight check-ins?</label>
-            <select name="weeklyWeighIn">
-              <option value="">-- Please select --</option>
-              <option value="yes">Yes, I'd like weekly reminders</option>
-              <option value="no">No, I prefer not to weigh myself regularly</option>
-              <option value="maybe">Maybe, I'll decide later</option>
-            </select>
-          </div>
-
-          <!-- Step 10: Support & Final Questions -->
-          <div class="quiz-step" data-step="10">
-            <label for="supportSystem">Do you have a good support system?</label>
-            <select name="supportSystem">
-              <option value="">-- Please select --</option>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-              <option value="somewhat">Somewhat</option>
-            </select>
-
-            <label for="supportExplanation">Tell us about your support system:</label>
-            <textarea name="supportExplanation" placeholder="Who supports you in your fitness journey?" rows="2"></textarea>
-
-            <label for="aiConsent">Would you like AI-generated personalised recommendations?</label>
-            <select name="aiConsent" required>
-              <option value="">-- Please select --</option>
-              <option value="yes">Yes, give me personalised AI insights</option>
-              <option value="no">No, just show me my summary</option>
+              <option value="motivation">Staying motivated</option>
+              <option value="time">Finding time</option>
+              <option value="cravings">Food cravings</option>
+              <option value="energy">Low energy</option>
+              <option value="knowledge">Not knowing what to do</option>
+              <option value="consistency">Being consistent</option>
+              <option value="plateaus">Weight loss plateaus</option>
             </select>
           </div>
 
@@ -1234,10 +615,10 @@
         <div class="modal-footer">
           <button type="button" class="btn-nav btn-back" id="backBtn" onclick="previousStep()" style="display: none;">Back</button>
           <div style="flex: 1; text-align: center;">
-            <span id="stepCounter">Step 1 of 10</span>
+            <span id="stepCounter">Step 1 of 4</span>
           </div>
           <button type="button" class="btn-nav btn-next" id="nextBtn" onclick="nextStep()">Next</button>
-          <button type="submit" class="btn-nav btn-submit" id="submitBtn" style="display: none;">Create My Plan</button>
+          <button type="submit" class="btn-nav btn-submit" id="submitBtn" style="display: none;">Complete Setup</button>
         </div>
       </form>
     </div>
@@ -1262,44 +643,15 @@
     </div>
   </div>
 
-  <!-- Sign Up Modal -->
-  <div id="signUpModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeSignUp()">&times;</span>
-      <div class="modal-header">
-        <h2>Create Your Account</h2>
-      </div>
-      <div class="modal-body">
-        <form class="quiz-form">
-          <label for="signUpName">First Name:</label>
-          <input type="text" id="signUpName" placeholder="Enter your first name" required>
-          <label for="signUpEmail">Email address:</label>
-          <input type="email" id="signUpEmail" placeholder="your@email.com" required>
-          <label for="signUpPassword">Password:</label>
-          <input type="password" id="signUpPassword" placeholder="Create a password (min 6 characters)" required>
-          <label for="signUpPasswordConfirm">Confirm Password:</label>
-          <input type="password" id="signUpPasswordConfirm" placeholder="Confirm your password" required>
-          <button type="button" onclick="createAccount()" class="btn-nav btn-submit" style="width: 100%; margin-top: 20px;">Create Account & Start Questionnaire</button>
-        </form>
-      </div>
-    </div>
-  </div>
-
   <script>
     let currentStep = 1;
-    const totalSteps = 10;
+    const totalSteps = 4;
 
     const stepTitles = {
-      1: "Let's Get Started",
-      2: "Tell Us About Yourself",
-      3: "Your Goals",
-      4: "How Are You Feeling?",
-      5: "Health Information",
-      6: "Sleep & Recovery",
-      7: "Nutrition Habits",
-      8: "Activity & Exercise",
-      9: "Current Progress",
-      10: "Final Questions"
+      1: "Personal Information",
+      2: "Your Goals & Motivation", 
+      3: "Health & Lifestyle",
+      4: "Current Habits"
     };
 
     function openQuiz() {
@@ -1323,14 +675,52 @@
       document.body.style.overflow = 'auto';
     }
 
-    function openSignUp() {
-      document.getElementById('signUpModal').style.display = 'block';
-      document.body.style.overflow = 'hidden';
+    function handleGenderChange() {
+      const gender = document.getElementById('gender').value;
+      const periodQuestion = document.getElementById('periodQuestion');
+
+      if (gender === 'female') {
+        periodQuestion.style.display = 'block';
+      } else {
+        periodQuestion.style.display = 'none';
+        document.getElementById('cycleQuestion').style.display = 'none';
+        document.getElementById('menopauseQuestion').style.display = 'none';
+        document.getElementById('menopauseStage').style.display = 'none';
+      }
     }
 
-    function closeSignUp() {
-      document.getElementById('signUpModal').style.display = 'none';
-      document.body.style.overflow = 'auto';
+    function handlePeriodChange() {
+      const hasPeriods = document.getElementById('hasPeriods').value;
+      const cycleQuestion = document.getElementById('cycleQuestion');
+      const menopauseQuestion = document.getElementById('menopauseQuestion');
+
+      if (hasPeriods === 'yes') {
+        cycleQuestion.style.display = 'block';
+        menopauseQuestion.style.display = 'none';
+        document.getElementById('menopauseStage').style.display = 'none';
+      } else if (hasPeriods === 'no') {
+        cycleQuestion.style.display = 'none';
+        menopauseQuestion.style.display = 'block';
+      } else {
+        cycleQuestion.style.display = 'none';
+        menopauseQuestion.style.display = 'none';
+        document.getElementById('menopauseStage').style.display = 'none';
+      }
+    }
+
+    function handleMenopauseChange() {
+      const menopause = document.getElementById('menopause').value;
+      const menopauseStage = document.getElementById('menopauseStage');
+
+      if (menopause === 'yes') {
+        menopauseStage.style.display = 'block';
+      } else {
+        menopauseStage.style.display = 'none';
+      }
+    }
+
+    function updateRangeDisplay(rangeName, value) {
+      document.getElementById(rangeName + 'Display').textContent = value + '/10';
     }
 
     function nextStep() {
@@ -1365,6 +755,24 @@
           return false;
         }
       }
+
+      // Age validation on step 1
+      if (currentStep === 1) {
+        const dob = document.getElementById('dob').value;
+        if (dob) {
+          const birthDate = new Date(dob);
+          const today = new Date();
+          const age = today.getFullYear() - birthDate.getFullYear() - 
+                     ((today.getMonth() < birthDate.getMonth()) || 
+                      (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()));
+
+          if (age < 18) {
+            alert('You must be 18 or older to use this service.');
+            return false;
+          }
+        }
+      }
+
       return true;
     }
 
@@ -1398,13 +806,12 @@
     function memberLogin() {
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
-      
+
       if (!email || !password) {
         alert('Please enter both email and password.');
         return;
       }
 
-      // Login via backend
       const formData = new FormData();
       formData.append('email', email);
       formData.append('password', password);
@@ -1431,7 +838,6 @@
     window.onclick = function(event) {
       const quizModal = document.getElementById('quizModal');
       const loginModal = document.getElementById('loginModal');
-      const signUpModal = document.getElementById('signUpModal');
 
       if (event.target == quizModal) {
         closeQuiz();
@@ -1439,12 +845,9 @@
       if (event.target == loginModal) {
         closeLogin();
       }
-      if (event.target == signUpModal) {
-        closeSignUp();
-      }
     }
 
-    // Keyboard navigation
+    // Keyboardnavigation
     document.addEventListener('keydown', function(e) {
       if (document.getElementById('quizModal').style.display === 'block') {
         if (e.key === 'Enter' && currentStep < totalSteps) {
@@ -1454,60 +857,11 @@
       }
     });
 
-    function createAccount() {
-      const name = document.getElementById('signUpName').value;
-      const email = document.getElementById('signUpEmail').value;
-      const password = document.getElementById('signUpPassword').value;
-      const confirmPassword = document.getElementById('signUpPasswordConfirm').value;
-
-      if (!name || !email || !password) {
-        alert('Please fill in all fields.');
-        return;
-      }
-
-      if (password !== confirmPassword) {
-        alert('Passwords do not match.');
-        return;
-      }
-
-      if (password.length < 6) {
-        alert('Password must be at least 6 characters long.');
-        return;
-      }
-
-      // Create account via backend
-      const formData = new FormData();
-      formData.append('name', name);
-      formData.append('email', email);
-      formData.append('password', password);
-
-      fetch('/register', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Pre-fill the questionnaire with name and email
-          document.getElementById('name').value = name;
-          document.getElementById('email').value = email;
-
-          // Store password temporarily for questionnaire submission
-          sessionStorage.setItem('tempPassword', password);
-
-          // Close sign up modal and open questionnaire
-          closeSignUp();
-          openQuiz();
-        } else {
-          alert(data.message || 'Account creation failed');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Account creation failed. Please try again.');
-      });
-    }
+    // Initialize range displays
+    document.addEventListener('DOMContentLoaded', function() {
+      updateRangeDisplay('motivationLevel', 5);
+      updateRangeDisplay('stressLevel', 5);
+    });
   </script>
-
 </body>
 </html>

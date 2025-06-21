@@ -1,4 +1,3 @@
-
 from flask import Flask, request, render_template_string, jsonify, session
 from datetime import datetime, timedelta
 import json
@@ -43,13 +42,13 @@ def register_user():
     name = data.get("name")
     email = data.get("email")
     password = data.get("password")
-    
+
     if not name or not email or not password:
         return jsonify({"success": False, "message": "All fields required"}), 400
-    
+
     if email in users_data:
         return jsonify({"success": False, "message": "Account already exists"}), 400
-    
+
     # Create basic user account (in production, hash the password)
     users_data[email] = {
         'name': name,
@@ -64,7 +63,7 @@ def register_user():
         'daily_logs': [],
         'weekly_checkins': []
     }
-    
+
     return jsonify({"success": True, "message": "Account created successfully"})
 
 @app.route("/login", methods=["POST"])
@@ -72,14 +71,14 @@ def login_user():
     """Handle user login"""
     email = request.form.get("email")
     password = request.form.get("password")
-    
+
     if email not in users_data:
         return jsonify({"success": False, "message": "Account not found"}), 404
-    
+
     # In production, use proper password verification
     if users_data[email].get('password') != password:
         return jsonify({"success": False, "message": "Invalid password"}), 401
-    
+
     # Set session (basic implementation)
     session['user_email'] = email
     return jsonify({"success": True, "message": "Login successful"})
@@ -88,7 +87,7 @@ def login_user():
 def form():
     if request.method == "POST":
         data = request.form
-        
+
         # Calculate age from date of birth
         dob = data.get("dob")
         if dob:
@@ -97,7 +96,7 @@ def form():
             age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
         else:
             age = "Not provided"
-            
+
         # Age validation
         if isinstance(age, int) and age < 18:
             return render_template_string("""
@@ -106,45 +105,47 @@ def form():
             <head>
                 <title>Age Restriction</title>
                 <style>
-                    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f5f5f5; }
-                    .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
-                    .error { color: #ff6b6b; font-size: 18px; margin: 20px 0; }
+                    body { font-family: 'Inter', sans-serif; text-align: center; padding: 50px; background: #D1F2EB; }
+                    .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+                    .error { color: #e74c3c; font-size: 18px; margin: 20px 0; }
+                    .btn { background: #3B7A57; color: white; padding: 12px 24px; text-decoration: none; border-radius: 10px; font-weight: 600; }
                 </style>
             </head>
             <body>
                 <div class="container">
                     <h2>⚠️ Age Restriction</h2>
                     <div class="error">You must be 18 or older to use this service.</div>
-                    <a href="/" style="text-decoration: none; background: #667eea; color: white; padding: 10px 20px; border-radius: 5px;">← Go Back</a>
+                    <a href="/" class="btn">← Go Back</a>
                 </div>
             </body>
             </html>
             """)
 
-        # Store user data (in production, save to database)
+        # Store user data
         email = data.get("email")
         name = data.get("name")
-        
-        # Get password from session if coming from sign up flow
-        password = session.get('tempPassword', '')
-        
+        password = data.get("password")
+
+        # Process previous attempts checkboxes
+        previous_attempts = request.form.getlist("previousAttempts")
+
         user_profile = {
             'name': name,
             'email': email,
-            'password': password,
+            'password': password,  # In production, hash this
             'dob': dob,
             'age': age,
             'created_at': datetime.now().isoformat(),
+            'subscription_tier': 'free',
+            'subscription_status': 'active',
             'profile_data': dict(data),
+            'previous_attempts': previous_attempts,
             'daily_logs': [],
             'weekly_checkins': []
         }
-        
+
         # Simple storage by email (replace with proper user management)
         users_data[email] = user_profile
-        
-        # Clear temporary password
-        session.pop('tempPassword', None)
 
         # Extract all form data for display
         gender = data.get("gender")
@@ -188,29 +189,29 @@ def form():
             <title>✨ Your Personalised Fitness Profile</title>
             <style>
                 * { box-sizing: border-box; }
-                
+
                 body { 
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                     margin: 0; padding: 20px;
                     background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);
                     min-height: 100vh;
                 }
-                
+
                 .container {
                     background: white; padding: 2em; border-radius: 20px;
                     max-width: 900px; margin: 0 auto;
                     box-shadow: 0 15px 35px rgba(0,0,0,0.1);
                 }
-                
+
                 .summary-item { 
                     margin: 12px 0; padding: 15px; 
                     background: linear-gradient(145deg, #f8fffe, #e6f9f2);
                     border-radius: 12px; border-left: 5px solid #A8E6CF;
                     transition: transform 0.2s ease;
                 }
-                
+
                 .summary-item:hover { transform: translateY(-2px); }
-                
+
                 .button { 
                     display: inline-block; padding: 15px 30px; 
                     background: linear-gradient(135deg, #A8E6CF, #7ED3B2);
@@ -219,62 +220,62 @@ def form():
                     transition: all 0.3s ease; border: none; cursor: pointer;
                     font-size: 16px;
                 }
-                
+
                 .button:hover { 
                     transform: translateY(-3px);
                     box-shadow: 0 8px 25px rgba(168, 230, 207, 0.4);
                 }
-                
+
                 .button.secondary {
                     background: linear-gradient(135deg, #6c7b7f, #495c61);
                     color: white;
                 }
-                
+
                 h1 { 
                     text-align: center; color: #2d5a3d; margin-bottom: 30px;
                     font-size: 2.5rem; font-weight: 700;
                 }
-                
+
                 h2 { 
                     color: #2d5a3d; margin-top: 30px; 
                     border-bottom: 3px solid #A8E6CF; padding-bottom: 10px;
                     font-size: 1.5rem;
                 }
-                
+
                 .ai-section {
                     background: linear-gradient(145deg, #e3f9e5, #c8f2cc);
                     padding: 25px; border-radius: 15px; margin: 25px 0;
                     text-align: center; border-left: 5px solid #7ED3B2;
                 }
-                
+
                 .highlight {
                     background: linear-gradient(145deg, #fff9e6, #ffeaa7);
                     border-left-color: #fdcb6e;
                 }
-                
+
                 .next-steps {
                     background: linear-gradient(145deg, #f0f8ff, #e6f3ff);
                     padding: 25px; border-radius: 15px; margin: 30px 0;
                     border-left: 5px solid #74b9ff;
                 }
-                
+
                 .feature-grid {
                     display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
                     gap: 15px; margin: 20px 0;
                 }
-                
+
                 .feature-card {
                     background: white; padding: 20px; border-radius: 12px;
                     border-left: 4px solid #A8E6CF; text-align: center;
                     box-shadow: 0 5px 15px rgba(0,0,0,0.08);
                 }
-                
+
                 @media (max-width: 768px) {
                     .container { padding: 1.5em; margin: 0.5em; }
                     h1 { font-size: 2rem; }
                     .feature-grid { grid-template-columns: 1fr; }
                 }
-                
+
                 .success-badge {
                     display: inline-block; background: #00b894; color: white;
                     padding: 8px 16px; border-radius: 20px; font-size: 14px;
@@ -288,7 +289,7 @@ def form():
                 <div style="text-align: center; margin-bottom: 30px;">
                     <span class="success-badge">✅ Profile Created Successfully</span>
                 </div>
-                
+
                 <p style="text-align: center; font-size: 18px; color: #2d5a3d; margin-bottom: 30px;">
                     Thank you for sharing your information, {{ name|title }}! Your personalised wellness companion is ready.
                 </p>
@@ -320,7 +321,7 @@ def form():
                 <div class="ai-section">
                     <h2>🤖 Your AI-Powered Insights</h2>
                     <p><strong>Based on your profile, here are your personalised recommendations:</strong></p>
-                    
+
                     <div style="text-align: left; margin: 20px 0;">
                         <div class="summary-item">
                             <strong>🎯 Goal-Specific Guidance:</strong> 
@@ -334,7 +335,7 @@ def form():
                                 Regular movement and stress management techniques will significantly benefit your mental wellbeing journey.
                             {% endif %}
                         </div>
-                        
+
                         <div class="summary-item">
                             <strong>🧠 Wellbeing Focus:</strong>
                             {% if stress_level|int > 6 %}
@@ -345,7 +346,7 @@ def form():
                                 You're in a good headspace to pursue your goals. Use this positive energy to establish consistent routines.
                             {% endif %}
                         </div>
-                        
+
                         {% if menstrual_cycle and menstrual_cycle != '' %}
                         <div class="summary-item">
                             <strong>🌙 Cycle-Aware Tips:</strong>
@@ -355,11 +356,11 @@ def form():
                     </div>
                 </div>
                 {% endif %}
-                
+
                 <div class="next-steps">
                     <h2>🚀 What's Next?</h2>
                     <p style="margin-bottom: 20px;">Your fitness companion is now set up! Here's what you can look forward to:</p>
-                    
+
                     <div class="feature-grid">
                         <div class="feature-card">
                             <h3>📝 Daily Logging</h3>
@@ -378,12 +379,12 @@ def form():
                             <p>Stay on track with supportive, non-judgmental prompts</p>
                         </div>
                     </div>
-                    
+
                     <p style="text-align: center; margin-top: 25px; font-style: italic; color: #666;">
                         💚 Remember: This is about progress, not perfection. Small consistent steps lead to lasting change.
                     </p>
                 </div>
-                
+
                 <div style="text-align: center; margin-top: 30px;">
                     <a href="/dashboard?email={{ email }}" class="button">🏠 Go to Dashboard</a>
                     <a href="/daily-log?email={{ email }}" class="button">📝 Start Daily Log</a>
@@ -412,7 +413,7 @@ def dashboard():
     email = request.args.get('email')
     if not email or email not in users_data:
         return "User not found. Please complete your profile first."
-    
+
     user = users_data[email]
     return render_template_string("""
     <!DOCTYPE html>
@@ -443,31 +444,31 @@ def dashboard():
     <body>
         <div class="container">
             <h1>🌟 Welcome back, {{ user.name|title }}!</h1>
-            
+
             <div class="reminder">
                 <p>💚 <strong>Daily Reminder:</strong> You're doing great! Remember to log your meals and movement today.</p>
             </div>
-            
+
             <div class="dashboard-grid">
                 <div class="card">
                     <h3>📊 Today's Scores</h3>
                     <div class="score">N/A</div>
                     <p>Complete your daily log to see your scores</p>
                 </div>
-                
+
                 <div class="card">
                     <h3>🎯 Your Goal</h3>
                     <p><strong>{{ user.profile_data.goal|replace('_', ' ')|title }}</strong></p>
                     <p>{{ user.profile_data.motivation[:100] }}...</p>
                 </div>
-                
+
                 <div class="card">
                     <h3>💭 Quick Stats</h3>
                     <p><strong>Motivation:</strong> {{ user.profile_data.motivationLevel }}/10</p>
                     <p><strong>Stress:</strong> {{ user.profile_data.stressLevel }}/10</p>
                     <p><strong>Sleep:</strong> {{ user.profile_data.sleepHours }} hours</p>
                 </div>
-                
+
                 {% if user.profile_data.menstrualCycle %}
                 <div class="card">
                     <h3>🌙 Cycle Status</h3>
@@ -476,7 +477,7 @@ def dashboard():
                 </div>
                 {% endif %}
             </div>
-            
+
             <h2>🚀 Quick Actions</h2>
             <div class="card">
                 <h3>💳 Subscription Status</h3>
@@ -491,7 +492,7 @@ def dashboard():
                 <p><small>✨ Unlimited access to all features</small></p>
                 {% endif %}
             </div>
-            
+
             <div style="text-align: center;">
                 <a href="/daily-log?email={{ user.email }}" class="button">📝 Daily Log</a>
                 <a href="/weekly-checkin?email={{ user.email }}" class="button">📅 Weekly Check-in</a>
@@ -509,7 +510,7 @@ def daily_log():
     email = request.args.get('email')
     if not email:
         return "Please provide email parameter"
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html lang="en-GB">
@@ -541,14 +542,14 @@ def daily_log():
         <div class="container">
             <h1>📝 Daily Log</h1>
             <p style="text-align: center; color: #666;">Track your daily wellness journey</p>
-            
+
             <form method="POST" action="/save-daily-log">
                 <input type="hidden" name="email" value="{{ email }}">
                 <input type="hidden" name="date" value="{{ today }}">
-                
+
                 <label for="food_log">🍽️ What did you eat today?</label>
                 <textarea name="food_log" placeholder="E.g., oats with berries for breakfast, chicken salad for lunch..." rows="3"></textarea>
-                
+
                 <label for="workout">🏃‍♀️ Workout Type:</label>
                 <select name="workout">
                     <option value="">-- Select --</option>
@@ -559,13 +560,13 @@ def daily_log():
                     <option value="other">Other</option>
                     <option value="rest">Rest Day</option>
                 </select>
-                
+
                 <label for="workout_duration">⏱️ Workout Duration (minutes):</label>
                 <input type="number" name="workout_duration" min="0" max="300">
-                
+
                 <label for="weight">⚖️ Weight (kg) - Optional:</label>
                 <input type="number" name="weight" step="0.1" min="30" max="300">
-                
+
                 <label for="mood">😊 Mood Today:</label>
                 <select name="mood">
                     <option value="">-- Select --</option>
@@ -575,13 +576,13 @@ def daily_log():
                     <option value="low">Low</option>
                     <option value="stressed">Stressed</option>
                 </select>
-                
+
                 <label for="sleep_hours">😴 Hours of Sleep:</label>
                 <input type="number" name="sleep_hours" step="0.5" min="0" max="24">
-                
+
                 <label for="stress_level">😰 Stress Level (1-10):</label>
                 <input type="range" name="stress_level" min="1" max="10" value="5">
-                
+
                 <label for="water_intake">💧 Water Intake:</label>
                 <select name="water_intake">
                     <option value="">-- Select --</option>
@@ -590,13 +591,13 @@ def daily_log():
                     <option value="good">2-3L</option>
                     <option value="excellent">3L+</option>
                 </select>
-                
+
                 <label for="notes">💭 Additional Notes:</label>
                 <textarea name="notes" placeholder="How are you feeling today? Any observations?" rows="2"></textarea>
-                
+
                 <button type="submit" class="button">💾 Save Today's Log</button>
             </form>
-            
+
             <div style="text-align: center; margin-top: 20px;">
                 <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
             </div>
@@ -610,7 +611,7 @@ def save_daily_log():
     email = request.form.get('email')
     if email not in users_data:
         return "User not found"
-    
+
     # Save the daily log entry
     log_entry = {
         'date': request.form.get('date'),
@@ -625,9 +626,9 @@ def save_daily_log():
         'water_intake': request.form.get('water_intake'),
         'notes': request.form.get('notes')
     }
-    
+
     users_data[email]['daily_logs'].append(log_entry)
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html>
@@ -656,10 +657,10 @@ def subscription_page():
     email = request.args.get('email')
     if not email or email not in users_data:
         return "User not found"
-    
+
     user = users_data[email]
     current_tier = user.get('subscription_tier', 'free')
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html lang="en-GB">
@@ -671,7 +672,7 @@ def subscription_page():
         <style>
             * { box-sizing: border-box; }
             body { 
-                font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;
+                font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;```python
                 background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
             }
             .container { background: white; padding: 2em; border-radius: 20px; max-width: 900px; margin: 0 auto; }
@@ -709,7 +710,7 @@ def subscription_page():
             <p style="text-align: center; color: #666; margin-bottom: 30px;">
                 Unlock the full potential of your fitness journey
             </p>
-            
+
             <div class="plans-grid">
                 <div class="plan-card {% if current_tier == 'free' %}current{% endif %}">
                     {% if current_tier == 'free' %}
@@ -732,7 +733,7 @@ def subscription_page():
                     <button class="button" disabled>Current Plan</button>
                     {% endif %}
                 </div>
-                
+
                 <div class="plan-card premium {% if current_tier == 'premium' %}current{% endif %}">
                     {% if current_tier == 'premium' %}
                     <div class="current-badge">Current Plan</div>
@@ -754,15 +755,15 @@ def subscription_page():
                     {% endif %}
                 </div>
             </div>
-            
+
             <div style="text-align: center; margin-top: 30px;">
                 <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
             </div>
         </div>
-        
+
         <script>
             const stripe = Stripe('{{ stripe_publishable_key }}');
-            
+
             async function createCheckoutSession(email) {
                 const response = await fetch('/create-checkout-session', {
                     method: 'POST',
@@ -771,19 +772,19 @@ def subscription_page():
                     },
                     body: `email=${email}`
                 });
-                
+
                 const session = await response.json();
-                
+
                 if (session.error) {
                     alert('Error: ' + session.error);
                     return;
                 }
-                
+
                 // Redirect to Stripe Checkout
                 const result = await stripe.redirectToCheckout({
                     sessionId: session.id
                 });
-                
+
                 if (result.error) {
                     alert(result.error.message);
                 }
@@ -796,16 +797,16 @@ def subscription_page():
 @app.route("/create-checkout-session", methods=["POST"])
 def create_checkout_session():
     email = request.form.get('email')
-    
+
     if not email or email not in users_data:
         return jsonify({'error': 'User not found'}), 404
-    
+
     if not stripe.api_key:
         return jsonify({'error': 'Stripe not configured'}), 500
-    
+
     try:
         user = users_data[email]
-        
+
         # Create or get Stripe customer
         if not user.get('stripe_customer_id'):
             customer = stripe.Customer.create(
@@ -815,7 +816,7 @@ def create_checkout_session():
             users_data[email]['stripe_customer_id'] = customer.id
         else:
             customer_id = user['stripe_customer_id']
-        
+
         # Create checkout session
         session = stripe.checkout.Session.create(
             customer=user.get('stripe_customer_id'),
@@ -841,9 +842,9 @@ def create_checkout_session():
                 'user_email': email
             }
         )
-        
+
         return jsonify({'id': session.id})
-        
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -851,21 +852,21 @@ def create_checkout_session():
 def subscription_success():
     session_id = request.args.get('session_id')
     email = request.args.get('email')
-    
+
     if not session_id or not email:
         return "Missing parameters"
-    
+
     try:
         # Retrieve the session
         session = stripe.checkout.Session.retrieve(session_id)
-        
+
         if session.payment_status == 'paid':
             # Update user subscription
             if email in users_data:
                 users_data[email]['subscription_tier'] = 'premium'
                 users_data[email]['subscription_status'] = 'active'
                 users_data[email]['subscription_end_date'] = None  # Will be managed by Stripe
-        
+
         return render_template_string("""
         <!DOCTYPE html>
         <html>
@@ -888,21 +889,21 @@ def subscription_success():
         </body>
         </html>
         """, email=email)
-        
+
     except Exception as e:
         return f"Error: {str(e)}"
 
 @app.route("/downgrade", methods=["POST"])
 def downgrade_subscription():
     email = request.form.get('email')
-    
+
     if not email or email not in users_data:
         return "User not found"
-    
+
     # Update user to free tier
     users_data[email]['subscription_tier'] = 'free'
     users_data[email]['subscription_status'] = 'active'
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html>
@@ -928,14 +929,14 @@ def check_subscription_limits(email, action_type):
     """Check if user has reached their subscription limits"""
     if email not in users_data:
         return False
-    
+
     user = users_data[email]
     tier = user.get('subscription_tier', 'free')
     limits = SUBSCRIPTION_TIERS[tier]['limits']
-    
+
     if limits.get(action_type, 0) == -1:  # Unlimited
         return True
-    
+
     # Count current usage
     if action_type == 'daily_logs':
         current_count = len(user['daily_logs'])
@@ -947,7 +948,7 @@ def check_subscription_limits(email, action_type):
         current_count = sum(1 for log in user.get('ai_logs', []) if log.get('date') == today)
     else:
         return True
-    
+
     return current_count < limits.get(action_type, 0)
 
 if __name__ == "__main__":
@@ -960,7 +961,7 @@ def weekly_checkin():
     email = request.args.get('email')
     if not email:
         return "Please provide email parameter"
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html lang="en-GB">
@@ -992,15 +993,15 @@ def weekly_checkin():
         <div class="container">
             <h1>📅 Weekly Check-in</h1>
             <p style="text-align: center; color: #666;">Reflect on your week and get AI-powered feedback</p>
-            
+
             <form method="POST" action="/save-weekly-checkin">
                 <input type="hidden" name="email" value="{{ email }}">
                 <input type="hidden" name="week_of" value="{{ today }}">
-                
+
                 <label for="adherence">📊 How well did you follow your plan this week? (1-10):</label>
                 <input type="range" name="adherence" min="1" max="10" value="5" oninput="document.getElementById('adherence-value').textContent = this.value">
                 <span id="adherence-value">5</span>/10
-                
+
                 <label for="energy">⚡ Average energy level this week:</label>
                 <select name="energy">
                     <option value="very_low">Very Low</option>
@@ -1009,7 +1010,7 @@ def weekly_checkin():
                     <option value="high">High</option>
                     <option value="very_high">Very High</option>
                 </select>
-                
+
                 <label for="bloating">🫃 Bloating/digestive issues:</label>
                 <select name="bloating">
                     <option value="none">None</option>
@@ -1017,7 +1018,7 @@ def weekly_checkin():
                     <option value="moderate">Moderate</option>
                     <option value="severe">Severe</option>
                 </select>
-                
+
                 <label for="hunger">🍽️ Hunger levels:</label>
                 <select name="hunger">
                     <option value="very_low">Very Low</option>
@@ -1026,22 +1027,22 @@ def weekly_checkin():
                     <option value="high">High</option>
                     <option value="very_high">Very High</option>
                 </select>
-                
+
                 <label for="weight_change">⚖️ Weight difference from last week (optional):</label>
                 <input type="number" name="weight_change" step="0.1" placeholder="e.g., -0.5 or +1.2">
-                
+
                 <label for="challenges">🤔 What were your biggest challenges this week?</label>
                 <textarea name="challenges" placeholder="E.g., busy schedule, stress eating, lack of motivation..." rows="3"></textarea>
-                
+
                 <label for="wins">🎉 What went well this week?</label>
                 <textarea name="wins" placeholder="E.g., consistent workouts, better sleep, healthy meal prep..." rows="3"></textarea>
-                
+
                 <label for="focus_next_week">🎯 What do you want to focus on next week?</label>
                 <textarea name="focus_next_week" placeholder="E.g., increase water intake, try new recipes, prioritize sleep..." rows="2"></textarea>
-                
+
                 <button type="submit" class="button">💾 Submit Check-in & Get AI Feedback</button>
             </form>
-            
+
             <div style="text-align: center; margin-top: 20px;">
                 <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
             </div>
@@ -1055,7 +1056,7 @@ def save_weekly_checkin():
     email = request.form.get('email')
     if email not in users_data:
         return "User not found"
-    
+
     # Save the weekly check-in
     checkin_data = {
         'week_of': request.form.get('week_of'),
@@ -1069,26 +1070,26 @@ def save_weekly_checkin():
         'wins': request.form.get('wins'),
         'focus_next_week': request.form.get('focus_next_week')
     }
-    
+
     users_data[email]['weekly_checkins'].append(checkin_data)
-    
+
     # Generate AI feedback if OpenAI key is available
     ai_feedback = "AI feedback temporarily unavailable. Please ensure OpenAI API key is configured."
-    
+
     if openai.api_key:
         try:
             user_profile = users_data[email]['profile_data']
             prompt = f"""
             Based on this user's weekly check-in and profile, provide supportive, educational feedback:
-            
+
             User Profile: {user_profile.get('goal')} goal, stress level {user_profile.get('stressLevel')}/10
             Weekly Check-in: Adherence {checkin_data['adherence']}/10, Energy: {checkin_data['energy']}
             Challenges: {checkin_data['challenges']}
             Wins: {checkin_data['wins']}
-            
+
             Provide 3-4 sentences of encouraging, specific advice focusing on sustainable habits.
             """
-            
+
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}],
@@ -1097,7 +1098,7 @@ def save_weekly_checkin():
             ai_feedback = response.choices[0].message.content
         except Exception as e:
             ai_feedback = f"AI feedback unavailable: {str(e)}"
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html>
@@ -1113,12 +1114,12 @@ def save_weekly_checkin():
     <body>
         <div class="container">
             <h2>✅ Weekly Check-in Complete!</h2>
-            
+
             <div class="ai-feedback">
                 <h3>🤖 Your Personalized AI Feedback</h3>
                 <p>{{ ai_feedback }}</p>
             </div>
-            
+
             <p>Keep up the great work! Your consistency and self-reflection are key to long-term success.</p>
             <a href="/dashboard?email={{ email }}" class="button">← Back to Dashboard</a>
         </div>
@@ -1131,7 +1132,7 @@ def ai_chat():
     email = request.args.get('email')
     if not email:
         return "Please provide email parameter"
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html lang="en-GB">
@@ -1166,13 +1167,13 @@ def ai_chat():
         <div class="container">
             <h1>🤖 AI Wellness Assistant</h1>
             <p style="text-align: center; color: #666;">Ask me anything about your fitness journey!</p>
-            
+
             <form method="POST" action="/ai-response">
                 <input type="hidden" name="email" value="{{ email }}">
                 <textarea name="question" class="chat-input" rows="4" placeholder="E.g., Why didn't I lose weight this week? Why do I feel bloated today? What should I improve?"></textarea>
                 <button type="submit" class="button">💬 Ask AI Assistant</button>
             </form>
-            
+
             <div class="suggested-questions">
                 <h3>💡 Suggested Questions:</h3>
                 <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Why didn\\'t I lose weight this week?'">Why didn't I lose weight this week?</div>
@@ -1181,7 +1182,7 @@ def ai_chat():
                 <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'How can I improve my energy levels?'">How can I improve my energy levels?</div>
                 <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Tips for better sleep?'">Tips for better sleep?</div>
             </div>
-            
+
             <div style="text-align: center; margin-top: 20px;">
                 <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
             </div>
@@ -1194,10 +1195,10 @@ def ai_chat():
 def ai_response():
     email = request.form.get('email')
     question = request.form.get('question')
-    
+
     if email not in users_data:
         return "User not found"
-    
+
     # Check subscription limits
     if not check_subscription_limits(email, 'ai_questions'):
         user = users_data[email]
@@ -1229,31 +1230,31 @@ def ai_response():
         </body>
         </html>
         """, email=email, tier=tier)
-    
+
     # Generate AI response if OpenAI key is available
     ai_response = "AI assistant temporarily unavailable. Please ensure OpenAI API key is configured in Secrets."
-    
+
     if openai.api_key:
         try:
             user_data = users_data[email]
             user_profile = user_data['profile_data']
             recent_logs = user_data['daily_logs'][-7:] if user_data['daily_logs'] else []
-            
+
             context = f"""
             You are a supportive, knowledgeable fitness and wellness coach. Answer the user's question based on their profile and recent data.
-            
+
             User Profile: {user_profile.get('goal')} goal, {user_profile.get('gender')} {user_profile.get('age')} years old
             Sleep: {user_profile.get('sleepHours')} hours, Stress: {user_profile.get('stressLevel')}/10
             Motivation: {user_profile.get('motivationLevel')}/10
             Menstrual cycle: {user_profile.get('menstrualCycle', 'N/A')}
-            
+
             Recent daily logs (last 7 days): {recent_logs}
-            
+
             User Question: {question}
-            
+
             Provide a supportive, educational response in 3-4 sentences. Be specific and actionable.
             """
-            
+
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": context}],
@@ -1262,7 +1263,7 @@ def ai_response():
             ai_response = response.choices[0].message.content
         except Exception as e:
             ai_response = f"AI assistant error: {str(e)}"
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html>
@@ -1279,17 +1280,17 @@ def ai_response():
     <body>
         <div class="container">
             <h2>🤖 AI Wellness Assistant Response</h2>
-            
+
             <div class="question">
                 <strong>Your Question:</strong><br>
                 {{ question }}
             </div>
-            
+
             <div class="response">
                 <strong>🤖 AI Response:</strong><br>
                 {{ ai_response }}
             </div>
-            
+
             <div style="text-align: center;">
                 <a href="/ai-chat?email={{ email }}" class="button">💬 Ask Another Question</a>
                 <a href="/dashboard?email={{ email }}" class="button">🏠 Back to Dashboard</a>
