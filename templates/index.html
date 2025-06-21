@@ -37,13 +37,14 @@
     }
 
     .hero-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
       align-items: center;
+      text-align: center;
     }
 
-    .hero-left h1 {
+    .hero-content h1 {
       font-size: 3.2rem;
       font-weight: 600;
       margin-bottom: 24px;
@@ -52,11 +53,14 @@
       line-height: 1.1;
     }
 
-    .hero-left p {
+    .hero-content p {
       font-size: 1.25rem;
       margin-bottom: 40px;
       color: #4a5568;
       line-height: 1.5;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .cta-buttons {
@@ -127,15 +131,13 @@
       margin-top: 8px;
     }
 
-    /* Hero Right - Feature Cards */
-    .hero-right {
-      position: relative;
-    }
-
+    /* Hero Features */
     .hero-features {
       display: flex;
       flex-direction: row;
       gap: 24px;
+      justify-content: center;
+      margin: 40px 0;
     }
 
     .hero-feature-card {
@@ -640,17 +642,11 @@
 
     /* Responsive Design */
     @media (max-width: 768px) {
-      .hero-container {
-        grid-template-columns: 1fr;
-        gap: 40px;
-        text-align: center;
-      }
-
-      .hero-left h1 {
+      .hero-content h1 {
         font-size: 2.5rem;
       }
 
-      .hero-left p {
+      .hero-content p {
         font-size: 1.1rem;
       }
 
@@ -692,10 +688,57 @@
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-container">
-      <div class="hero-left">
+      <div class="hero-content">
         <h1>Understand your body, finally lose fat — with daily support that adapts to you.</h1>
         <p>Get personalised feedback based on your hormones, habits, and health patterns — whether you're just getting started or stuck on the scales.</p>
-        
+      </div>
+
+      <div class="hero-features">
+        <div class="hero-feature-card">
+          <h3>Daily Check-in</h3>
+          <p>Today</p>
+          <div class="feature-demo">
+            <div class="demo-score">8.2</div>
+            <p style="margin: 8px 0; font-size: 0.9rem; color: #666;">Overall Score</p>
+            <div class="demo-categories">
+              <span>😴 9.1</span>
+              <span>🥗 7.8</span>
+              <span>🏃‍♀️ 8.5</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-feature-card">
+          <h3>AI Insights</h3>
+          <div class="ai-badge">✨ New</div>
+          <div class="ai-demo">
+            <div class="feature-icon">🤖</div>
+            <div class="ai-message">"Your sleep improved this week! This likely contributed to better hunger regulation. Consider maintaining your 7.5hr schedule."</div>
+            <p style="margin-top: 12px; font-size: 0.85rem; color: #3B7A57; font-weight: 600;">Sleep Quality</p>
+            <p style="font-size: 0.85rem; color: #3B7A57; font-weight: 600;">Hormones</p>
+          </div>
+        </div>
+
+        <div class="hero-feature-card">
+          <h3>Progress Trends</h3>
+          <p style="font-size: 0.9rem; color: #666; margin-bottom: 16px;">Last 30 days</p>
+          <div class="progress-demo">
+            <div class="progress-stats">
+              <span>↗️ +2.3kg lost</span>
+              <span>🔥 12 day streak</span>
+            </div>
+            <div class="mini-chart">
+              <div class="chart-bar" style="height: 40%;"></div>
+              <div class="chart-bar" style="height: 60%;"></div>
+              <div class="chart-bar" style="height: 80%;"></div>
+              <div class="chart-bar" style="height: 70%;"></div>
+              <div class="chart-bar" style="height: 90%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-cta">
         <div class="cta-buttons">
           <button onclick="openQuiz()" class="btn btn-primary">
             🚀 Start Free Questionnaire
@@ -709,53 +752,6 @@
         </div>
         
         <p class="cta-note">No sign-up needed to begin</p>
-      </div>
-
-      <div class="hero-right">
-        <div class="hero-features">
-          <div class="hero-feature-card">
-            <h3>Daily Check-in</h3>
-            <p>Today</p>
-            <div class="feature-demo">
-              <div class="demo-score">8.2</div>
-              <p style="margin: 8px 0; font-size: 0.9rem; color: #666;">Overall Score</p>
-              <div class="demo-categories">
-                <span>😴 9.1</span>
-                <span>🥗 7.8</span>
-                <span>🏃‍♀️ 8.5</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="hero-feature-card">
-            <h3>AI Insights</h3>
-            <div class="ai-badge">✨ New</div>
-            <div class="ai-demo">
-              <div class="feature-icon">🤖</div>
-              <div class="ai-message">"Your sleep improved this week! This likely contributed to better hunger regulation. Consider maintaining your 7.5hr schedule."</div>
-              <p style="margin-top: 12px; font-size: 0.85rem; color: #3B7A57; font-weight: 600;">Sleep Quality</p>
-              <p style="font-size: 0.85rem; color: #3B7A57; font-weight: 600;">Hormones</p>
-            </div>
-          </div>
-
-          <div class="hero-feature-card">
-            <h3>Progress Trends</h3>
-            <p style="font-size: 0.9rem; color: #666; margin-bottom: 16px;">Last 30 days</p>
-            <div class="progress-demo">
-              <div class="progress-stats">
-                <span>↗️ +2.3kg lost</span>
-                <span>🔥 12 day streak</span>
-              </div>
-              <div class="mini-chart">
-                <div class="chart-bar" style="height: 40%;"></div>
-                <div class="chart-bar" style="height: 60%;"></div>
-                <div class="chart-bar" style="height: 80%;"></div>
-                <div class="chart-bar" style="height: 70%;"></div>
-                <div class="chart-bar" style="height: 90%;"></div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </section>
