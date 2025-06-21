@@ -1,0 +1,76 @@
+✅ FULL UPDATED PROMPT
+App Name: AI Fitness Companion
+Tone: Supportive, inclusive, hormone-aware, non-gendered, motivating, and user-friendly
+Language: British English
+
+🟢 1. Questionnaire Updates
+
+Change "biological sex" to "sex assigned at birth".
+The primary fitness goal is fat loss. There should be no other options.
+Reduce the number of pages in the questionnaire. Group related questions together to avoid form fatigue — ideally no more than 4–5 screens total.
+Avoid repetition. Review and remove questions that ask the same thing in slightly different ways.
+Ensure all questions are clear, concise, and written in layman's terms.
+Menstrual & Menopause Logic:
+If user selects "Female" or "Assigned Female at Birth", prompt:
+“Do you have periods?”
+If YES:
+Ask: “Where are you in your cycle today?”
+Options: “Just started”, “Middle of cycle”, “About to start”, “Not sure”
+If NO:
+Ask: “Are you going through the menopause?”
+If YES: Ask which stage:
+“Perimenopausal”
+“Menopausal”
+“Postmenopausal”
+If NO: Move on with no further questions.
+If user selects "Male" or "Assigned Male at Birth", skip all cycle and menopause questions.
+🟢 2. Weekly Weight Check-Ins & AI Prompts
+
+Remove the question about whether users want weekly weight check-ins — they are included automatically, but should be optional to log.
+Remove the question asking if users want personalised AI feedback — it’s part of the core service and should not be optional.
+Add AI-generated feedback based on user input (e.g. “Why didn’t I lose weight this week?”, “I’m tired today, why?”).
+If a user logs a negative state, such as stress or fatigue, the app should return a supportive, empathetic message based on the mood logged (e.g. “Sorry to hear you’re feeling this way — today might be a good day to go easy and take care of yourself.”)
+🟢 3. UI/UX + Visual Design
+
+Fonts must be modern, clean and readable. Use something like Inter, Poppins, or Nunito Sans.
+Change font and title after completing the questionnaire (“Welcome to your fitness journey”). Use consistent font and a white background for clarity.
+Use a consistent colour scheme across all pages.
+Suggested colour palette:
+Mint green background: #D1F2EB
+Deep green accent: #3B7A57
+Use white backgrounds for forms/dashboards
+Remove current landing page banner/logo and replace with a clean hero section explaining:
+What the app does
+Who it’s for (men and women)
+That it gives hormone-aware, AI-powered, personalised daily insights
+With a clear call-to-action: “Start Your Journey”
+🟢 4. User Flows & Logic
+
+When a user clicks “Weekly Check-in” from the dashboard, it should go to the weekly check-in form.
+After clicking “Back” from any check-in screen, it should return them to the dashboard — not the landing page.
+Once signed in, users should not be able to return to the landing page.
+Add an option to sign up immediately from the landing page or after completing the questionnaire — both paths should funnel into the same dashboard and data collection.
+Once a user completes the questionnaire, store their data securely and associate it with their login.
+Only users aged 18 and above should be able to use the app (DOB check required on sign-up).
+🟢 5. Data Capture & Tracking
+
+Add ability to track fitness activity manually or via fitness watches (Fitbit, Apple Watch, etc.).
+Add prompt for whether user wears a fitness tracker in onboarding or settings.
+If wearable data isn’t yet supported, allow manual input of:
+Steps
+Exercise type (from dropdown)
+Duration
+Intensity (scale or options)
+Encourage daily logs with:
+Food log (text entry)
+Stress, sleep, mood, energy — all tracked via simple scales, not textboxes
+🟢 6. Daily Log Confirmation
+
+After a user submits their daily log, show a confirmation screen with a personalised, supportive message based on their input. Examples:
+“Thanks for logging your day. Stress levels look high today – maybe take a walk or get a little extra rest if you can.”
+“Sleep looked solid last night — great work staying consistent!”
+Rotate 4–5 variations of these confirmation prompts to keep it human and fresh.
+✅ Final Notes
+
+Everything should be gender-inclusive, simple, non-patronising, and tailored to help users understand themselves without overwhelming them.
+Keep the emotional tone uplifting, human, and compassionate, even when giving corrective feedback.
