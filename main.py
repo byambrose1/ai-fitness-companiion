@@ -299,7 +299,7 @@ def form():
                 <h2>👤 Your Profile Summary</h2>
                 <div class="summary-item"><strong>Email:</strong> {{ email }}</div>
                 <div class="summary-item"><strong>Age:</strong> {{ age }} years old</div>
-                <div class="summary-item"><strong>Biological Sex:</strong> {{ gender|title }}</div>
+                <div class="summary-item"><strong>Sex assigned at birth:</strong> {{ gender|title }}</div>
                 <div class="summary-item"><strong>Height:</strong> {{ height }} cm</div>
                 <div class="summary-item"><strong>Current Weight:</strong> {{ weight }} kg</div>
                 {% if goal_weight %}
