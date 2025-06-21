@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string, jsonify, session
+from flask import Flask, request, render_template_string, jsonify, session, send_from_directory
 from datetime import datetime, timedelta
 import json
 import os
@@ -7,6 +7,16 @@ import stripe
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-this'  # Change this in production
+
+# Serve static files for PWA
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory('static', filename)
+
+# PWA offline fallback
+@app.route('/offline.html')
+def offline():
+    return send_from_directory('static', 'offline.html')
 
 # OpenAI setup - you'll need to add your API key via Secrets
 openai.api_key = os.getenv('OPENAI_API_KEY')

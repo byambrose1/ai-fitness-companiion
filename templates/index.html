@@ -5,6 +5,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Fitness Companion - Understand Your Body, Finally Lose Fat</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#3B7A57">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="FitnessAI">
+  <meta name="description" content="Your personalized AI-powered fitness and wellness companion">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/static/manifest.json">
+  
+  <!-- Apple Touch Icons -->
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="/static/icon-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="/static/icon-512.png">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/icon-192.png">
+  
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1375,6 +1394,57 @@
     document.addEventListener('DOMContentLoaded', function() {
       updateRangeDisplay('motivationLevel', 5);
       updateRangeDisplay('stressLevel', 5);
+      
+      // Register service worker for PWA
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/static/sw.js')
+            .then(function(registration) {
+              console.log('ServiceWorker registration successful');
+              
+              // Show install prompt
+              let deferredPrompt;
+              window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                showInstallPrompt();
+              });
+              
+              function showInstallPrompt() {
+                // Create install banner
+                const installBanner = document.createElement('div');
+                installBanner.innerHTML = `
+                  <div style="position: fixed; bottom: 20px; left: 20px; right: 20px; background: #3B7A57; color: white; padding: 16px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                    <div>
+                      <strong>📱 Install App</strong><br>
+                      <small>Add to your home screen for quick access</small>
+                    </div>
+                    <div>
+                      <button onclick="installApp()" style="background: white; color: #3B7A57; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-right: 8px;">Install</button>
+                      <button onclick="dismissInstall()" style="background: transparent; color: white; border: 1px solid white; padding: 8px 12px; border-radius: 6px; cursor: pointer;">✕</button>
+                    </div>
+                  </div>
+                `;
+                document.body.appendChild(installBanner);
+                
+                window.installApp = function() {
+                  deferredPrompt.prompt();
+                  deferredPrompt.userChoice.then((choiceResult) => {
+                    deferredPrompt = null;
+                    installBanner.remove();
+                  });
+                };
+                
+                window.dismissInstall = function() {
+                  installBanner.remove();
+                };
+              }
+            })
+            .catch(function(error) {
+              console.log('ServiceWorker registration failed: ', error);
+            });
+        });
+      }
     });
   </script>
 </body>
