@@ -4,10 +4,18 @@ import json
 import os
 import openai
 import stripe
+import bcrypt
 from data_protection import data_protection
+from gdpr_compliance import gdpr_compliance
+from database import get_user, save_user, add_daily_log, get_all_users, init_database
+from security_monitoring import security_monitor
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-change-this'  # Change this in production
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-change-in-production')
+
+# Admin credentials from environment variables
+ADMIN_USERNAME = os.getenv('ADMIN_USERNAME', 'admin')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'change-this-password')
 
 # Serve static files for PWA
 @app.route('/static/<path:filename>')
@@ -26,8 +34,22 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 stripe_publishable_key = os.getenv('STRIPE_PUBLISHABLE_KEY')
 
-# Simple in-memory storage (replace with database in production)
-users_data = {}
+# Initialize database
+init_database()
+
+# Helper function to get users_data for compatibility
+def get_users_data():
+    """Get all users in dictionary format for compatibility"""
+    users = {}
+    all_users = get_all_users()
+    for email, name, tier in all_users:
+        user = get_user(email)
+        if user:
+            users[email] = user
+    return users
+
+# Global variable for compatibility with existing code
+users_data = get_users_data()
 
 # Subscription tiers
 SUBSCRIPTION_TIERS = {
@@ -60,11 +82,14 @@ def register_user():
     if email in users_data:
         return jsonify({"success": False, "message": "Account already exists"}), 400
 
-    # Create basic user account (in production, hash the password)
-    users_data[email] = {
+    # Hash password securely
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    
+    # Create user account
+    user_data = {
         'name': name,
         'email': email,
-        'password': password,  # In production, use proper password hashing
+        'password': hashed_password.decode('utf-8'),
         'created_at': datetime.now().isoformat(),
         'subscription_tier': 'free',
         'subscription_status': 'active',
@@ -74,6 +99,9 @@ def register_user():
         'daily_logs': [],
         'weekly_checkins': []
     }
+    
+    save_user(user_data)
+    data_protection.log_data_access(email, "user_registration", request.remote_addr)
 
     return jsonify({"success": True, "message": "Account created successfully"})
 
@@ -87,13 +115,13 @@ def login_user():
     # Log login attempt
     data_protection.log_data_access(email, "login_attempt", ip_address)
 
-    if email not in users_data:
-        # Track failed attempts
+    user = get_user(email)
+    if not user:
         track_failed_login(email, ip_address)
         return jsonify({"success": False, "message": "Account not found"}), 404
 
-    # In production, use proper password verification
-    if users_data[email].get('password') != password:
+    # Verify password with bcrypt
+    if not bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
         track_failed_login(email, ip_address)
         return jsonify({"success": False, "message": "Invalid password"}), 401
 
@@ -999,14 +1027,58 @@ def create_checkout_session():
                     'unit_amount': SUBSCRIPTION_TIERS['premium']['price'],
 
 
-@app.route("/admin")
+@app.route("/admin", methods=["GET", "POST"])
 def admin_dashboard():
-    """Admin interface for user management"""
-    # Simple admin check - in production, use proper authentication
-    admin_key = request.args.get('key')
-    if admin_key != 'admin123':  # Change this to a secure key
-        return "Access denied"
+    """Admin interface for user management with proper authentication"""
+    if request.method == "POST":
+        # Handle admin login
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session['admin_authenticated'] = True
+            data_protection.log_data_access('admin', "admin_login_success", request.remote_addr)
+        else:
+            data_protection.log_data_access('admin', "admin_login_failed", request.remote_addr)
+            return render_template_string("""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Admin Login</title></head>
+            <body style="font-family: Arial; padding: 50px; text-align: center;">
+                <h2>❌ Invalid Credentials</h2>
+                <a href="/admin">Try Again</a>
+            </body>
+            </html>
+            """)
     
+    # Check if admin is authenticated
+    if not session.get('admin_authenticated'):
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Admin Login</title>
+            <style>
+                body { font-family: Arial; padding: 50px; background: #f5f5f5; }
+                .login-form { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+                input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+                button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 5px; }
+            </style>
+        </head>
+        <body>
+            <div class="login-form">
+                <h2>🔐 Admin Login</h2>
+                <form method="POST">
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="password" name="password" placeholder="Password" required>
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+        </body>
+        </html>
+        """)
+    
+    users_data = get_users_data()
     total_users = len(users_data)
     free_users = sum(1 for user in users_data.values() if user.get('subscription_tier') == 'free')
     premium_users = sum(1 for user in users_data.values() if user.get('subscription_tier') == 'premium')
@@ -1091,12 +1163,30 @@ def admin_dashboard():
                 {% endfor %}
             </div>
 
+            <h2>GDPR & Data Management</h2>
+            <form method="POST" action="/admin/gdpr-request" style="margin: 20px 0;">
+                <input type="email" name="email" placeholder="User email" required>
+                <select name="request_type" required>
+                    <option value="">Select Request Type</option>
+                    <option value="access">Data Access Request</option>
+                    <option value="portability">Data Portability</option>
+                    <option value="deletion">Data Deletion</option>
+                    <option value="rectification">Data Correction</option>
+                </select>
+                <button type="submit" style="padding: 8px 16px;">Process GDPR Request</button>
+            </form>
+            
             <h2>Quick Actions</h2>
             <form method="POST" action="/admin/find-user" style="margin: 20px 0;">
-                <input type="hidden" name="admin_key" value="{{ request.args.get('key') }}">
                 <input type="email" name="email" placeholder="Enter user email" required>
                 <button type="submit" style="padding: 8px 16px;">Find User</button>
             </form>
+            
+            <div style="margin: 20px 0;">
+                <a href="/admin/data-retention" style="margin: 5px; padding: 8px 16px; background: #ffc107; text-decoration: none; border-radius: 4px;">Check Data Retention</a>
+                <a href="/admin/backup" style="margin: 5px; padding: 8px 16px; background: #28a745; color: white; text-decoration: none; border-radius: 4px;">Create Backup</a>
+                <a href="/admin/logout" style="margin: 5px; padding: 8px 16px; background: #dc3545; color: white; text-decoration: none; border-radius: 4px;">Logout</a>
+            </div>
         </div>
     </body>
     </html>
@@ -1218,11 +1308,47 @@ def admin_export_data():
     response.headers['Content-Disposition'] = f'attachment; filename=user_data_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
     return response
 
+@app.route("/admin/gdpr-request", methods=["POST"])
+def admin_gdpr_request():
+    """Handle GDPR data subject requests"""
+    if not session.get('admin_authenticated'):
+        return "Access denied"
+    
+    email = request.form.get('email')
+    request_type = request.form.get('request_type')
+    
+    result = gdpr_compliance.handle_data_subject_request(email, request_type)
+    data_protection.log_data_access(email, f"gdpr_{request_type}", request.remote_addr)
+    
+    return jsonify(result)
+
+@app.route("/admin/data-retention")
+def admin_data_retention():
+    """Check data retention compliance"""
+    if not session.get('admin_authenticated'):
+        return "Access denied"
+    
+    expired_users = gdpr_compliance.check_data_retention_compliance()
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head><title>Data Retention Check</title></head>
+    <body style="font-family: Arial; padding: 20px;">
+        <h2>📅 Data Retention Compliance</h2>
+        <p>Users with data past retention period: {{ expired_users|length }}</p>
+        {% for email in expired_users %}
+            <p>• {{ email }}</p>
+        {% endfor %}
+        <a href="/admin">← Back to Admin</a>
+    </body>
+    </html>
+    """, expired_users=expired_users)
+
 @app.route("/admin/backup")
 def admin_backup():
     """Create a backup file"""
-    admin_key = request.args.get('key')
-    if admin_key != 'admin123':
+    if not session.get('admin_authenticated'):
         return "Access denied"
     
     import json
@@ -1241,17 +1367,29 @@ def admin_backup():
             'users': users_data
         }, f, indent=2)
     
-    return f"✅ Backup created: {backup_filename}. <a href='/admin?key={admin_key}'>Back to admin</a>"
+    return f"✅ Backup created: {backup_filename}. <a href='/admin'>Back to admin</a>"
+
+if __name__ == "__main__":
+    # Start security monitoring
+    security_monitor.start_monitoring()
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
                 {% endfor %}
             </div>
             {% endif %}
             
-            <a href="/admin?key={{ admin_key }}">← Back to Admin Dashboard</a>
+            <a href="/admin">← Back to Admin Dashboard</a>
         </div>
     </body>
     </html>
-    """, email=email, user=user, admin_key=admin_key)
+    """, email=email, user=user)
+
+@app.route("/admin/logout")
+def admin_logout():
+    """Admin logout"""
+    session.pop('admin_authenticated', None)
+    data_protection.log_data_access('admin', "admin_logout", request.remote_addr)
+    return "Logged out successfully. <a href='/admin'>Login again</a>"
 
                     'recurring': {
                         'interval': 'month'
@@ -1374,11 +1512,6 @@ def check_subscription_limits(email, action_type):
         return True
 
     return current_count < limits.get(action_type, 0)
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
-
-
 
 @app.route("/weekly-checkin")
 def weekly_checkin():
