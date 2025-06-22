@@ -155,12 +155,71 @@
       display: flex;
       justify-content: center;
       margin: 50px 0;
+      position: relative;
+      min-height: 700px;
+      align-items: center;
     }
 
     .phone-mockup {
       display: flex;
       justify-content: center;
       align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    .background-people {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .person-image {
+      position: absolute;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+    }
+
+    .person-image:hover {
+      opacity: 1;
+    }
+
+    .person-1 {
+      top: 10%;
+      left: 5%;
+      width: 200px;
+      height: 250px;
+      transform: rotate(-8deg);
+    }
+
+    .person-2 {
+      top: 20%;
+      right: 8%;
+      width: 180px;
+      height: 220px;
+      transform: rotate(12deg);
+    }
+
+    .person-3 {
+      bottom: 15%;
+      left: 10%;
+      width: 190px;
+      height: 240px;
+      transform: rotate(5deg);
+    }
+
+    .person-4 {
+      bottom: 10%;
+      right: 12%;
+      width: 170px;
+      height: 210px;
+      transform: rotate(-10deg);
     }
 
     .phone-frame {
@@ -814,6 +873,10 @@
         font-size: 1.1rem;
       }
 
+      .hero-visual {
+        min-height: 600px;
+      }
+
       .phone-frame {
         width: 280px;
         height: 560px;
@@ -841,6 +904,34 @@
       .progress-summary {
         grid-template-columns: 1fr;
         gap: 12px;
+      }
+
+      .person-1 {
+        top: 5%;
+        left: 2%;
+        width: 120px;
+        height: 150px;
+      }
+
+      .person-2 {
+        top: 15%;
+        right: 3%;
+        width: 110px;
+        height: 135px;
+      }
+
+      .person-3 {
+        bottom: 10%;
+        left: 5%;
+        width: 115px;
+        height: 145px;
+      }
+
+      .person-4 {
+        bottom: 5%;
+        right: 6%;
+        width: 105px;
+        height: 130px;
       }
 
       .story-grid {
@@ -888,6 +979,24 @@
       </div>
 
       <div class="hero-visual">
+        <div class="background-people">
+          <img src="https://images.unsplash.com/photo-1594736797933-d0403ba0e145?w=400&h=500&fit=crop&crop=center" 
+               alt="Happy woman in fitness attire" 
+               class="person-image person-1">
+          
+          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=360&h=440&fit=crop&crop=center" 
+               alt="Confident man in workout gear" 
+               class="person-image person-2">
+          
+          <img src="https://images.unsplash.com/photo-1559251606-c623743a6d76?w=380&h=480&fit=crop&crop=center" 
+               alt="Strong woman embracing fitness journey" 
+               class="person-image person-3">
+          
+          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=340&h=420&fit=crop&crop=center" 
+               alt="Healthy lifestyle enthusiast" 
+               class="person-image person-4">
+        </div>
+
         <div class="phone-mockup">
           <div class="phone-frame">
             <div class="phone-screen">
