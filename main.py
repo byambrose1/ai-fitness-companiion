@@ -4,6 +4,7 @@ import json
 import os
 import openai
 import stripe
+from data_protection import data_protection
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-change-this'  # Change this in production
@@ -81,17 +82,44 @@ def login_user():
     """Handle user login"""
     email = request.form.get("email")
     password = request.form.get("password")
+    ip_address = request.remote_addr
+
+    # Log login attempt
+    data_protection.log_data_access(email, "login_attempt", ip_address)
 
     if email not in users_data:
+        # Track failed attempts
+        track_failed_login(email, ip_address)
         return jsonify({"success": False, "message": "Account not found"}), 404
 
     # In production, use proper password verification
     if users_data[email].get('password') != password:
+        track_failed_login(email, ip_address)
         return jsonify({"success": False, "message": "Invalid password"}), 401
 
-    # Set session (basic implementation)
+    # Successful login
+    data_protection.log_data_access(email, "login_success", ip_address)
     session['user_email'] = email
     return jsonify({"success": True, "message": "Login successful"})
+
+# Track failed login attempts
+failed_attempts = {}
+suspicious_ips = set()
+
+def track_failed_login(email, ip_address):
+    """Track failed login attempts for breach detection"""
+    key = f"{email}_{ip_address}"
+    failed_attempts[key] = failed_attempts.get(key, 0) + 1
+    suspicious_ips.add(ip_address)
+    
+    # Check for breach indicators
+    total_failed = sum(failed_attempts.values())
+    breach_detected, alerts = data_protection.detect_breach_indicators(
+        total_failed, suspicious_ips
+    )
+    
+    if breach_detected:
+        print(f"⚠️  Breach indicators detected: {alerts}")
 
 @app.route("/questionnaire-complete", methods=["POST"])
 def questionnaire_complete():
