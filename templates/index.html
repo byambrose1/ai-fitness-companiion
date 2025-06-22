@@ -1,279 +1,465 @@
+
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fat Loss That Actually Makes Sense</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>AI Fitness Companion - Understand Your Body, Finally Lose Fat</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#3B7A57">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="FitnessAI">
+  <meta name="description" content="Your personalized AI-powered fitness and wellness companion">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/static/manifest.json">
+  
+  <!-- Apple Touch Icons -->
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="/static/icon-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="/static/icon-512.png">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/icon-192.png">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: #ffffff;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #FFFFFF;
       color: #1a1a1a;
       line-height: 1.6;
       font-weight: 400;
     }
 
-    header {
-      background: #ffffff;
-      padding: 60px 20px 80px;
+    /* Mini Header */
+    .mini-header {
+      background: #D1F2EB;
+      color: #3B7A57;
       text-align: center;
-      border-bottom: 1px solid #f5f5f5;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      width: 100%;
     }
 
-    header h1 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 3.5rem;
-      font-weight: 700;
+    /* Hero Section */
+    .hero {
+      background: #FFFFFF;
+      padding: 80px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .hero-container {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .hero-content h1 {
+      font-size: 3.2rem;
+      font-weight: 600;
       margin-bottom: 24px;
       color: #1a1a1a;
       letter-spacing: -0.02em;
       line-height: 1.1;
     }
 
-    header p {
+    .hero-content p {
       font-size: 1.25rem;
-      max-width: 720px;
-      margin: 0 auto 40px;
-      color: #4a4a4a;
-      font-weight: 400;
+      margin-bottom: 40px;
+      color: #4a5568;
       line-height: 1.5;
-    }
-
-    .cta-buttons {
-      margin-top: 40px;
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .cta-buttons .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 16px 32px;
-      border-radius: 12px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1rem;
-      transition: all 0.2s ease;
-      border: 2px solid transparent;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .btn-primary {
-      background-color: #22c55e;
-      color: white;
-      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-    }
-
-    .btn-primary:hover {
-      background-color: #16a34a;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
-    }
-
-    .btn-secondary {
-      background-color: transparent;
-      color: #22c55e;
-      border: 2px solid #22c55e;
-    }
-
-    .btn-secondary:hover {
-      background-color: #22c55e;
-      color: white;
-      transform: translateY(-2px);
-    }
-
-    section {
-      padding: 80px 20px;
-      max-width: 1200px;
-      margin: auto;
-    }
-
-    section h2 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 2.5rem;
-      margin-bottom: 24px;
-      text-align: center;
-      color: #1a1a1a;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-    }
-
-    .section-subtitle {
-      text-align: center;
-      font-size: 1.2rem;
-      margin-bottom: 60px;
       max-width: 800px;
       margin-left: auto;
       margin-right: auto;
+    }
+
+    .cta-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 18px 32px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background-color: #3B7A57;
+      color: white;
+      border: 2px solid #3B7A57;
+      box-shadow: 0 4px 12px rgba(59, 122, 87, 0.2);
+    }
+
+    .btn-primary:hover {
+      background-color: #2d5a42;
+      border-color: #2d5a42;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(59, 122, 87, 0.3);
+    }
+
+    .btn-secondary {
+      background-color: #FFFFFF;
+      color: #3B7A57;
+      border: 2px solid #3B7A57;
+    }
+
+    .btn-secondary:hover {
+      background-color: #D1F2EB;
+      border-color: #3B7A57;
+    }
+
+    .btn-tertiary {
+      background: none;
+      color: #3B7A57;
+      border: none;
+      font-size: 1rem;
+      padding: 12px 0;
+      text-decoration: underline;
+    }
+
+    .btn-tertiary:hover {
+      color: #2d5a42;
+    }
+
+    .cta-note {
+      font-size: 0.9rem;
       color: #6b7280;
-      line-height: 1.6;
+      margin-top: 8px;
+    }
+
+    /* Hero Features */
+    .hero-features {
+      display: flex;
+      flex-direction: row;
+      gap: 24px;
+      justify-content: center;
+      margin: 40px 0;
+    }
+
+    .hero-feature-card {
+      background: #FFFFFF;
+      border: 2px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 28px;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      position: relative;
+      flex: 1;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero-feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 35px rgba(59, 122, 87, 0.15);
+      border-color: #D1F2EB;
+    }
+
+    .feature-icon {
+      font-size: 2.2rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .hero-feature-card h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .hero-feature-card p {
+      font-size: 0.95rem;
+      color: #6b7280;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* Demo sections */
+    .feature-demo {
+      text-align: center;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .demo-score {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #3B7A57;
+      margin-bottom: 12px;
+    }
+
+    .demo-categories {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .demo-categories span {
+      font-size: 0.85rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .ai-demo {
+      position: relative;
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    .ai-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #D1F2EB;
+      color: #3B7A57;
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    .ai-message {
+      font-size: 0.9rem;
+      color: #374151;
+      line-height: 1.4;
+      font-style: italic;
+      margin-top: 8px;
+    }
+
+    .progress-demo {
+      padding: 16px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      text-align: center;
+    }
+
+    .progress-stats {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 16px;
+    }
+
+    .progress-stats span {
+      font-size: 0.9rem;
+      color: #3B7A57;
+      font-weight: 600;
+    }
+
+    .mini-chart {
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      gap: 6px;
+      height: 40px;
+    }
+
+    .chart-bar {
+      width: 10px;
+      background: linear-gradient(to top, #3B7A57, #D1F2EB);
+      border-radius: 2px;
+      min-height: 6px;
+    }
+
+    /* Trust Section */
+    .trust-section {
+      background: #FFFFFF;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .trust-badges {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #3B7A57;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    /* Features Section */
+    .features {
+      background: #f8f9fa;
+      padding: 80px 20px;
+      text-align: center;
+    }
+
+    .features h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    .features-subtitle {
+      font-size: 1.2rem;
+      color: #6b7280;
+      margin-bottom: 50px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 40px;
-      margin: 60px 0;
+      max-width: 1000px;
+      margin: 0 auto;
     }
 
     .feature-card {
-      background: #f8f9fa;
-      padding: 40px 32px;
-      border-radius: 20px;
-      text-align: left;
-      border: 1px solid #f0f0f0;
+      background: #FFFFFF;
+      padding: 30px;
+      border-radius: 16px;
+      border: 2px solid #e5e7eb;
       transition: all 0.3s ease;
-      position: relative;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
     .feature-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      border-color: #e5e5e5;
+      border-color: #D1F2EB;
+      box-shadow: 0 8px 24px rgba(59, 122, 87, 0.15);
     }
 
     .feature-card .icon {
       font-size: 3rem;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       display: block;
     }
 
     .feature-card h3 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.5rem;
-      margin-bottom: 16px;
-      color: #22c55e;
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      color: #3B7A57;
       font-weight: 600;
     }
 
     .feature-card p {
       color: #6b7280;
       line-height: 1.6;
-      font-size: 1rem;
     }
 
-    .scores-section {
-      background: #f8f9fa;
-      border-top: 1px solid #f0f0f0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    .scores-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 32px;
-      max-width: 1000px;
-      margin: 40px auto 0;
-    }
-
-    .score-card {
-      background: white;
-      padding: 32px 24px;
-      border-radius: 16px;
+    /* How It Works */
+    .how-it-works {
+      background: #FFFFFF;
+      padding: 80px 20px;
       text-align: center;
-      border: 1px solid #f0f0f0;
-      transition: all 0.3s ease;
     }
 
-    .score-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
-    }
-
-    .score-card .icon {
+    .how-it-works h2 {
       font-size: 2.5rem;
-      margin-bottom: 16px;
-      display: block;
+      margin-bottom: 50px;
+      color: #1a1a1a;
+      font-weight: 600;
     }
 
-    .score-card h3 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.25rem;
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 40px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .step-card {
+      background: #FFFFFF;
+      padding: 30px;
+      border-radius: 16px;
+      border: 2px solid #e5e7eb;
+      position: relative;
+    }
+
+    .step-number {
+      background: #3B7A57;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin: 0 auto 20px;
+    }
+
+    .step-card h3 {
+      font-size: 1.4rem;
       margin-bottom: 12px;
       color: #1a1a1a;
       font-weight: 600;
     }
 
-    .score-card p {
-      color: #6b7280;
-      line-height: 1.5;
-    }
-
-    .comparison-section {
-      background: #ffffff;
-    }
-
-    .comparison-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
-      max-width: 1000px;
-      margin: 40px auto 0;
-    }
-
-    .comparison-card {
-      background: white;
-      padding: 40px 32px;
-      border-radius: 20px;
-      border: 1px solid #f0f0f0;
-    }
-
-    .comparison-card h3 {
-      font-family: 'Poppins', sans-serif;
-      margin-bottom: 24px;
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-
-    .frustrations h3 { color: #ef4444; }
-    .solutions h3 { color: #22c55e; }
-
-    .comparison-card ul {
-      list-style: none;
-    }
-
-    .comparison-card li {
-      margin: 16px 0;
-      padding-left: 32px;
-      position: relative;
-      color: #4a4a4a;
-      line-height: 1.5;
-    }
-
-    .frustrations li::before {
-      content: "❌";
-      position: absolute;
-      left: 0;
-      font-size: 1.2rem;
-    }
-
-    .solutions li::before {
-      content: "✅";
-      position: absolute;
-      left: 0;
-      font-size: 1.2rem;
-    }
-
+    /* Final CTA */
     .final-cta {
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-      color: white;
+      background: #D1F2EB;
       padding: 80px 20px;
       text-align: center;
     }
 
     .final-cta h2 {
-      color: white;
+      font-size: 2.5rem;
       margin-bottom: 20px;
+      color: #1a1a1a;
+      font-weight: 600;
     }
 
     .final-cta p {
-      color: #d4d4d4;
+      font-size: 1.2rem;
+      color: #4a5568;
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .final-cta-note {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #6b7280;
     }
 
     /* Modal styles */
@@ -285,49 +471,49 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0,0,0,0.6);
+      background-color: rgba(0,0,0,0.5);
       backdrop-filter: blur(8px);
     }
 
     .modal-content {
-      background-color: #ffffff;
+      background-color: #FFFFFF;
       margin: 2% auto;
       padding: 0;
-      border-radius: 24px;
+      border-radius: 20px;
       width: 90%;
       max-width: 600px;
       max-height: 90vh;
       overflow: hidden;
       position: relative;
-      box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-      border: 1px solid #f0f0f0;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     }
 
     .modal-header {
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-      padding: 32px;
+      background: #f8f9fa;
+      padding: 30px;
       text-align: center;
+      border-bottom: 1px solid #e5e7eb;
     }
 
     .modal-header h2 {
-      color: white;
+      color: #3B7A57;
       margin: 0;
-      font-size: 1.75rem;
+      font-size: 1.8rem;
       font-weight: 600;
     }
 
     .progress-bar {
       width: 100%;
       height: 8px;
-      background: #f0f0f0;
+      background: #FFFFFF;
       border-radius: 4px;
-      margin-top: 24px;
+      margin-top: 20px;
       overflow: hidden;
     }
 
     .progress-fill {
       height: 100%;
-      background: #22c55e;
+      background: #3B7A57;
       border-radius: 4px;
       transition: width 0.3s ease;
     }
@@ -348,33 +534,61 @@
 
     .quiz-form label {
       display: block;
-      margin: 24px 0 8px 0;
+      margin: 20px 0 8px 0;
       font-weight: 600;
-      color: #1a1a1a;
+      color: #3B7A57;
       font-size: 1rem;
     }
 
     .quiz-form input, .quiz-form select, .quiz-form textarea {
       width: 100%;
       padding: 16px;
-      border: 2px solid #f0f0f0;
+      border: 2px solid #e5e7eb;
       border-radius: 12px;
       font-size: 16px;
       font-family: 'Inter', sans-serif;
       transition: border-color 0.2s ease;
-      background: #ffffff;
+      background: #FFFFFF;
     }
 
     .quiz-form input:focus, .quiz-form select:focus, .quiz-form textarea:focus {
       outline: none;
-      border-color: #22c55e;
-      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+      border-color: #3B7A57;
+      box-shadow: 0 0 0 4px rgba(59, 122, 87, 0.1);
+    }
+
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .checkbox-item:hover {
+      border-color: #3B7A57;
+      background: #D1F2EB;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: auto;
+      margin: 0;
     }
 
     .modal-footer {
-      padding: 32px 40px;
-      background: #ffffff;
-      border-top: 1px solid #f0f0f0;
+      padding: 30px;
+      background: #f8f9fa;
+      border-top: 1px solid #e5e7eb;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -383,7 +597,7 @@
     .btn-nav {
       padding: 12px 24px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
@@ -397,21 +611,21 @@
     }
 
     .btn-back:hover {
-      background: #e5e5e5;
+      background: #e5e7eb;
     }
 
     .btn-next {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
+      background: #3B7A57;
       color: white;
     }
 
     .btn-next:hover {
-      background: #16a34a;
+      background: #2d5a42;
       transform: translateY(-1px);
     }
 
     .btn-submit {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
+      background: #1a1a1a;
       color: white;
     }
 
@@ -421,8 +635,8 @@
 
     .close {
       position: absolute;
-      right: 24px;
-      top: 24px;
+      right: 20px;
+      top: 20px;
       font-size: 24px;
       font-weight: bold;
       cursor: pointer;
@@ -438,134 +652,217 @@
     }
 
     .close:hover {
-      color: #22c55e;
+      color: #3B7A57;
       background: #f5f5f5;
     }
 
+    .range-display {
+      text-align: center;
+      margin: 8px 0;
+      font-weight: 600;
+      color: #3B7A57;
+    }
+
+    /* Responsive Design */
     @media (max-width: 768px) {
-      header h1 { font-size: 2.5rem; }
-      section { padding: 60px 20px; }
-      .features-grid { grid-template-columns: 1fr; gap: 32px; }
-      .comparison-grid { grid-template-columns: 1fr; gap: 32px; }
-      .scores-grid { grid-template-columns: 1fr; }
-      .modal-content { width: 95%; margin: 5% auto; border-radius: 16px; }
-      .modal-body { padding: 24px 20px; }
-      .modal-footer { padding: 20px; }
-      .cta-buttons { flex-direction: column; align-items: center; }
+      .hero-content h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero-content p {
+        font-size: 1.1rem;
+      }
+
+      .hero-features {
+        flex-direction: column;
+      }
+
+      .trust-badges {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .features-grid,
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-content {
+        width: 95%;
+        margin: 5% auto;
+      }
+
+      .modal-body {
+        padding: 20px;
+      }
+
+      .modal-footer {
+        padding: 20px;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Mini Header -->
+  <div class="mini-header">
+    🔒 No credit card required — AI-powered, science-backed insights | UK-based support
+  </div>
 
   <!-- Hero Section -->
-  <header>
-    <h1>Fat Loss That Actually Makes Sense</h1>
-    <p>Not sure where to start with your weight loss journey? Or frustrated because progress feels slow? Get daily personalised guidance that meets you where you are — with clear, honest feedback tailored to your hormones and lifestyle.</p>
-    <div class="cta-buttons">
-      <a href="#" onclick="openQuiz()" class="btn btn-primary">
-        <span>📋</span> Start Free Assessment
-      </a>
-      <a href="#" onclick="openLogin()" class="btn btn-secondary">
-        <span>👤</span> Log In
-      </a>
-      <a href="#" onclick="openSignUp()" class="btn btn-secondary">
-        <span>✨</span> Sign Up
-      </a>
-    </div>
-  </header>
+  <section class="hero">
+    <div class="hero-container">
+      <div class="hero-content">
+        <h1>Understand your body, finally lose fat — <span style="color: #3B7A57;">with daily support that adapts to you.</span></h1>
+        <p>Get personalised feedback based on your hormones, habits, and health patterns — whether you're just getting started or stuck on the scales.</p>
+      </div>
 
-  <!-- Why Different Section -->
-  <section>
-    <h2>Why Fitness Companion is Different</h2>
-    <p class="section-subtitle">Unlike calorie counters or generic fitness apps, we consider your whole life - including sleep, stress, hydration, and lifestyle factors that actually impact fat loss.</p>
+      <div class="hero-features">
+        <div class="hero-feature-card">
+          <h3>Daily Check-in</h3>
+          <p>Today</p>
+          <div class="feature-demo">
+            <div class="demo-score">8.2</div>
+            <p style="margin: 8px 0; font-size: 0.9rem; color: #666;">Overall Score</p>
+            <div class="demo-categories">
+              <span>😴 9.1</span>
+              <span>🥗 7.8</span>
+              <span>🏃‍♀️ 8.5</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-feature-card">
+          <h3>AI Insights</h3>
+          <div class="ai-badge">✨ New</div>
+          <div class="ai-demo">
+            <div class="feature-icon">🤖</div>
+            <div class="ai-message">"Your sleep improved this week! This likely contributed to better hunger regulation. Consider maintaining your 7.5hr schedule."</div>
+            <p style="margin-top: 12px; font-size: 0.85rem; color: #3B7A57; font-weight: 600;">Sleep Quality</p>
+            <p style="font-size: 0.85rem; color: #3B7A57; font-weight: 600;">Hormones</p>
+          </div>
+        </div>
+
+        <div class="hero-feature-card">
+          <h3>Progress Trends</h3>
+          <p style="font-size: 0.9rem; color: #666; margin-bottom: 16px;">Last 30 days</p>
+          <div class="progress-demo">
+            <div class="progress-stats">
+              <span>↗️ +2.3kg lost</span>
+              <span>🔥 12 day streak</span>
+            </div>
+            <div class="mini-chart">
+              <div class="chart-bar" style="height: 40%;"></div>
+              <div class="chart-bar" style="height: 60%;"></div>
+              <div class="chart-bar" style="height: 80%;"></div>
+              <div class="chart-bar" style="height: 70%;"></div>
+              <div class="chart-bar" style="height: 90%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-cta">
+        <div class="cta-buttons">
+          <button onclick="openQuiz()" class="btn btn-primary">
+            🚀 Start Free Questionnaire
+          </button>
+          <button onclick="openSignup()" class="btn btn-secondary">
+            📝 Sign Up
+          </button>
+          <button onclick="openLogin()" class="btn btn-tertiary">
+            🔐 Log In
+          </button>
+        </div>
+        
+        <p class="cta-note">No sign-up needed to begin</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust Section -->
+  <section class="trust-section">
+    <div class="trust-badges">
+      <div class="trust-badge">
+        <span>✅</span>
+        <span>Built by UK health professionals</span>
+      </div>
+      <div class="trust-badge">
+        <span>📊</span>
+        <span>Backed by data & behavioural science</span>
+      </div>
+      <div class="trust-badge">
+        <span>🧠</span>
+        <span>Supports all genders equally</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <h2>Why Our Approach Actually Works</h2>
+    <p class="features-subtitle">Unlike calorie counters or generic fitness apps, we consider your whole life - including sleep, stress, hydration, and lifestyle factors that actually impact fat loss.</p>
 
     <div class="features-grid">
       <div class="feature-card">
-        <h3><span style="font-size: 1.5rem;">🎯</span> Holistic Approach</h3>
-        <p>We consider sleep, stress, hydration, movement, and nutrition together. Real fat loss happens when all factors work in harmony.</p>
+        <span class="icon">🎯</span>
+        <h3>Personalised Daily Insights</h3>
+        <p>Get tailored feedback based on your unique patterns, hormones, and lifestyle factors that actually affect your progress.</p>
       </div>
+
       <div class="feature-card">
-        <h3><span style="font-size: 1.5rem;">🌱</span> Sustainable Results</h3>
-        <p>No quick fixes or fad diets. We focus on building habits that last, with honest feedback on what's working and what needs attention.</p>
+        <span class="icon">🧬</span>
+        <h3>Hormone-Aware Support</h3>
+        <p>Whether you're dealing with periods, menopause, or other hormonal factors, our AI adapts recommendations to your body's needs.</p>
       </div>
+
       <div class="feature-card">
-        <h3><span style="font-size: 1.5rem;">💡</span> Personalised Insights</h3>
-        <p>Daily feedback tailored to your individual circumstances, including hormonal changes and life factors that affect your progress.</p>
+        <span class="icon">📈</span>
+        <h3>Progress That Makes Sense</h3>
+        <p>Track meaningful patterns beyond just weight - see how sleep, stress, and habits connect to your fat loss journey.</p>
       </div>
     </div>
   </section>
 
-  <!-- Daily Smart Scores -->
-  <section class="scores-section">
-    <h2>Your Daily Smart Scores</h2>
-    <div class="scores-grid">
-      <div class="score-card">
-        <h3><span style="font-size: 1.5rem; color: #22c55e;">😴</span> Recovery Score</h3>
-        <p>How well you're sleeping, managing stress, and allowing your body to recover.</p>
-      </div>
-      <div class="score-card">
-        <h3><span style="font-size: 1.5rem; color: #22c55e;">🥗</span> Nutrition Score</h3>
-        <p>Simple tracking of your eating patterns and hydration, with personalised tips.</p>
-      </div>
-      <div class="score-card">
-        <h3><span style="font-size: 1.5rem; color: #22c55e;">🏃‍♀️</span> Movement Score</h3>
-        <p>Track your activity levels and find the right balance for sustainable fat loss.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- How It Works -->
-  <section>
+  <!-- How It Works Section -->
+  <section class="how-it-works">
     <h2>How It Works</h2>
-    <div class="features-grid">
-      <div class="feature-card">
-        <h3><span style="font-size: 1.5rem;">⚡</span> 1. Quick Setup</h3>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3>Quick Setup</h3>
         <p>Answer a few personalisation questions to tailor your experience, including any individual considerations.</p>
       </div>
-      <div class="feature-card">
-        <h3><span style="font-size: 1.5rem;">📊</span> 2. Daily Check-ins</h3>
+
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3>Daily Check-ins</h3>
         <p>Log your weight, sleep, stress, food, and movement in under 2 minutes. Perfect for busy lifestyles.</p>
       </div>
-      <div class="feature-card">
-        <h3><span style="font-size: 1.5rem;">🔍</span> 3. Get Honest Insights</h3>
+
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h3>Get Honest Insights</h3>
         <p>Receive practical, personalised feedback on what's working and what needs attention in your fat loss journey.</p>
       </div>
     </div>
   </section>
 
-  <!-- Comparison Section -->
-  <section class="comparison-section">
-    <h2>Tired of Feeling Lost in Your Fat Loss Journey?</h2>
-    <div class="comparison-grid">
-      <div class="comparison-card frustrations">
-        <h3>Common Frustrations:</h3>
-        <ul>
-          <li>"I ate well this week but gained weight"</li>
-          <li>"My hormones throw everything off track"</li>
-          <li>"I don't know if I'm doing enough exercise"</li>
-          <li>"Scale fluctuations make me want to give up"</li>
-        </ul>
-      </div>
-      <div class="comparison-card solutions">
-        <h3>With Fitness Companion:</h3>
-        <ul>
-          <li>Clear daily progress scores</li>
-          <li>Personalised insights and support</li>
-          <li>Honest feedback on what's really happening</li>
-          <li>Sustainable, realistic approach to fat loss</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- Final CTA -->
+  <!-- Final CTA Section -->
   <section class="final-cta">
     <h2>Ready to Finally Understand Your Progress?</h2>
-    <p style="font-size: 1.1rem; margin-bottom: 30px;">Join thousands of people who've found clarity in their fat loss journey with honest, personalised daily insights that actually work.</p>
-    <a href="#" onclick="openQuiz()" class="btn btn-primary" style="background: white; color: #22c55e; font-size: 1.2rem; padding: 18px 36px; border: 2px solid white;">Start Your Questionnaire Now</a>
+    <p>Join thousands of people who've found clarity in their fat loss journey with honest, personalised daily insights that actually work.</p>
+
+    <div class="cta-buttons">
+      <button onclick="openQuiz()" class="btn btn-primary">
+        🚀 Start Your Free Questionnaire Now
+      </button>
+    </div>
+
+    <p class="final-cta-note">No commitment • Cancel anytime • See results in your first week</p>
   </section>
 
-  <!-- Multi-step Quiz Modal -->
+  <!-- Questionnaire Modal -->
   <div id="quizModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeQuiz()">&times;</span>
@@ -577,31 +874,70 @@
         </div>
       </div>
 
-      <form method="POST" action="/" class="quiz-form" id="quizForm">
+      <form method="POST" action="/questionnaire-complete" class="quiz-form" id="quizForm">
         <div class="modal-body">
 
           <!-- Step 1: Basic Info -->
           <div class="quiz-step active" data-step="1">
-            <label for="name">What's your first name?</label>
-            <input type="text" name="name" id="name" placeholder="Enter your first name" required>
+            <label for="name">What's your name?</label>
+            <input type="text" name="name" id="name" placeholder="Enter your full name" required>
 
             <label for="email">Email address:</label>
             <input type="email" name="email" id="email" placeholder="your@email.com" required>
 
             <label for="dob">Date of birth:</label>
             <input type="date" name="dob" id="dob" required>
-          </div>
 
-          <!-- Step 2: Physical Stats -->
-          <div class="quiz-step" data-step="2">
-            <label for="gender">Biological sex:</label>
-            <select name="gender" required>
+            <label for="gender">Sex assigned at birth:</label>
+            <select name="gender" id="gender" onchange="handleGenderChange()" required>
               <option value="">-- Please select --</option>
               <option value="female">Female</option>
               <option value="male">Male</option>
               <option value="other">Other / Prefer not to say</option>
             </select>
 
+            <div id="periodQuestion" style="display: none;">
+              <label for="hasPeriods">Do you have periods?</label>
+              <select name="hasPeriods" id="hasPeriods" onchange="handlePeriodChange()">
+                <option value="">-- Please select --</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+
+            <div id="cycleQuestion" style="display: none;">
+              <label for="menstrualCycle">Where are you in your cycle today?</label>
+              <select name="menstrualCycle" id="menstrualCycle">
+                <option value="">-- Please select --</option>
+                <option value="just_started">Just started</option>
+                <option value="middle">Middle of cycle</option>
+                <option value="about_to_start">About to start</option>
+                <option value="not_sure">Not sure</option>
+              </select>
+            </div>
+
+            <div id="menopauseQuestion" style="display: none;">
+              <label for="menopause">Are you going through menopause?</label>
+              <select name="menopause" id="menopause" onchange="handleMenopauseChange()">
+                <option value="">-- Please select --</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+
+            <div id="menopauseStage" style="display: none;">
+              <label for="menopauseStage">Which stage?</label>
+              <select name="menopauseStage" id="menopauseStageSelect">
+                <option value="">-- Please select --</option>
+                <option value="perimenopausal">Perimenopausal</option>
+                <option value="menopausal">Menopausal</option>
+                <option value="postmenopausal">Postmenopausal</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Step 2: Physical Stats & Fat Loss Goal -->
+          <div class="quiz-step" data-step="2">
             <label for="height">Height (cm):</label>
             <input type="number" name="height" min="100" max="250" placeholder="170" required>
 
@@ -610,103 +946,39 @@
 
             <label for="goalWeight">Goal weight (kg) - optional:</label>
             <input type="number" name="goalWeight" min="30" max="300" step="0.1" placeholder="65.0">
+
+            <input type="hidden" name="goal" value="fat_loss">
+
+            <label for="motivation">What's your main motivation for fat loss?</label>
+            <textarea name="motivation" placeholder="Tell us what's driving you to make this change..." rows="3" required></textarea>
+
+            <label for="motivationLevel">Current motivation level (1-10):</label>
+            <input type="range" name="motivationLevel" min="1" max="10" value="5" oninput="updateRangeDisplay('motivationLevel', this.value)">
+            <div class="range-display" id="motivationLevelDisplay">5/10</div>
           </div>
 
-          <!-- Step 3: Goals & Motivation -->
+          <!-- Step 3: Health & Lifestyle -->
           <div class="quiz-step" data-step="3">
-            <label for="goal">What is your primary fitness goal?</label>
-            <select name="goal" required>
-              <option value="">-- Please select --</option>
-              <option value="fat_loss">Fat loss</option>
-              <option value="muscle_gain">Muscle gain</option>
-              <option value="general_health">General health</option>
-              <option value="mental_wellbeing">Mental wellbeing</option>
-            </select>
-
-            <label for="goalReason">Why do you want to achieve this goal?</label>
-            <select name="goalReason">
-              <option value="">-- Select a reason --</option>
-              <option value="recent_breakup">Recent breakup</option>
-              <option value="grief">Dealing with grief</option>
-              <option value="confidence">Building confidence</option>
-              <option value="health_scare">Health concerns</option>
-              <option value="self_love">Self-love journey</option>
-              <option value="other">Other</option>
-            </select>
-
-            <label for="motivation">Tell us more about your motivation:</label>
-            <textarea name="motivation" placeholder="Share what's driving you to make this change..." rows="3" required></textarea>
-          </div>
-
-          <!-- Step 4: Mental & Physical State -->
-          <div class="quiz-step" data-step="4">
-            <label for="mentalState">Current mental/emotional state:</label>
-            <textarea name="mentalState" placeholder="How are you feeling mentally and emotionally right now?" rows="2" required></textarea>
-
-            <label for="motivationLevel">Motivation level (1-10):</label>
-            <input type="range" name="motivationLevel" min="1" max="10" value="5">
-
-            <label for="mood">How would you describe your mood most days?</label>
-            <select name="mood">
-              <option value="">-- Please select --</option>
-              <option value="happy">Happy</option>
-              <option value="neutral">Neutral</option>
-              <option value="stressed">Stressed</option>
-              <option value="anxious">Anxious</option>
-              <option value="sad">Sad</option>
-              <option value="unmotivated">Unmotivated</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <!-- Step 5: Health & Medications -->
-          <div class="quiz-step" data-step="5">
-            <label for="medications">Are you on any medications?</label>
-            <select name="medications">
-              <option value="">-- Please select --</option>
-              <option value="no">No</option>
-              <option value="yes">Yes</option>
-            </select>
-
-            <label for="medicationList">Please list your medications (if any):</label>
-            <textarea name="medicationList" placeholder="List any medications you're taking..." rows="2"></textarea>
-
-            <label for="healthConditions">Any diagnosed health conditions?</label>
-            <textarea name="healthConditions" placeholder="e.g., thyroid issues, PCOS, diabetes... (optional)" rows="2"></textarea>
-
-            <label for="menstrualCycle">Menstrual cycle status (if applicable):</label>
-            <select name="menstrualCycle">
-              <option value="">-- Please select or skip --</option>
-              <option value="on_period">Currently on my period</option>
-              <option value="approaching">Approaching my period</option>
-              <option value="mid_cycle">Mid-cycle</option>
-              <option value="unsure">Unsure</option>
-            </select>
-          </div>
-
-          <!-- Step 6: Sleep & Recovery -->
-          <div class="quiz-step" data-step="6">
             <label for="sleepHours">Average hours of sleep per night:</label>
             <input type="number" name="sleepHours" min="0" max="24" step="0.5" placeholder="7.5" required>
 
-            <label for="wakingFeeling">How do you feel when waking up?</label>
-            <select name="wakingFeeling" required>
+            <label for="stressLevel">Average stress level (1-10):</label>
+            <input type="range" name="stressLevel" min="1" max="10" value="5" oninput="updateRangeDisplay('stressLevel', this.value)">
+            <div class="range-display" id="stressLevelDisplay">5/10</div>
+
+            <label for="activityLevel">Current activity level:</label>
+            <select name="activityLevel" required>
               <option value="">-- Please select --</option>
-              <option value="refreshed">Refreshed</option>
-              <option value="tired">Tired</option>
-              <option value="exhausted">Exhausted</option>
+              <option value="sedentary">Sedentary (desk job, little exercise)</option>
+              <option value="lightly_active">Lightly active (light exercise 1-3 days/week)</option>
+              <option value="moderately_active">Moderately active (moderate exercise 3-5 days/week)</option>
+              <option value="very_active">Very active (hard exercise 6-7 days/week)</option>
             </select>
 
-            <label for="stressLevel">Weekly stress level (1-10):</label>
-            <input type="range" name="stressLevel" min="1" max="10" value="5">
-          </div>
+            <label for="exerciseDetails">Current exercise routine:</label>
+            <textarea name="exerciseDetails" placeholder="e.g., 30-min walk daily, gym 3x weekly, yoga twice a week, or 'none currently'..." rows="2" required></textarea>
 
-          <!-- Step 7: Nutrition -->
-          <div class="quiz-step" data-step="7">
-            <label for="proteinSources">Typical protein sources:</label>
-            <textarea name="proteinSources" placeholder="e.g., 2 chicken breasts, 1 protein shake, tofu, eggs..." rows="2" required></textarea>
-
-            <label for="mealsPerDay">Typical number of meals/snacks per day:</label>
+            <label for="mealsPerDay">How many meals/snacks do you typically eat per day?</label>
             <input type="number" name="mealsPerDay" min="1" max="10" placeholder="3" required>
 
             <label for="waterIntake">Daily water intake estimate:</label>
@@ -717,84 +989,62 @@
               <option value="2_to_3l">2-3 litres</option>
               <option value="more_than_3l">More than 3 litres</option>
             </select>
-
-            <label for="eatingHabits">Eating habits:</label>
-            <select name="eatingHabits" required>
-              <option value="">-- Please select --</option>
-              <option value="mostly_home_cooked">Mostly home-cooked meals</option>
-              <option value="lots_of_takeaway">Lots of takeaways</option>
-              <option value="mix">A mix of both</option>
-            </select>
           </div>
 
-          <!-- Step 8: Activity & Exercise -->
-          <div class="quiz-step" data-step="8">
-            <label for="activityLevel">Activity level:</label>
-            <select name="activityLevel" required>
+          <!-- Step 4: Previous Attempts & Final Details -->
+          <div class="quiz-step" data-step="4">
+            <label>What have you tried before for fat loss? (Select all that apply)</label>
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" name="previousAttempts" value="calorie_counting" id="calorie_counting">
+                <label for="calorie_counting">Calorie counting</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" name="previousAttempts" value="low_carb" id="low_carb">
+                <label for="low_carb">Low carb/keto</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" name="previousAttempts" value="intermittent_fasting" id="intermittent_fasting">
+                <label for="intermittent_fasting">Intermittent fasting</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" name="previousAttempts" value="gym_membership" id="gym_membership">
+                <label for="gym_membership">Gym membership</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" name="previousAttempts" value="personal_trainer" id="personal_trainer">
+                <label for="personal_trainer">Personal trainer</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" name="previousAttempts" value="nothing" id="nothing">
+                <label for="nothing">This is my first serious attempt</label>
+              </div>
+            </div>
+
+            <label for="biggestChallenge">What's your biggest challenge with fat loss?</label>
+            <select name="biggestChallenge" required>
               <option value="">-- Please select --</option>
-              <option value="sedentary">Sedentary (desk job, little exercise)</option>
-              <option value="lightly_active">Lightly active (light exercise 1-3 days/week)</option>
-              <option value="moderately_active">Moderately active (moderate exercise 3-5 days/week)</option>
-              <option value="very_active">Very active (hard exercise 6-7 days/week)</option>
-              <option value="extremely_active">Extremely active (very hard exercise, physical job)</option>
+              <option value="motivation">Staying motivated</option>
+              <option value="time">Finding time</option>
+              <option value="cravings">Food cravings</option>
+              <option value="energy">Low energy</option>
+              <option value="knowledge">Not knowing what to do</option>
+              <option value="consistency">Being consistent</option>
+              <option value="plateaus">Weight loss plateaus</option>
             </select>
 
-            <label for="exerciseDetails">Exercise type/frequency:</label>
-            <textarea name="exerciseDetails" placeholder="e.g., 30-min walk daily, gym 3x weekly, yoga twice a week..." rows="2" required></textarea>
-
-            <label for="wearables">Do you use any fitness wearables?</label>
-            <select name="wearables">
+            <label for="mentalState">How would you describe your current mental state?</label>
+            <select name="mentalState" required>
               <option value="">-- Please select --</option>
-              <option value="apple_watch">Apple Watch</option>
-              <option value="fitbit">Fitbit</option>
-              <option value="garmin">Garmin</option>
-              <option value="other">Other</option>
-              <option value="none">None</option>
-            </select>
-          </div>
-
-          <!-- Step 9: Current State & Progress -->
-          <div class="quiz-step" data-step="9">
-            <label for="weightChanges">Recent weight changes:</label>
-            <select name="weightChanges" required>
-              <option value="">-- Please select --</option>
-              <option value="gained">Gained weight</option>
-              <option value="lost">Lost weight</option>
-              <option value="no_change">No change</option>
-              <option value="not_sure">Not sure</option>
+              <option value="very_positive">Very positive and ready</option>
+              <option value="optimistic">Optimistic but cautious</option>
+              <option value="neutral">Neutral</option>
+              <option value="frustrated">Frustrated with past attempts</option>
+              <option value="overwhelmed">Overwhelmed</option>
             </select>
 
-            <label for="bodyFeeling">How do you feel in your body?</label>
-            <textarea name="bodyFeeling" placeholder="Describe how you feel about your body and physical state..." rows="2" required></textarea>
-
-            <label for="weeklyWeighIn">Would you like weekly weight check-ins?</label>
-            <select name="weeklyWeighIn">
-              <option value="">-- Please select --</option>
-              <option value="yes">Yes, I'd like weekly reminders</option>
-              <option value="no">No, I prefer not to weigh myself regularly</option>
-              <option value="maybe">Maybe, I'll decide later</option>
-            </select>
-          </div>
-
-          <!-- Step 10: Support & Final Questions -->
-          <div class="quiz-step" data-step="10">
-            <label for="supportSystem">Do you have a good support system?</label>
-            <select name="supportSystem">
-              <option value="">-- Please select --</option>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-              <option value="somewhat">Somewhat</option>
-            </select>
-
-            <label for="supportExplanation">Tell us about your support system:</label>
-            <textarea name="supportExplanation" placeholder="Who supports you in your fitness journey?" rows="2"></textarea>
-
-            <label for="aiConsent">Would you like AI-generated personalised recommendations?</label>
-            <select name="aiConsent" required>
-              <option value="">-- Please select --</option>
-              <option value="yes">Yes, give me personalised AI insights</option>
-              <option value="no">No, just show me my summary</option>
-            </select>
+            <input type="hidden" name="goal" value="fat_loss">
+            <input type="hidden" name="aiConsent" value="yes">
           </div>
 
         </div>
@@ -802,10 +1052,10 @@
         <div class="modal-footer">
           <button type="button" class="btn-nav btn-back" id="backBtn" onclick="previousStep()" style="display: none;">Back</button>
           <div style="flex: 1; text-align: center;">
-            <span id="stepCounter">Step 1 of 10</span>
+            <span id="stepCounter">Step 1 of 4</span>
           </div>
           <button type="button" class="btn-nav btn-next" id="nextBtn" onclick="nextStep()">Next</button>
-          <button type="submit" class="btn-nav btn-submit" id="submitBtn" style="display: none;">Create My Plan</button>
+          <button type="submit" class="btn-nav btn-submit" id="submitBtn" style="display: none;">Complete Setup</button>
         </div>
       </form>
     </div>
@@ -831,22 +1081,26 @@
   </div>
 
   <!-- Sign Up Modal -->
-  <div id="signUpModal" class="modal">
+  <div id="signupModal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeSignUp()">&times;</span>
+      <span class="close" onclick="closeSignup()">&times;</span>
       <div class="modal-header">
         <h2>Create Your Account</h2>
       </div>
       <div class="modal-body">
-        <form class="quiz-form">
-          <label for="signUpName">First Name:</label>
-          <input type="text" id="signUpName" placeholder="Enter your first name" required>
-          <label for="signUpEmail">Email address:</label>
-          <input type="email" id="signUpEmail" placeholder="your@email.com" required>
-          <label for="signUpPassword">Password:</label>
-          <input type="password" id="signUpPassword" placeholder="Create a password (min 6 characters)" required>
-          <label for="signUpPasswordConfirm">Confirm Password:</label>
-          <input type="password" id="signUpPasswordConfirm" placeholder="Confirm your password" required>
+        <form class="quiz-form" id="signupForm">
+          <label for="signupName">Full Name:</label>
+          <input type="text" id="signupName" placeholder="Enter your full name" required>
+
+          <label for="signupEmail">Email Address:</label>
+          <input type="email" id="signupEmail" placeholder="your@email.com" required>
+
+          <label for="signupPassword">Create Password:</label>
+          <input type="password" id="signupPassword" placeholder="Minimum 6 characters" required>
+
+          <label for="signupDob">Date of Birth:</label>
+          <input type="date" id="signupDob" required>
+
           <button type="button" onclick="createAccount()" class="btn-nav btn-submit" style="width: 100%; margin-top: 20px;">Create Account & Start Questionnaire</button>
         </form>
       </div>
@@ -855,22 +1109,23 @@
 
   <script>
     let currentStep = 1;
-    const totalSteps = 10;
+    const totalSteps = 4;
 
     const stepTitles = {
-      1: "Let's Get Started",
-      2: "Tell Us About Yourself",
-      3: "Your Goals",
-      4: "How Are You Feeling?",
-      5: "Health Information",
-      6: "Sleep & Recovery",
-      7: "Nutrition Habits",
-      8: "Activity & Exercise",
-      9: "Current Progress",
-      10: "Final Questions"
+      1: "Basic Information",
+      2: "Your Fat Loss Goals", 
+      3: "Health & Lifestyle",
+      4: "Previous Experience"
     };
 
     function openQuiz() {
+      if (!window.isFromSignup) {
+        const passwordField = document.getElementById('password');
+        if (passwordField) {
+          passwordField.remove();
+        }
+      }
+
       document.getElementById('quizModal').style.display = 'block';
       document.body.style.overflow = 'hidden';
       updateProgress();
@@ -891,14 +1146,62 @@
       document.body.style.overflow = 'auto';
     }
 
-    function openSignUp() {
-      document.getElementById('signUpModal').style.display = 'block';
+    function openSignup() {
+      document.getElementById('signupModal').style.display = 'block';
       document.body.style.overflow = 'hidden';
     }
 
-    function closeSignUp() {
-      document.getElementById('signUpModal').style.display = 'none';
+    function closeSignup() {
+      document.getElementById('signupModal').style.display = 'none';
       document.body.style.overflow = 'auto';
+    }
+
+    function handleGenderChange() {
+      const gender = document.getElementById('gender').value;
+      const periodQuestion = document.getElementById('periodQuestion');
+
+      if (gender === 'female') {
+        periodQuestion.style.display = 'block';
+      } else {
+        periodQuestion.style.display = 'none';
+        document.getElementById('cycleQuestion').style.display = 'none';
+        document.getElementById('menopauseQuestion').style.display = 'none';
+        document.getElementById('menopauseStage').style.display = 'none';
+      }
+    }
+
+    function handlePeriodChange() {
+      const hasPeriods = document.getElementById('hasPeriods').value;
+      const cycleQuestion = document.getElementById('cycleQuestion');
+      const menopauseQuestion = document.getElementById('menopauseQuestion');
+
+      if (hasPeriods === 'yes') {
+        cycleQuestion.style.display = 'block';
+        menopauseQuestion.style.display = 'none';
+        document.getElementById('menopauseStage').style.display = 'none';
+      } else if (hasPeriods === 'no') {
+        cycleQuestion.style.display = 'none';
+        menopauseQuestion.style.display = 'block';
+      } else {
+        cycleQuestion.style.display = 'none';
+        menopauseQuestion.style.display = 'none';
+        document.getElementById('menopauseStage').style.display = 'none';
+      }
+    }
+
+    function handleMenopauseChange() {
+      const menopause = document.getElementById('menopause').value;
+      const menopauseStage = document.getElementById('menopauseStage');
+
+      if (menopause === 'yes') {
+        menopauseStage.style.display = 'block';
+      } else {
+        menopauseStage.style.display = 'none';
+      }
+    }
+
+    function updateRangeDisplay(rangeName, value) {
+      document.getElementById(rangeName + 'Display').textContent = value + '/10';
     }
 
     function nextStep() {
@@ -933,6 +1236,23 @@
           return false;
         }
       }
+
+      if (currentStep === 1) {
+        const dob = document.getElementById('dob').value;
+        if (dob) {
+          const birthDate = new Date(dob);
+          const today = new Date();
+          const age = today.getFullYear() - birthDate.getFullYear() - 
+                     ((today.getMonth() < birthDate.getMonth()) || 
+                      (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()));
+
+          if (age < 18) {
+            alert('You must be 18 or older to use this service.');
+            return false;
+          }
+        }
+      }
+
       return true;
     }
 
@@ -972,7 +1292,6 @@
         return;
       }
 
-      // Login via backend
       const formData = new FormData();
       formData.append('email', email);
       formData.append('password', password);
@@ -995,59 +1314,33 @@
       });
     }
 
-    // Close modals when clicking outside
-    window.onclick = function(event) {
-      const quizModal = document.getElementById('quizModal');
-      const loginModal = document.getElementById('loginModal');
-      const signUpModal = document.getElementById('signUpModal');
-
-      if (event.target == quizModal) {
-        closeQuiz();
-      }
-      if (event.target == loginModal) {
-        closeLogin();
-      }
-      if (event.target == signUpModal) {
-        closeSignUp();
-      }
-    }
-
-    // Keyboard navigation
-    document.addEventListener('keydown', function(e) {
-      if (document.getElementById('quizModal').style.display === 'block') {
-        if (e.key === 'Enter' && currentStep < totalSteps) {
-          e.preventDefault();
-          nextStep();
-        }
-      }
-    });
-
     function createAccount() {
-      const name = document.getElementById('signUpName').value;
-      const email = document.getElementById('signUpEmail').value;
-      const password = document.getElementById('signUpPassword').value;
-      const confirmPassword = document.getElementById('signUpPasswordConfirm').value;
+      const name = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const dob = document.getElementById('signupDob').value;
 
-      if (!name || !email || !password) {
+      if (!name || !email || !password || !dob) {
         alert('Please fill in all fields.');
         return;
       }
 
-      if (password !== confirmPassword) {
-        alert('Passwords do not match.');
+      const birthDate = new Date(dob);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear() - 
+                 ((today.getMonth() < birthDate.getMonth()) || 
+                  (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()));
+
+      if (age < 18) {
+        alert('You must be 18 or older to use this service.');
         return;
       }
 
-      if (password.length < 6) {
-        alert('Password must be at least 6 characters long.');
-        return;
-      }
-
-      // Create account via backend
       const formData = new FormData();
       formData.append('name', name);
       formData.append('email', email);
       formData.append('password', password);
+      formData.append('dob', dob);
 
       fetch('/register', {
         method: 'POST',
@@ -1056,15 +1349,12 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          // Pre-fill the questionnaire with name and email
+          closeSignup();
           document.getElementById('name').value = name;
           document.getElementById('email').value = email;
-
-          // Store password temporarily for questionnaire submission
-          sessionStorage.setItem('tempPassword', password);
-
-          // Close sign up modal and open questionnaire
-          closeSignUp();
+          document.getElementById('dob').value = dob;
+          window.isFromSignup = true;
+          window.signupEmail = email;
           openQuiz();
         } else {
           alert(data.message || 'Account creation failed');
@@ -1075,7 +1365,87 @@
         alert('Account creation failed. Please try again.');
       });
     }
-  </script>
 
+    window.onclick = function(event) {
+      const quizModal = document.getElementById('quizModal');
+      const loginModal = document.getElementById('loginModal');
+      const signupModal = document.getElementById('signupModal');
+
+      if (event.target == quizModal) {
+        closeQuiz();
+      }
+      if (event.target == loginModal) {
+        closeLogin();
+      }
+      if (event.target == signupModal) {
+        closeSignup();
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (document.getElementById('quizModal').style.display === 'block') {
+        if (e.key === 'Enter' && currentStep < totalSteps) {
+          e.preventDefault();
+          nextStep();
+        }
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      updateRangeDisplay('motivationLevel', 5);
+      updateRangeDisplay('stressLevel', 5);
+      
+      // Register service worker for PWA
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/static/sw.js')
+            .then(function(registration) {
+              console.log('ServiceWorker registration successful');
+              
+              // Show install prompt
+              let deferredPrompt;
+              window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                showInstallPrompt();
+              });
+              
+              function showInstallPrompt() {
+                // Create install banner
+                const installBanner = document.createElement('div');
+                installBanner.innerHTML = `
+                  <div style="position: fixed; bottom: 20px; left: 20px; right: 20px; background: #3B7A57; color: white; padding: 16px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                    <div>
+                      <strong>📱 Install App</strong><br>
+                      <small>Add to your home screen for quick access</small>
+                    </div>
+                    <div>
+                      <button onclick="installApp()" style="background: white; color: #3B7A57; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-right: 8px;">Install</button>
+                      <button onclick="dismissInstall()" style="background: transparent; color: white; border: 1px solid white; padding: 8px 12px; border-radius: 6px; cursor: pointer;">✕</button>
+                    </div>
+                  </div>
+                `;
+                document.body.appendChild(installBanner);
+                
+                window.installApp = function() {
+                  deferredPrompt.prompt();
+                  deferredPrompt.userChoice.then((choiceResult) => {
+                    deferredPrompt = null;
+                    installBanner.remove();
+                  });
+                };
+                
+                window.dismissInstall = function() {
+                  installBanner.remove();
+                };
+              }
+            })
+            .catch(function(error) {
+              console.log('ServiceWorker registration failed: ', error);
+            });
+        });
+      }
+    });
+  </script>
 </body>
 </html>
