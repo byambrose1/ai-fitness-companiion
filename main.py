@@ -1025,7 +1025,24 @@ def create_checkout_session():
                         'description': 'Unlimited AI insights, meal plans, and advanced features'
                     },
                     'unit_amount': SUBSCRIPTION_TIERS['premium']['price'],
+                    'recurring': {
+                        'interval': 'month'
+                    }
+                },
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=request.url_root + f'subscription-success?session_id={{CHECKOUT_SESSION_ID}}&email={email}',
+            cancel_url=request.url_root + f'subscription?email={email}',
+            metadata={
+                'user_email': email
+            }
+        )
 
+        return jsonify({'id': session.id})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin_dashboard():
@@ -1390,25 +1407,6 @@ def admin_logout():
     session.pop('admin_authenticated', None)
     data_protection.log_data_access('admin', "admin_logout", request.remote_addr)
     return "Logged out successfully. <a href='/admin'>Login again</a>"
-
-                    'recurring': {
-                        'interval': 'month'
-                    }
-                },
-                'quantity': 1,
-            }],
-            mode='subscription',
-            success_url=request.url_root + f'subscription-success?session_id={{CHECKOUT_SESSION_ID}}&email={email}',
-            cancel_url=request.url_root + f'subscription?email={email}',
-            metadata={
-                'user_email': email
-            }
-        )
-
-        return jsonify({'id': session.id})
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 @app.route("/subscription-success")
 def subscription_success():
