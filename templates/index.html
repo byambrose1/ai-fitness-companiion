@@ -181,15 +181,17 @@
     .person-image {
       position: absolute;
       border-radius: 20px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-      opacity: 0.9;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      opacity: 1;
       transition: all 0.3s ease;
       object-fit: cover;
+      border: 3px solid #ffffff;
+      z-index: 2;
     }
 
     .person-image:hover {
-      opacity: 1;
-      transform: scale(1.02);
+      transform: scale(1.05);
+      box-shadow: 0 15px 35px rgba(59, 122, 87, 0.3);
     }
 
     .person-1 {
@@ -909,31 +911,35 @@
       }
 
       .person-1 {
-        top: 5%;
-        left: 2%;
-        width: 120px;
-        height: 150px;
+        top: 3%;
+        left: 1%;
+        width: 180px;
+        height: 220px;
+        z-index: 2;
       }
 
       .person-2 {
-        top: 15%;
-        right: 3%;
-        width: 110px;
-        height: 135px;
+        top: 8%;
+        right: 2%;
+        width: 160px;
+        height: 200px;
+        z-index: 2;
       }
 
       .person-3 {
-        bottom: 10%;
-        left: 5%;
-        width: 115px;
-        height: 145px;
+        bottom: 8%;
+        left: 3%;
+        width: 170px;
+        height: 210px;
+        z-index: 2;
       }
 
       .person-4 {
-        bottom: 5%;
-        right: 6%;
-        width: 105px;
-        height: 130px;
+        bottom: 3%;
+        right: 4%;
+        width: 150px;
+        height: 190px;
+        z-index: 2;
       }
 
       .story-grid {
