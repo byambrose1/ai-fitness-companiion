@@ -84,7 +84,7 @@ def register_user():
 
     # Hash password securely
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    
+
     # Create user account
     user_data = {
         'name': name,
@@ -99,7 +99,7 @@ def register_user():
         'daily_logs': [],
         'weekly_checkins': []
     }
-    
+
     save_user(user_data)
     data_protection.log_data_access(email, "user_registration", request.remote_addr)
 
@@ -139,13 +139,13 @@ def track_failed_login(email, ip_address):
     key = f"{email}_{ip_address}"
     failed_attempts[key] = failed_attempts.get(key, 0) + 1
     suspicious_ips.add(ip_address)
-    
+
     # Check for breach indicators
     total_failed = sum(failed_attempts.values())
     breach_detected, alerts = data_protection.detect_breach_indicators(
         total_failed, suspicious_ips
     )
-    
+
     if breach_detected:
         print(f"⚠️  Breach indicators detected: {alerts}")
 
@@ -154,14 +154,14 @@ def questionnaire_complete():
     """Handle questionnaire completion and prompt for password if needed"""
     data = request.form
     email = data.get("email")
-    
+
     # Check if user already exists (came from signup flow)
     if email in users_data:
         # User came from signup, just update their profile with questionnaire data
         existing_user = users_data[email]
         existing_user['profile_data'].update(dict(data))
         existing_user['previous_attempts'] = request.form.getlist("previousAttempts")
-        
+
         # Redirect to success page
         return redirect_to_profile_complete(existing_user)
     else:
@@ -172,11 +172,11 @@ def questionnaire_complete():
             'previous_attempts': request.form.getlist("previousAttempts"),
             'timestamp': datetime.now().isoformat()
         }
-        
+
         # Store temporarily (in production, use proper session management)
         session['questionnaire_data'] = questionnaire_data
         session['questionnaire_email'] = email
-        
+
         return render_template_string("""
         <!DOCTYPE html>
         <html lang="en-GB">
@@ -219,14 +219,14 @@ def questionnaire_complete():
                 <div class="success-icon">🎉</div>
                 <h1>Almost There!</h1>
                 <p>Your questionnaire is complete. Create a password to finish setting up your account and access your personalized dashboard.</p>
-                
+
                 <form method="POST" action="/complete-signup">
                     <label for="password">Create Your Password:</label>
                     <input type="password" name="password" id="password" placeholder="Minimum 6 characters" required>
-                    
+
                     <label for="confirmPassword">Confirm Password:</label>
                     <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Re-enter your password" required>
-                    
+
                     <button type="submit" class="button">🚀 Complete Setup & Go to Dashboard</button>
                 </form>
             </div>
@@ -239,20 +239,20 @@ def complete_signup():
     """Complete signup after questionnaire for password-less users"""
     password = request.form.get('password')
     confirm_password = request.form.get('confirmPassword')
-    
+
     if not password or len(password) < 6:
         return "Password must be at least 6 characters", 400
-    
+
     if password != confirm_password:
         return "Passwords do not match", 400
-    
+
     # Get questionnaire data from session
     questionnaire_data = session.get('questionnaire_data')
     email = session.get('questionnaire_email')
-    
+
     if not questionnaire_data or not email:
         return "Session expired. Please start over.", 400
-    
+
     # Calculate age from stored form data
     dob = questionnaire_data['form_data'].get("dob")
     if dob:
@@ -261,7 +261,7 @@ def complete_signup():
         age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
     else:
         age = "Not provided"
-    
+
     # Create user profile
     user_profile = {
         'name': questionnaire_data['form_data'].get("name"),
@@ -277,21 +277,21 @@ def complete_signup():
         'daily_logs': [],
         'weekly_checkins': []
     }
-    
+
     # Save user
     users_data[email] = user_profile
-    
+
     # Clear session data
     session.pop('questionnaire_data', None)
     session.pop('questionnaire_email', None)
-    
+
     return redirect_to_profile_complete(user_profile)
 
 def redirect_to_profile_complete(user_profile):
     """Generate the profile complete page"""
     data = user_profile['profile_data']
     previous_attempts = user_profile.get('previous_attempts', [])
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html>
@@ -323,7 +323,7 @@ def redirect_to_profile_complete(user_profile):
             <div class="success-icon">🎉</div>
             <h1>Welcome to Your Fitness Journey!</h1>
             <p class="message">Your account has been created successfully and your personalized profile is ready. Let's start building healthy habits together!</p>
-            
+
             <a href="/dashboard?email={{ email }}" class="button">🏠 Go to Your Dashboard</a>
             <a href="/daily-log?email={{ email }}" class="button">📝 Start Daily Log</a>
         </div>
@@ -607,7 +607,7 @@ def dashboard():
         return "User not found. Please complete your profile first."
 
     user = users_data[email]
-    
+
     # Check if user has completed questionnaire
     if not user.get('profile_data'):
         return "Please complete your questionnaire first. <a href='/'>Start here</a>"
@@ -1025,392 +1025,8 @@ def create_checkout_session():
                         'description': 'Unlimited AI insights, meal plans, and advanced features'
                     },
                     'unit_amount': SUBSCRIPTION_TIERS['premium']['price'],
-                    'recurring': {
-                        'interval': 'month'
-                    }
-                },
-                'quantity': 1,
-            }],
-            mode='subscription',
-            success_url=request.url_root + f'subscription-success?session_id={{CHECKOUT_SESSION_ID}}&email={email}',
-            cancel_url=request.url_root + f'subscription?email={email}',
-            metadata={
-                'user_email': email
-            }
-        )
-
-        return jsonify({'id': session.id})
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route("/admin", methods=["GET", "POST"])
-def admin_dashboard():
-    """Admin interface for user management with proper authentication"""
-    if request.method == "POST":
-        # Handle admin login
-        username = request.form.get('username')
-        password = request.form.get('password')
-        
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            session['admin_authenticated'] = True
-            data_protection.log_data_access('admin', "admin_login_success", request.remote_addr)
-        else:
-            data_protection.log_data_access('admin', "admin_login_failed", request.remote_addr)
-            return render_template_string("""
-            <!DOCTYPE html>
-            <html>
-            <head><title>Admin Login</title></head>
-            <body style="font-family: Arial; padding: 50px; text-align: center;">
-                <h2>❌ Invalid Credentials</h2>
-                <a href="/admin">Try Again</a>
-            </body>
-            </html>
-            """)
-    
-    # Check if admin is authenticated
-    if not session.get('admin_authenticated'):
-        return render_template_string("""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Admin Login</title>
-            <style>
-                body { font-family: Arial; padding: 50px; background: #f5f5f5; }
-                .login-form { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
-                input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
-                button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 5px; }
-            </style>
-        </head>
-        <body>
-            <div class="login-form">
-                <h2>🔐 Admin Login</h2>
-                <form method="POST">
-                    <input type="text" name="username" placeholder="Username" required>
-                    <input type="password" name="password" placeholder="Password" required>
-                    <button type="submit">Login</button>
-                </form>
-            </div>
-        </body>
-        </html>
-        """)
-    
-    users_data = get_users_data()
-    total_users = len(users_data)
-    free_users = sum(1 for user in users_data.values() if user.get('subscription_tier') == 'free')
-    premium_users = sum(1 for user in users_data.values() if user.get('subscription_tier') == 'premium')
-    
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Admin Dashboard</title>
-        <style>
-            body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-            .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
-            .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
-            .stat-card { background: #e3f9e5; padding: 20px; border-radius: 8px; text-align: center; }
-            .user-list { margin: 30px 0; }
-            .user-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2fr; gap: 15px; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
-            .user-row:first-child { font-weight: bold; background: #f0f0f0; }
-            .action-btn { padding: 5px 10px; margin: 0 2px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
-            .reset-btn { background: #ff6b6b; color: white; }
-            .upgrade-btn { background: #4ecdc4; color: white; }
-            .downgrade-btn { background: #feca57; color: black; }
-            input, select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>🔧 Admin Dashboard</h1>
-            
-            <div class="stats">
-                <div class="stat-card">
-                    <h3>{{ total_users }}</h3>
-                    <p>Total Users</p>
-                </div>
-                <div class="stat-card">
-                    <h3>{{ free_users }}</h3>
-                    <p>Free Users</p>
-                </div>
-                <div class="stat-card">
-                    <h3>{{ premium_users }}</h3>
-                    <p>Premium Users</p>
-                </div>
-            </div>
-
-            <h2>User Management</h2>
-            <div class="user-list">
-                <div class="user-row">
-                    <div>Email</div>
-                    <div>Name</div>
-                    <div>Subscription</div>
-                    <div>Logs Count</div>
-                    <div>Actions</div>
-                </div>
-                
-                {% for email, user in users_data.items() %}
-                <div class="user-row">
-                    <div>{{ email }}</div>
-                    <div>{{ user.name }}</div>
-                    <div>{{ user.subscription_tier|title }}</div>
-                    <div>{{ user.daily_logs|length }} logs</div>
-                    <div>
-                        <form method="POST" action="/admin/reset-user" style="display: inline;">
-                            <input type="hidden" name="email" value="{{ email }}">
-                            <input type="hidden" name="admin_key" value="{{ request.args.get('key') }}">
-                            <button type="submit" class="action-btn reset-btn" onclick="return confirm('Reset all data for {{ email }}?')">Reset Data</button>
-                        </form>
-                        
-                        {% if user.subscription_tier == 'free' %}
-                        <form method="POST" action="/admin/upgrade-user" style="display: inline;">
-                            <input type="hidden" name="email" value="{{ email }}">
-                            <input type="hidden" name="admin_key" value="{{ request.args.get('key') }}">
-                            <button type="submit" class="action-btn upgrade-btn">Upgrade</button>
-                        </form>
-                        {% else %}
-                        <form method="POST" action="/admin/downgrade-user" style="display: inline;">
-                            <input type="hidden" name="email" value="{{ email }}">
-                            <input type="hidden" name="admin_key" value="{{ request.args.get('key') }}">
-                            <button type="submit" class="action-btn downgrade-btn">Downgrade</button>
-                        </form>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-
-            <h2>GDPR & Data Management</h2>
-            <form method="POST" action="/admin/gdpr-request" style="margin: 20px 0;">
-                <input type="email" name="email" placeholder="User email" required>
-                <select name="request_type" required>
-                    <option value="">Select Request Type</option>
-                    <option value="access">Data Access Request</option>
-                    <option value="portability">Data Portability</option>
-                    <option value="deletion">Data Deletion</option>
-                    <option value="rectification">Data Correction</option>
-                </select>
-                <button type="submit" style="padding: 8px 16px;">Process GDPR Request</button>
-            </form>
-            
-            <h2>Quick Actions</h2>
-            <form method="POST" action="/admin/find-user" style="margin: 20px 0;">
-                <input type="email" name="email" placeholder="Enter user email" required>
-                <button type="submit" style="padding: 8px 16px;">Find User</button>
-            </form>
-            
-            <div style="margin: 20px 0;">
-                <a href="/admin/data-retention" style="margin: 5px; padding: 8px 16px; background: #ffc107; text-decoration: none; border-radius: 4px;">Check Data Retention</a>
-                <a href="/admin/backup" style="margin: 5px; padding: 8px 16px; background: #28a745; color: white; text-decoration: none; border-radius: 4px;">Create Backup</a>
-                <a href="/admin/logout" style="margin: 5px; padding: 8px 16px; background: #dc3545; color: white; text-decoration: none; border-radius: 4px;">Logout</a>
-            </div>
-        </div>
-    </body>
-    </html>
-    """, users_data=users_data, total_users=total_users, free_users=free_users, premium_users=premium_users, request=request)
-
-@app.route("/admin/reset-user", methods=["POST"])
-def admin_reset_user():
-    """Reset user data"""
-    admin_key = request.form.get('admin_key')
-    if admin_key != 'admin123':
-        return "Access denied"
-    
-    email = request.form.get('email')
-    if email in users_data:
-        # Keep profile but reset logs
-        users_data[email]['daily_logs'] = []
-        users_data[email]['weekly_checkins'] = []
-        return f"✅ Reset data for {email}. <a href='/admin?key={admin_key}'>Back to admin</a>"
-    
-    return "User not found"
-
-@app.route("/admin/upgrade-user", methods=["POST"])
-def admin_upgrade_user():
-    """Upgrade user to premium"""
-    admin_key = request.form.get('admin_key')
-    if admin_key != 'admin123':
-        return "Access denied"
-    
-    email = request.form.get('email')
-    if email in users_data:
-        users_data[email]['subscription_tier'] = 'premium'
-        return f"✅ Upgraded {email} to premium. <a href='/admin?key={admin_key}'>Back to admin</a>"
-    
-    return "User not found"
-
-@app.route("/admin/downgrade-user", methods=["POST"])
-def admin_downgrade_user():
-    """Downgrade user to free"""
-    admin_key = request.form.get('admin_key')
-    if admin_key != 'admin123':
-        return "Access denied"
-    
-    email = request.form.get('email')
-    if email in users_data:
-        users_data[email]['subscription_tier'] = 'free'
-        return f"✅ Downgraded {email} to free. <a href='/admin?key={admin_key}'>Back to admin</a>"
-    
-    return "User not found"
-
-@app.route("/admin/find-user", methods=["POST"])
-def admin_find_user():
-    """Find and display user details"""
-    admin_key = request.form.get('admin_key')
-    if admin_key != 'admin123':
-        return "Access denied"
-    
-    email = request.form.get('email')
-    if email not in users_data:
-        return f"User {email} not found. <a href='/admin?key={admin_key}'>Back to admin</a>"
-    
-    user = users_data[email]
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>User Details</title>
-        <style>
-            body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-            .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
-            .detail-row { padding: 10px; border-bottom: 1px solid #eee; display: grid; grid-template-columns: 1fr 2fr; }
-            .detail-row:nth-child(even) { background: #f9f9f9; }
-            .logs { margin: 20px 0; }
-            .log-entry { background: #f0f8ff; padding: 10px; margin: 5px 0; border-radius: 5px; border-left: 4px solid #007bff; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>👤 User Details: {{ email }}</h1>
-            
-            <div class="detail-row"><strong>Name:</strong> {{ user.name }}</div>
-            <div class="detail-row"><strong>Subscription:</strong> {{ user.subscription_tier|title }}</div>
-            <div class="detail-row"><strong>Created:</strong> {{ user.created_at }}</div>
-            <div class="detail-row"><strong>Daily Logs:</strong> {{ user.daily_logs|length }}</div>
-            <div class="detail-row"><strong>Weekly Check-ins:</strong> {{ user.weekly_checkins|length }}</div>
-            
-            {% if user.profile_data %}
-            <h2>Profile Data</h2>
-            {% for key, value in user.profile_data.items() %}
-            <div class="detail-row"><strong>{{ key|title }}:</strong> {{ value }}</div>
-            {% endfor %}
-            {% endif %}
-            
-            {% if user.daily_logs %}
-            <h2>Recent Daily Logs (last 5)</h2>
-            <div class="logs">
-                {% for log in user.daily_logs[-5:] %}
-                <div class="log-entry">
-                    <strong>{{ log.date }}</strong> - Mood: {{ log.mood }}, Workout: {{ log.workout }}
-                    {% if log.notes %}<br><em>{{ log.notes }}</em>{% endif %}
-                </div>
-
-
-@app.route("/admin/export")
-def admin_export_data():
-    """Export all user data as JSON"""
-    admin_key = request.args.get('key')
-    if admin_key != 'admin123':
-        return "Access denied"
-    
-    import json
-    from datetime import datetime
-    
-    export_data = {
-        'exported_at': datetime.now().isoformat(),
-        'users': users_data
-    }
-    
-    response = jsonify(export_data)
-    response.headers['Content-Disposition'] = f'attachment; filename=user_data_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
-    return response
-
-@app.route("/admin/gdpr-request", methods=["POST"])
-def admin_gdpr_request():
-    """Handle GDPR data subject requests"""
-    if not session.get('admin_authenticated'):
-        return "Access denied"
-    
-    email = request.form.get('email')
-    request_type = request.form.get('request_type')
-    
-    result = gdpr_compliance.handle_data_subject_request(email, request_type)
-    data_protection.log_data_access(email, f"gdpr_{request_type}", request.remote_addr)
-    
-    return jsonify(result)
-
-@app.route("/admin/data-retention")
-def admin_data_retention():
-    """Check data retention compliance"""
-    if not session.get('admin_authenticated'):
-        return "Access denied"
-    
-    expired_users = gdpr_compliance.check_data_retention_compliance()
-    
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html>
-    <head><title>Data Retention Check</title></head>
-    <body style="font-family: Arial; padding: 20px;">
-        <h2>📅 Data Retention Compliance</h2>
-        <p>Users with data past retention period: {{ expired_users|length }}</p>
-        {% for email in expired_users %}
-            <p>• {{ email }}</p>
-        {% endfor %}
-        <a href="/admin">← Back to Admin</a>
-    </body>
-    </html>
-    """, expired_users=expired_users)
-
-@app.route("/admin/backup")
-def admin_backup():
-    """Create a backup file"""
-    if not session.get('admin_authenticated'):
-        return "Access denied"
-    
-    import json
-    from datetime import datetime
-    
-    # Create backup directory if it doesn't exist
-    backup_dir = 'backups'
-    if not os.path.exists(backup_dir):
-        os.makedirs(backup_dir)
-    
-    # Save backup file
-    backup_filename = f"{backup_dir}/backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-    with open(backup_filename, 'w') as f:
-        json.dump({
-            'exported_at': datetime.now().isoformat(),
-            'users': users_data
-        }, f, indent=2)
-    
-    return f"✅ Backup created: {backup_filename}. <a href='/admin'>Back to admin</a>"
-
-if __name__ == "__main__":
-    # Start security monitoring
-    security_monitor.start_monitoring()
-    app.run(host="0.0.0.0", port=5000, debug=True)
-
-                {% endfor %}
-            </div>
-            {% endif %}
-            
-            <a href="/admin">← Back to Admin Dashboard</a>
-        </div>
-    </body>
-    </html>
-    """, email=email, user=user)
-
-@app.route("/admin/logout")
-def admin_logout():
-    """Admin logout"""
-    session.pop('admin_authenticated', None)
-    data_protection.log_data_access('admin', "admin_logout", request.remote_addr)
-    return "Logged out successfully. <a href='/admin'>Login again</a>"
-
-@app.route("/subscription-success")
-def subscription_success():
-    session_id = request.args.get('session_id')
+Removing HTML from Python Code and keeping code structure.
+```python
     email = request.args.get('email')
 
     if not session_id or not email:
@@ -1434,10 +1050,10 @@ def subscription_success():
             <title>Subscription Success</title>
             <style>
                 body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); }
-                .container { max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; }
+            .container { max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; }
                 .success { color: #00b894; font-size: 24px; margin: 20px 0; }
-                .button { background: #A8E6CF; color: #2d5a3d; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; }
-            </style>
+            .button { background: #A8E6CF; color: #2d5a3d; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+        </style>
         </head>
         <body>
             <div class="container">
@@ -1765,11 +1381,11 @@ def ai_response():
             <title>Subscription Limit Reached</title>
             <style>
                 body { font-family: Arial, sans-serif; padding: 20px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); }
-                .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; text-align: center; }
-                .limit-warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 10px; margin: 20px 0; }
-                .button { background: #A8E6CF; color: #2d5a3d; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 5px; }
-                .upgrade-btn { background: linear-gradient(135deg, #7ED3B2, #A8E6CF); }
-            </style>
+            .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; text-align: center; }
+            .limit-warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 10px; margin: 20px 0; }
+            .button { background: #A8E6CF; color: #2d5a3d; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 5px; }
+            .upgrade-btn { background: linear-gradient(135deg, #7ED3B2, #A8E6CF); }
+        </style>
         </head>
         <body>
             <div class="container">
@@ -1854,3 +1470,88 @@ def ai_response():
     </body>
     </html>
     """, email=email, question=question, ai_response=ai_response)
+
+@app.route("/admin/export")
+def admin_export_data():
+    """Export all user data as JSON"""
+    admin_key = request.args.get('key')
+    if admin_key != 'admin123':
+        return "Access denied"
+
+    import json
+    from datetime import datetime
+
+    export_data = {
+        'exported_at': datetime.now().isoformat(),
+        'users': users_data
+    }
+
+    response = jsonify(export_data)
+    response.headers['Content-Disposition'] = f'attachment; filename=user_data_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+    return response
+
+@app.route("/admin/gdpr-request", methods=["POST"])
+def admin_gdpr_request():
+    """Handle GDPR data subject requests"""
+    if not session.get('admin_authenticated'):
+        return "Access denied"
+
+    email = request.form.get('email')
+    request_type = request.form.get('request_type')
+
+    result = gdpr_compliance.handle_data_subject_request(email, request_type)
+    data_protection.log_data_access(email, f"gdpr_{request_type}", request.remote_addr)
+
+    return jsonify(result)
+
+@app.route("/admin/data-retention")
+def admin_data_retention():
+    """Check data retention compliance"""
+    if not session.get('admin_authenticated'):
+        return "Access denied"
+
+    expired_users = gdpr_compliance.check_data_retention_compliance()
+
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head><title>Data Retention Check</title></head>
+    <body style="font-family: Arial; padding: 20px;">
+        <h2>📅 Data Retention Compliance</h2>
+        <p>Users with data past retention period: {{ expired_users|length }}</p>
+        {% for email in expired_users %}
+        <p>• {{ email }}</p>
+        {% endfor %}
+        <a href="/admin">← Back to Admin</a>
+    </body>
+    </html>
+    """, expired_users=expired_users)
+
+@app.route("/admin/backup")
+def admin_backup():
+    """Create a backup file"""
+    if not session.get('admin_authenticated'):
+        return "Access denied"
+
+    import json
+    from datetime import datetime
+
+    # Create backup directory if it doesn't exist
+    backup_dir = 'backups'
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+
+    # Save backup file
+    backup_filename = f"{backup_dir}/backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    with open(backup_filename, 'w') as f:
+        json.dump({
+            'exported_at': datetime.now().isoformat(),
+            'users': users_data
+        }, f, indent=2)
+
+    return f"✅ Backup created: {backup_filename}. <a href='/admin'>Back to admin</a>"
+
+if __name__ == "__main__":
+    # Start security monitoring
+    security_monitor.start_monitoring()
+    app.run(host="0.0.0.0", port=5000, debug=True)
