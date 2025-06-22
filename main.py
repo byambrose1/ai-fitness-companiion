@@ -997,6 +997,262 @@ def create_checkout_session():
                         'description': 'Unlimited AI insights, meal plans, and advanced features'
                     },
                     'unit_amount': SUBSCRIPTION_TIERS['premium']['price'],
+
+
+@app.route("/admin")
+def admin_dashboard():
+    """Admin interface for user management"""
+    # Simple admin check - in production, use proper authentication
+    admin_key = request.args.get('key')
+    if admin_key != 'admin123':  # Change this to a secure key
+        return "Access denied"
+    
+    total_users = len(users_data)
+    free_users = sum(1 for user in users_data.values() if user.get('subscription_tier') == 'free')
+    premium_users = sum(1 for user in users_data.values() if user.get('subscription_tier') == 'premium')
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Admin Dashboard</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+            .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+            .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+            .stat-card { background: #e3f9e5; padding: 20px; border-radius: 8px; text-align: center; }
+            .user-list { margin: 30px 0; }
+            .user-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 2fr; gap: 15px; padding: 10px; border-bottom: 1px solid #eee; align-items: center; }
+            .user-row:first-child { font-weight: bold; background: #f0f0f0; }
+            .action-btn { padding: 5px 10px; margin: 0 2px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
+            .reset-btn { background: #ff6b6b; color: white; }
+            .upgrade-btn { background: #4ecdc4; color: white; }
+            .downgrade-btn { background: #feca57; color: black; }
+            input, select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🔧 Admin Dashboard</h1>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>{{ total_users }}</h3>
+                    <p>Total Users</p>
+                </div>
+                <div class="stat-card">
+                    <h3>{{ free_users }}</h3>
+                    <p>Free Users</p>
+                </div>
+                <div class="stat-card">
+                    <h3>{{ premium_users }}</h3>
+                    <p>Premium Users</p>
+                </div>
+            </div>
+
+            <h2>User Management</h2>
+            <div class="user-list">
+                <div class="user-row">
+                    <div>Email</div>
+                    <div>Name</div>
+                    <div>Subscription</div>
+                    <div>Logs Count</div>
+                    <div>Actions</div>
+                </div>
+                
+                {% for email, user in users_data.items() %}
+                <div class="user-row">
+                    <div>{{ email }}</div>
+                    <div>{{ user.name }}</div>
+                    <div>{{ user.subscription_tier|title }}</div>
+                    <div>{{ user.daily_logs|length }} logs</div>
+                    <div>
+                        <form method="POST" action="/admin/reset-user" style="display: inline;">
+                            <input type="hidden" name="email" value="{{ email }}">
+                            <input type="hidden" name="admin_key" value="{{ request.args.get('key') }}">
+                            <button type="submit" class="action-btn reset-btn" onclick="return confirm('Reset all data for {{ email }}?')">Reset Data</button>
+                        </form>
+                        
+                        {% if user.subscription_tier == 'free' %}
+                        <form method="POST" action="/admin/upgrade-user" style="display: inline;">
+                            <input type="hidden" name="email" value="{{ email }}">
+                            <input type="hidden" name="admin_key" value="{{ request.args.get('key') }}">
+                            <button type="submit" class="action-btn upgrade-btn">Upgrade</button>
+                        </form>
+                        {% else %}
+                        <form method="POST" action="/admin/downgrade-user" style="display: inline;">
+                            <input type="hidden" name="email" value="{{ email }}">
+                            <input type="hidden" name="admin_key" value="{{ request.args.get('key') }}">
+                            <button type="submit" class="action-btn downgrade-btn">Downgrade</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <h2>Quick Actions</h2>
+            <form method="POST" action="/admin/find-user" style="margin: 20px 0;">
+                <input type="hidden" name="admin_key" value="{{ request.args.get('key') }}">
+                <input type="email" name="email" placeholder="Enter user email" required>
+                <button type="submit" style="padding: 8px 16px;">Find User</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    """, users_data=users_data, total_users=total_users, free_users=free_users, premium_users=premium_users, request=request)
+
+@app.route("/admin/reset-user", methods=["POST"])
+def admin_reset_user():
+    """Reset user data"""
+    admin_key = request.form.get('admin_key')
+    if admin_key != 'admin123':
+        return "Access denied"
+    
+    email = request.form.get('email')
+    if email in users_data:
+        # Keep profile but reset logs
+        users_data[email]['daily_logs'] = []
+        users_data[email]['weekly_checkins'] = []
+        return f"✅ Reset data for {email}. <a href='/admin?key={admin_key}'>Back to admin</a>"
+    
+    return "User not found"
+
+@app.route("/admin/upgrade-user", methods=["POST"])
+def admin_upgrade_user():
+    """Upgrade user to premium"""
+    admin_key = request.form.get('admin_key')
+    if admin_key != 'admin123':
+        return "Access denied"
+    
+    email = request.form.get('email')
+    if email in users_data:
+        users_data[email]['subscription_tier'] = 'premium'
+        return f"✅ Upgraded {email} to premium. <a href='/admin?key={admin_key}'>Back to admin</a>"
+    
+    return "User not found"
+
+@app.route("/admin/downgrade-user", methods=["POST"])
+def admin_downgrade_user():
+    """Downgrade user to free"""
+    admin_key = request.form.get('admin_key')
+    if admin_key != 'admin123':
+        return "Access denied"
+    
+    email = request.form.get('email')
+    if email in users_data:
+        users_data[email]['subscription_tier'] = 'free'
+        return f"✅ Downgraded {email} to free. <a href='/admin?key={admin_key}'>Back to admin</a>"
+    
+    return "User not found"
+
+@app.route("/admin/find-user", methods=["POST"])
+def admin_find_user():
+    """Find and display user details"""
+    admin_key = request.form.get('admin_key')
+    if admin_key != 'admin123':
+        return "Access denied"
+    
+    email = request.form.get('email')
+    if email not in users_data:
+        return f"User {email} not found. <a href='/admin?key={admin_key}'>Back to admin</a>"
+    
+    user = users_data[email]
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>User Details</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+            .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+            .detail-row { padding: 10px; border-bottom: 1px solid #eee; display: grid; grid-template-columns: 1fr 2fr; }
+            .detail-row:nth-child(even) { background: #f9f9f9; }
+            .logs { margin: 20px 0; }
+            .log-entry { background: #f0f8ff; padding: 10px; margin: 5px 0; border-radius: 5px; border-left: 4px solid #007bff; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>👤 User Details: {{ email }}</h1>
+            
+            <div class="detail-row"><strong>Name:</strong> {{ user.name }}</div>
+            <div class="detail-row"><strong>Subscription:</strong> {{ user.subscription_tier|title }}</div>
+            <div class="detail-row"><strong>Created:</strong> {{ user.created_at }}</div>
+            <div class="detail-row"><strong>Daily Logs:</strong> {{ user.daily_logs|length }}</div>
+            <div class="detail-row"><strong>Weekly Check-ins:</strong> {{ user.weekly_checkins|length }}</div>
+            
+            {% if user.profile_data %}
+            <h2>Profile Data</h2>
+            {% for key, value in user.profile_data.items() %}
+            <div class="detail-row"><strong>{{ key|title }}:</strong> {{ value }}</div>
+            {% endfor %}
+            {% endif %}
+            
+            {% if user.daily_logs %}
+            <h2>Recent Daily Logs (last 5)</h2>
+            <div class="logs">
+                {% for log in user.daily_logs[-5:] %}
+                <div class="log-entry">
+                    <strong>{{ log.date }}</strong> - Mood: {{ log.mood }}, Workout: {{ log.workout }}
+                    {% if log.notes %}<br><em>{{ log.notes }}</em>{% endif %}
+                </div>
+
+
+@app.route("/admin/export")
+def admin_export_data():
+    """Export all user data as JSON"""
+    admin_key = request.args.get('key')
+    if admin_key != 'admin123':
+        return "Access denied"
+    
+    import json
+    from datetime import datetime
+    
+    export_data = {
+        'exported_at': datetime.now().isoformat(),
+        'users': users_data
+    }
+    
+    response = jsonify(export_data)
+    response.headers['Content-Disposition'] = f'attachment; filename=user_data_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+    return response
+
+@app.route("/admin/backup")
+def admin_backup():
+    """Create a backup file"""
+    admin_key = request.args.get('key')
+    if admin_key != 'admin123':
+        return "Access denied"
+    
+    import json
+    from datetime import datetime
+    
+    # Create backup directory if it doesn't exist
+    backup_dir = 'backups'
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+    
+    # Save backup file
+    backup_filename = f"{backup_dir}/backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    with open(backup_filename, 'w') as f:
+        json.dump({
+            'exported_at': datetime.now().isoformat(),
+            'users': users_data
+        }, f, indent=2)
+    
+    return f"✅ Backup created: {backup_filename}. <a href='/admin?key={admin_key}'>Back to admin</a>"
+
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <a href="/admin?key={{ admin_key }}">← Back to Admin Dashboard</a>
+        </div>
+    </body>
+    </html>
+    """, email=email, user=user, admin_key=admin_key)
+
                     'recurring': {
                         'interval': 'month'
                     }
