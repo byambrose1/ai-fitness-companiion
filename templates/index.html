@@ -171,9 +171,11 @@
 
     .hero-person {
       transition: all 0.3s ease;
-      object-fit: contain;
-      background: none;
-      mix-blend-mode: multiply;
+      object-fit: cover;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
     }
 
     .hero-person:hover {
@@ -1008,11 +1010,11 @@
 
       <div class="hero-visual">
         <div class="main-people">
-          <img src="https://images.unsplash.com/photo-1594737625785-a6cbdabd333c?w=400&h=600&fit=crop&crop=face&auto=format&bg=transparent" 
+          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=800&fit=crop&crop=center&auto=format&bg=remove" 
                alt="Happy Black woman in fitness attire standing" 
                class="hero-person hero-person-1">
           
-          <img src="https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=400&h=600&fit=crop&crop=face&auto=format&bg=transparent" 
+          <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&h=800&fit=crop&crop=center&auto=format&bg=remove" 
                alt="Confident man in workout gear standing" 
                class="hero-person hero-person-2">
         </div>
