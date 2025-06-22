@@ -150,92 +150,35 @@
       margin-top: 8px;
     }
 
-    /* Hero Visual */
-    .hero-visual {
+    /* Phone Features */
+    .phone-features {
       display: flex;
       justify-content: center;
+      gap: 30px;
       margin: 50px 0;
-      position: relative;
-      min-height: 700px;
-      align-items: center;
+      flex-wrap: wrap;
     }
 
-    .main-people {
+    .phone-card {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      gap: 20px;
-      position: relative;
-      z-index: 5;
+      text-align: center;
+      max-width: 300px;
     }
 
-    .hero-person {
-      transition: all 0.3s ease;
-      object-fit: cover;
-      background: transparent;
-      border: none;
-      box-shadow: none;
-      border-radius: 0;
-    }
-
-    .hero-person:hover {
-      transform: translateY(-5px);
-    }
-
-    .hero-person-1 {
-      width: 280px;
-      height: 450px;
-      margin-right: 10px;
-    }
-
-    .hero-person-2 {
-      width: 300px;
-      height: 470px;
-      margin-left: 10px;
-    }
-
-    .floating-ui {
-      position: absolute;
-      background: white;
-      border-radius: 16px;
-      padding: 16px 20px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-      border: 2px solid #f1f5f9;
-      z-index: 10;
-    }
-
-    .ui-mood {
-      top: 15%;
-      left: 5%;
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .phone-card h4 {
+      font-size: 1.3rem;
+      font-weight: 600;
       color: #3B7A57;
-      font-weight: 600;
+      margin: 20px 0 8px 0;
     }
 
-    .ui-steps {
-      bottom: 25%;
-      left: 8%;
-      color: #1a1a1a;
-      font-weight: 600;
-    }
-
-    .ui-calories {
-      top: 10%;
-      right: 5%;
-      color: #1a1a1a;
-      font-weight: 600;
-    }
-
-    .ui-mood-bottom {
-      bottom: 15%;
-      right: 8%;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #3B7A57;
-      font-weight: 600;
+    .phone-card p {
+      color: #6b7280;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      margin: 0;
     }
 
     .phone-frame {
@@ -922,46 +865,14 @@
         gap: 12px;
       }
 
-      .main-people {
+      .phone-features {
         flex-direction: column;
-        gap: 10px;
+        gap: 40px;
+        align-items: center;
       }
 
-      .hero-person-1 {
-        width: 200px;
-        height: 250px;
-        margin-right: 0;
-      }
-
-      .hero-person-2 {
-        width: 220px;
-        height: 270px;
-        margin-left: 0;
-      }
-
-      .floating-ui {
-        font-size: 0.85rem;
-        padding: 12px 16px;
-      }
-
-      .ui-mood {
-        top: 5%;
-        left: 2%;
-      }
-
-      .ui-steps {
-        bottom: 35%;
-        left: 5%;
-      }
-
-      .ui-calories {
-        top: 8%;
-        right: 2%;
-      }
-
-      .ui-mood-bottom {
-        bottom: 5%;
-        right: 5%;
+      .phone-card {
+        max-width: 280px;
       }
 
       .story-grid {
@@ -1008,49 +919,100 @@
         <p>Get daily personalised insights that understand your hormones, lifestyle, and individual patterns — with honest, supportive feedback.</p>
       </div>
 
-      <div class="hero-visual">
-        <div class="main-people">
-          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=800&fit=crop&crop=center&auto=format&bg=remove" 
-               alt="Happy Black woman in fitness attire standing" 
-               class="hero-person hero-person-1">
-          
-          <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&h=800&fit=crop&crop=center&auto=format&bg=remove" 
-               alt="Confident man in workout gear standing" 
-               class="hero-person hero-person-2">
-        </div>
-
-        <!-- Floating UI Elements -->
-        <div class="floating-ui ui-mood">
-          <span style="font-size: 1.2rem;">😊</span>
-          <div>
-            <div style="font-size: 0.8rem; color: #666;">Mood</div>
-            <div>Good</div>
-          </div>
-        </div>
-
-        <div class="floating-ui ui-steps">
-          <div style="font-size: 1.5rem; margin-bottom: 2px;">6,492</div>
-          <div style="font-size: 0.8rem; color: #666;">Steps</div>
-        </div>
-
-        <div class="floating-ui ui-calories">
-          <div style="font-size: 0.8rem; color: #666; margin-bottom: 2px;">Mon 6 Oct</div>
-          <div style="font-size: 0.9rem;">Calories Burned</div>
-          <div style="font-size: 1.3rem; color: #3B7A57; font-weight: 700;">504</div>
-        </div>
-
-        <div class="floating-ui ui-mood-bottom">
-          <div>
-            <div style="font-size: 0.8rem; color: #666;">Mood</div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 1.2rem;">😊</span>
-              <span>Good</span>
+      <!-- Phone Mockup Feature Cards -->
+      <div class="phone-features">
+        <div class="phone-card">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="phone-notch"></div>
+              <div class="hero-main-card">
+                <div class="progress-header">
+                  <h3>Daily Insights</h3>
+                  <div class="date-badge">Today</div>
+                </div>
+                <div class="progress-metrics">
+                  <div class="metric-card mood-card">
+                    <div class="metric-icon">😊</div>
+                    <div class="metric-info">
+                      <div class="metric-label">Mood</div>
+                      <div class="metric-value">Good</div>
+                    </div>
+                  </div>
+                  <div class="metric-card steps-card">
+                    <div class="metric-icon">👟</div>
+                    <div class="metric-info">
+                      <div class="metric-label">Steps</div>
+                      <div class="metric-value">6,492</div>
+                    </div>
+                  </div>
+                  <div class="metric-card calories-card">
+                    <div class="metric-icon">🔥</div>
+                    <div class="metric-info">
+                      <div class="metric-label">Calories</div>
+                      <div class="metric-value">504</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="phone-home-indicator"></div>
             </div>
           </div>
-          <div style="margin-left: 16px;">
-            <div style="font-size: 1.2rem; color: #3B7A57; font-weight: 700;">6,492</div>
-            <div style="font-size: 0.8rem; color: #666;">Steps</div>
+          <h4>Daily Tracking</h4>
+          <p>Log your mood, activity, and habits in under 2 minutes</p>
+        </div>
+
+        <div class="phone-card">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="phone-notch"></div>
+              <div class="user-progress-showcase">
+                <div class="insights-section">
+                  <div class="insight-card">
+                    <div class="insight-icon">💡</div>
+                    <div class="insight-text">Your sleep quality has improved 15% this week - great work!</div>
+                  </div>
+                  <div class="insight-card">
+                    <div class="insight-icon">🎯</div>
+                    <div class="insight-text">Consider adding 10 minutes to your morning walk for better energy.</div>
+                  </div>
+                  <div class="insight-card">
+                    <div class="insight-icon">📈</div>
+                    <div class="insight-text">Your consistency is building momentum - keep it up!</div>
+                  </div>
+                </div>
+              </div>
+              <div class="phone-home-indicator"></div>
+            </div>
           </div>
+          <h4>AI Insights</h4>
+          <p>Get personalised feedback that understands your unique patterns</p>
+        </div>
+
+        <div class="phone-card">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="phone-notch"></div>
+              <div class="user-progress-showcase">
+                <div class="progress-summary">
+                  <div class="summary-stat">
+                    <div class="stat-value">-2.3kg</div>
+                    <div class="stat-label">This Month</div>
+                  </div>
+                  <div class="summary-stat">
+                    <div class="stat-value">85%</div>
+                    <div class="stat-label">Goal Days</div>
+                  </div>
+                  <div class="summary-stat">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Streak</div>
+                  </div>
+                </div>
+              </div>
+              <div class="phone-home-indicator"></div>
+            </div>
+          </div>
+          <h4>Real Progress</h4>
+          <p>Track meaningful changes beyond just the scales</p>
         </div>
       </div>
 
