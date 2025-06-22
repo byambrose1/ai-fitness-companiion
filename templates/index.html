@@ -160,70 +160,82 @@
       align-items: center;
     }
 
-    .phone-mockup {
+    .main-people {
       display: flex;
       justify-content: center;
       align-items: center;
+      gap: 20px;
       position: relative;
+      z-index: 5;
+    }
+
+    .hero-person {
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      object-fit: cover;
+      border: 4px solid #ffffff;
+    }
+
+    .hero-person:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 50px rgba(59, 122, 87, 0.25);
+    }
+
+    .hero-person-1 {
+      width: 280px;
+      height: 350px;
+      margin-right: 10px;
+    }
+
+    .hero-person-2 {
+      width: 300px;
+      height: 370px;
+      margin-left: 10px;
+    }
+
+    .floating-ui {
+      position: absolute;
+      background: white;
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      border: 2px solid #f1f5f9;
       z-index: 10;
     }
 
-    .background-people {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 1;
-      pointer-events: none;
-    }
-
-    .person-image {
-      position: absolute;
-      border-radius: 20px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
-      opacity: 1;
-      transition: all 0.3s ease;
-      object-fit: cover;
-      border: 3px solid #ffffff;
-      z-index: 2;
-    }
-
-    .person-image:hover {
-      transform: scale(1.05);
-      box-shadow: 0 15px 35px rgba(59, 122, 87, 0.3);
-    }
-
-    .person-1 {
-      top: 8%;
-      left: 3%;
-      width: 240px;
-      height: 300px;
-      transform: rotate(-8deg);
-    }
-
-    .person-2 {
+    .ui-mood {
       top: 15%;
-      right: 5%;
-      width: 220px;
-      height: 280px;
-      transform: rotate(12deg);
+      left: 5%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #3B7A57;
+      font-weight: 600;
     }
 
-    .person-3 {
-      bottom: 12%;
+    .ui-steps {
+      bottom: 25%;
       left: 8%;
-      width: 230px;
-      height: 290px;
-      transform: rotate(5deg);
+      color: #1a1a1a;
+      font-weight: 600;
     }
 
-    .person-4 {
-      bottom: 8%;
-      right: 10%;
-      width: 210px;
-      height: 260px;
-      transform: rotate(-10deg);
+    .ui-calories {
+      top: 10%;
+      right: 5%;
+      color: #1a1a1a;
+      font-weight: 600;
+    }
+
+    .ui-mood-bottom {
+      bottom: 15%;
+      right: 8%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #3B7A57;
+      font-weight: 600;
     }
 
     .phone-frame {
@@ -910,36 +922,46 @@
         gap: 12px;
       }
 
-      .person-1 {
-        top: 3%;
-        left: 1%;
-        width: 180px;
-        height: 220px;
-        z-index: 2;
+      .main-people {
+        flex-direction: column;
+        gap: 10px;
       }
 
-      .person-2 {
+      .hero-person-1 {
+        width: 200px;
+        height: 250px;
+        margin-right: 0;
+      }
+
+      .hero-person-2 {
+        width: 220px;
+        height: 270px;
+        margin-left: 0;
+      }
+
+      .floating-ui {
+        font-size: 0.85rem;
+        padding: 12px 16px;
+      }
+
+      .ui-mood {
+        top: 5%;
+        left: 2%;
+      }
+
+      .ui-steps {
+        bottom: 35%;
+        left: 5%;
+      }
+
+      .ui-calories {
         top: 8%;
         right: 2%;
-        width: 160px;
-        height: 200px;
-        z-index: 2;
       }
 
-      .person-3 {
-        bottom: 8%;
-        left: 3%;
-        width: 170px;
-        height: 210px;
-        z-index: 2;
-      }
-
-      .person-4 {
-        bottom: 3%;
-        right: 4%;
-        width: 150px;
-        height: 190px;
-        z-index: 2;
+      .ui-mood-bottom {
+        bottom: 5%;
+        right: 5%;
       }
 
       .story-grid {
@@ -987,91 +1009,47 @@
       </div>
 
       <div class="hero-visual">
-        <div class="background-people">
-          <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=500&fit=crop&crop=center&auto=format" 
+        <div class="main-people">
+          <img src="https://images.unsplash.com/photo-1594736797933-d0403ba0e145?w=400&h=500&fit=crop&crop=center&auto=format" 
                alt="Happy Black woman in fitness attire" 
-               class="person-image person-1">
+               class="hero-person hero-person-1">
           
-          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=360&h=440&fit=crop&crop=center&auto=format" 
-               alt="Confident white man in workout gear" 
-               class="person-image person-2">
-          
-          <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=380&h=480&fit=crop&crop=center&auto=format" 
-               alt="Strong white woman embracing fitness journey" 
-               class="person-image person-3">
-          
-          <img src="https://images.unsplash.com/photo-1566753323558-f4e0952af115?w=340&h=420&fit=crop&crop=center&auto=format" 
-               alt="Happy diverse person in healthy lifestyle" 
-               class="person-image person-4">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop&crop=center&auto=format" 
+               alt="Confident man in workout gear" 
+               class="hero-person hero-person-2">
         </div>
 
-        <div class="phone-mockup">
-          <div class="phone-frame">
-            <div class="phone-screen">
-              <div class="user-progress-showcase">
-                <div class="progress-header">
-                  <h3>Your Daily Insights</h3>
-                  <span class="date-badge">Mon 6 Oct</span>
-                </div>
-                
-                <div class="progress-metrics">
-                  <div class="metric-card mood-card">
-                    <div class="metric-icon">😊</div>
-                    <div class="metric-info">
-                      <span class="metric-label">Mood</span>
-                      <span class="metric-value">Good</span>
-                    </div>
-                  </div>
-                  
-                  <div class="metric-card steps-card">
-                    <div class="metric-info">
-                      <span class="metric-value">6,492</span>
-                      <span class="metric-label">Steps</span>
-                    </div>
-                  </div>
-                  
-                  <div class="metric-card calories-card">
-                    <div class="metric-info">
-                      <span class="metric-label">Fat Burned Today</span>
-                      <span class="metric-value">504 <small>cal</small></span>
-                    </div>
-                  </div>
-                </div>
+        <!-- Floating UI Elements -->
+        <div class="floating-ui ui-mood">
+          <span style="font-size: 1.2rem;">😊</span>
+          <div>
+            <div style="font-size: 0.8rem; color: #666;">Mood</div>
+            <div>Good</div>
+          </div>
+        </div>
 
-                <div class="insights-section">
-                  <div class="insight-card">
-                    <div class="insight-icon">🎯</div>
-                    <div class="insight-text">
-                      <strong>Great consistency!</strong> Your sleep pattern this week is supporting better hunger regulation.
-                    </div>
-                  </div>
-                  
-                  <div class="insight-card">
-                    <div class="insight-icon">💪</div>
-                    <div class="insight-text">
-                      <strong>Progress spotted:</strong> Your energy levels correlate with your 7.5hr sleep schedule.
-                    </div>
-                  </div>
-                </div>
+        <div class="floating-ui ui-steps">
+          <div style="font-size: 1.5rem; margin-bottom: 2px;">6,492</div>
+          <div style="font-size: 0.8rem; color: #666;">Steps</div>
+        </div>
 
-                <div class="progress-summary">
-                  <div class="summary-stat">
-                    <span class="stat-value">-2.3kg</span>
-                    <span class="stat-label">This month</span>
-                  </div>
-                  <div class="summary-stat">
-                    <span class="stat-value">12 days</span>
-                    <span class="stat-label">Current streak</span>
-                  </div>
-                  <div class="summary-stat">
-                    <span class="stat-value">8.2/10</span>
-                    <span class="stat-label">Wellness score</span>
-                  </div>
-                </div>
-              </div>
+        <div class="floating-ui ui-calories">
+          <div style="font-size: 0.8rem; color: #666; margin-bottom: 2px;">Mon 6 Oct</div>
+          <div style="font-size: 0.9rem;">Calories Burned</div>
+          <div style="font-size: 1.3rem; color: #3B7A57; font-weight: 700;">504</div>
+        </div>
+
+        <div class="floating-ui ui-mood-bottom">
+          <div>
+            <div style="font-size: 0.8rem; color: #666;">Mood</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.2rem;">😊</span>
+              <span>Good</span>
             </div>
-            <div class="phone-notch"></div>
-            <div class="phone-home-indicator"></div>
+          </div>
+          <div style="margin-left: 16px;">
+            <div style="font-size: 1.2rem; color: #3B7A57; font-weight: 700;">6,492</div>
+            <div style="font-size: 0.8rem; color: #666;">Steps</div>
           </div>
         </div>
       </div>
