@@ -157,14 +157,138 @@
       margin: 50px 0;
     }
 
-    .hero-main-card {
-      background: #FFFFFF;
-      border-radius: 24px;
-      padding: 32px;
-      max-width: 500px;
+    .phone-mockup {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .phone-frame {
+      position: relative;
+      width: 320px;
+      height: 640px;
+      background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+      border-radius: 45px;
+      padding: 12px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+      border: 8px solid #333;
+    }
+
+    .phone-screen {
       width: 100%;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-      border: 1px solid #e5e7eb;
+      height: 100%;
+      background: #FFFFFF;
+      border-radius: 35px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 25px;
+      background: #1a1a1a;
+      border-radius: 0 0 15px 15px;
+      z-index: 10;
+    }
+
+    .phone-home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 4px;
+      background: #ccc;
+      border-radius: 2px;
+    }
+
+    .hero-main-card,
+    .user-progress-showcase {
+      background: #FFFFFF;
+      border-radius: 0;
+      padding: 25px;
+      max-width: none;
+      width: 100%;
+      box-shadow: none;
+      border: none;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    /* Success Stories */
+    .success-stories {
+      margin: 60px 0;
+      padding: 0 20px;
+    }
+
+    .story-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .story-card {
+      background: #FFFFFF;
+      border-radius: 20px;
+      padding: 0;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+      border: 2px solid #f1f5f9;
+    }
+
+    .story-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 32px rgba(59, 122, 87, 0.15);
+    }
+
+    .story-image {
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .story-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .story-content {
+      padding: 25px;
+      text-align: center;
+    }
+
+    .story-content h4 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #3B7A57;
+      margin-bottom: 12px;
+    }
+
+    .story-content p {
+      color: #4a5568;
+      line-height: 1.5;
+      margin-bottom: 15px;
+      font-style: italic;
+    }
+
+    .story-result {
+      background: linear-gradient(135deg, #D1F2EB, #E8F5E8);
+      color: #3B7A57;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: inline-block;
     }
 
     .user-progress-showcase {
@@ -690,9 +814,24 @@
         font-size: 1.1rem;
       }
 
-      .hero-main-card {
-        margin: 0 10px;
-        padding: 24px;
+      .phone-frame {
+        width: 280px;
+        height: 560px;
+        padding: 10px;
+        border: 6px solid #333;
+      }
+
+      .phone-notch {
+        width: 100px;
+        height: 22px;
+      }
+
+      .phone-home-indicator {
+        width: 100px;
+      }
+
+      .user-progress-showcase {
+        padding: 20px;
       }
 
       .progress-metrics {
@@ -702,6 +841,11 @@
       .progress-summary {
         grid-template-columns: 1fr;
         gap: 12px;
+      }
+
+      .story-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
       }
 
       .trust-badges {
@@ -744,66 +888,110 @@
       </div>
 
       <div class="hero-visual">
-        <div class="hero-main-card">
-          <div class="user-progress-showcase">
-            <div class="progress-header">
-              <h3>Your Daily Insights</h3>
-              <span class="date-badge">Mon 6 Oct</span>
-            </div>
-            
-            <div class="progress-metrics">
-              <div class="metric-card mood-card">
-                <div class="metric-icon">😊</div>
-                <div class="metric-info">
-                  <span class="metric-label">Mood</span>
-                  <span class="metric-value">Good</span>
+        <div class="phone-mockup">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="user-progress-showcase">
+                <div class="progress-header">
+                  <h3>Your Daily Insights</h3>
+                  <span class="date-badge">Mon 6 Oct</span>
                 </div>
-              </div>
-              
-              <div class="metric-card steps-card">
-                <div class="metric-info">
-                  <span class="metric-value">6,492</span>
-                  <span class="metric-label">Steps</span>
+                
+                <div class="progress-metrics">
+                  <div class="metric-card mood-card">
+                    <div class="metric-icon">😊</div>
+                    <div class="metric-info">
+                      <span class="metric-label">Mood</span>
+                      <span class="metric-value">Good</span>
+                    </div>
+                  </div>
+                  
+                  <div class="metric-card steps-card">
+                    <div class="metric-info">
+                      <span class="metric-value">6,492</span>
+                      <span class="metric-label">Steps</span>
+                    </div>
+                  </div>
+                  
+                  <div class="metric-card calories-card">
+                    <div class="metric-info">
+                      <span class="metric-label">Fat Burned Today</span>
+                      <span class="metric-value">504 <small>cal</small></span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              <div class="metric-card calories-card">
-                <div class="metric-info">
-                  <span class="metric-label">Fat Burned Today</span>
-                  <span class="metric-value">504 <small>cal</small></span>
-                </div>
-              </div>
-            </div>
 
-            <div class="insights-section">
-              <div class="insight-card">
-                <div class="insight-icon">🎯</div>
-                <div class="insight-text">
-                  <strong>Great consistency!</strong> Your sleep pattern this week is supporting better hunger regulation.
+                <div class="insights-section">
+                  <div class="insight-card">
+                    <div class="insight-icon">🎯</div>
+                    <div class="insight-text">
+                      <strong>Great consistency!</strong> Your sleep pattern this week is supporting better hunger regulation.
+                    </div>
+                  </div>
+                  
+                  <div class="insight-card">
+                    <div class="insight-icon">💪</div>
+                    <div class="insight-text">
+                      <strong>Progress spotted:</strong> Your energy levels correlate with your 7.5hr sleep schedule.
+                    </div>
+                  </div>
                 </div>
-              </div>
-              
-              <div class="insight-card">
-                <div class="insight-icon">💪</div>
-                <div class="insight-text">
-                  <strong>Progress spotted:</strong> Your energy levels correlate with your 7.5hr sleep schedule.
+
+                <div class="progress-summary">
+                  <div class="summary-stat">
+                    <span class="stat-value">-2.3kg</span>
+                    <span class="stat-label">This month</span>
+                  </div>
+                  <div class="summary-stat">
+                    <span class="stat-value">12 days</span>
+                    <span class="stat-label">Current streak</span>
+                  </div>
+                  <div class="summary-stat">
+                    <span class="stat-value">8.2/10</span>
+                    <span class="stat-label">Wellness score</span>
+                  </div>
                 </div>
               </div>
             </div>
+            <div class="phone-notch"></div>
+            <div class="phone-home-indicator"></div>
+          </div>
+        </div>
+      </div>
 
-            <div class="progress-summary">
-              <div class="summary-stat">
-                <span class="stat-value">-2.3kg</span>
-                <span class="stat-label">This month</span>
-              </div>
-              <div class="summary-stat">
-                <span class="stat-value">12 days</span>
-                <span class="stat-label">Current streak</span>
-              </div>
-              <div class="summary-stat">
-                <span class="stat-value">8.2/10</span>
-                <span class="stat-label">Wellness score</span>
-              </div>
+      <!-- Human Stories Section -->
+      <div class="success-stories">
+        <div class="story-grid">
+          <div class="story-card">
+            <div class="story-image">
+              <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face" alt="Sarah, 32, busy mum who lost 15kg">
+            </div>
+            <div class="story-content">
+              <h4>Sarah, 32</h4>
+              <p>"Finally understood why my weight fluctuated so much during my cycle. Lost 15kg in 6 months."</p>
+              <div class="story-result">-15kg in 6 months</div>
+            </div>
+          </div>
+          
+          <div class="story-card">
+            <div class="story-image">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face" alt="James, 28, office worker who improved energy">
+            </div>
+            <div class="story-content">
+              <h4>James, 28</h4>
+              <p>"The sleep tracking helped me realise why I was always tired. My energy levels are through the roof now."</p>
+              <div class="story-result">Better sleep & energy</div>
+            </div>
+          </div>
+          
+          <div class="story-card">
+            <div class="story-image">
+              <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&h=300&fit=crop&crop=face" alt="Maria, 45, navigating menopause successfully">
+            </div>
+            <div class="story-content">
+              <h4>Maria, 45</h4>
+              <p>"Menopause made everything harder, but the hormone-aware insights helped me adapt my approach."</p>
+              <div class="story-result">Hormone balance</div>
             </div>
           </div>
         </div>
