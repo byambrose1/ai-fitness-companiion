@@ -28,14 +28,19 @@ def offline():
     return send_from_directory('static', 'offline.html')
 
 # OpenAI setup - you'll need to add your API key via Secrets
-openai.api_key = os.getenv('OPENAI_API_KEY')
+openai.api_key = os.getenv('OPENAI_API_KEY', '')
 
 # Stripe setup - you'll need to add your keys via Secrets
-stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
-stripe_publishable_key = os.getenv('STRIPE_PUBLISHABLE_KEY')
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY', '')
+stripe_publishable_key = os.getenv('STRIPE_PUBLISHABLE_KEY', '')
 
 # Initialize database
-init_database()
+try:
+    init_database()
+    print("✅ Database initialized successfully")
+except Exception as e:
+    print(f"⚠️ Database initialization failed: {e}")
+    print("App will continue with limited functionality")
 
 # Helper function to get users_data for compatibility
 def get_users_data():
