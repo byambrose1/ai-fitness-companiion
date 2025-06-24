@@ -868,7 +868,7 @@ def subscription_page():
         <style>
             * { box-sizing: border-box; }
             body { 
-                font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;```python
+                font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;
                 background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
             }
             .container { background: white; padding: 2em; border-radius: 20px; max-width: 900px; margin: 0 auto; }
@@ -1025,8 +1025,22 @@ def create_checkout_session():
                         'description': 'Unlimited AI insights, meal plans, and advanced features'
                     },
                     'unit_amount': SUBSCRIPTION_TIERS['premium']['price'],
-Removing HTML from Python Code and keeping code structure.
-```python
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=request.url_root + 'subscription-success?session_id={CHECKOUT_SESSION_ID}&email=' + email,
+            cancel_url=request.url_root + 'subscription?email=' + email,
+        )
+
+        return jsonify({'id': session.id})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route("/subscription-success")
+def subscription_success():
+    session_id = request.args.get('session_id')
     email = request.args.get('email')
 
     if not session_id or not email:
@@ -1470,6 +1484,97 @@ def ai_response():
     </body>
     </html>
     """, email=email, question=question, ai_response=ai_response)
+
+@app.route("/admin", methods=["GET", "POST"])
+def admin_dashboard():
+    if request.method == "POST":
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session['admin_authenticated'] = True
+            data_protection.log_data_access('admin', "admin_login", request.remote_addr)
+        else:
+            return "Invalid credentials", 401
+
+    if not session.get('admin_authenticated'):
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html>
+        <head><title>Admin Login</title></head>
+        <body style="font-family: Arial; text-align: center; padding: 50px;">
+            <h2>Admin Login</h2>
+            <form method="POST">
+                <input type="text" name="username" placeholder="Username" required><br><br>
+                <input type="password" name="password" placeholder="Password" required><br><br>
+                <button type="submit">Login</button>
+            </form>
+        </body>
+        </html>
+        """)
+
+    users = get_all_users()
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head><title>Admin Dashboard</title></head>
+    <body style="font-family: Arial; padding: 20px;">
+        <h2>Admin Dashboard</h2>
+        <p>Total Users: {{ users|length }}</p>
+
+        <h3>Find User</h3>
+        <form method="GET" action="/admin/find-user">
+            <input type="text" name="email" placeholder="User email">
+            <button type="submit">Find</button>
+        </form>
+
+        <h3>Quick Actions</h3>
+        <a href="/admin/export">Export Data</a> | 
+        <a href="/admin/data-retention">Check Data Retention</a> | 
+        <a href="/admin/backup">Create Backup</a> | 
+        <a href="/admin/logout">Logout</a>
+
+        <h3>Recent Users</h3>
+        {% for email, name, tier in users[:10] %}
+        <p>{{ email }} - {{ name }} ({{ tier }})</p>
+        {% endfor %}
+    </body>
+    </html>
+    """, users=users)
+
+@app.route("/admin/find-user")
+def admin_find_user():
+    if not session.get('admin_authenticated'):
+        return "Access denied"
+
+    email = request.args.get('email')
+    if not email:
+        return "No email provided"
+
+    user = get_user(email)
+    if not user:
+        return f"User {email} not found"
+
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head><title>User Details</title></head>
+    <body style="font-family: Arial; padding: 20px;">
+        <h2>User Details: {{ user.email }}</h2>
+        <p><strong>Name:</strong> {{ user.name }}</p>
+        <p><strong>Subscription:</strong> {{ user.subscription_tier }}</p>
+        <p><strong>Created:</strong> {{ user.created_at }}</p>
+        <p><strong>Daily Logs:</strong> {{ user.daily_logs|length }}</p>
+        <a href="/admin">← Back to Admin</a>
+    </body>
+    </html>
+    """, user=user)
+
+@app.route("/admin/logout")
+def admin_logout():
+    session.pop('admin_authenticated', None)
+    data_protection.log_data_access('admin', "admin_logout", request.remote_addr)
+    return "Logged out successfully. <a href='/admin'>Login again</a>"
 
 @app.route("/admin/export")
 def admin_export_data():
