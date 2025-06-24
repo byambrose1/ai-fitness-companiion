@@ -284,7 +284,7 @@ def complete_signup():
     }
 
     # Save user
-    users_data[email] = user_profile
+    save_user(user_profile)
 
     # Clear session data
     session.pop('questionnaire_data', None)
@@ -616,6 +616,18 @@ def dashboard():
     # Check if user has completed questionnaire
     if not user.get('profile_data'):
         return "Please complete your questionnaire first. <a href='/'>Start here</a>"
+    
+    # Contextual message based on signup date (customize as needed)
+    signup_date = datetime.strptime(user['created_at'], "%Y-%m-%dT%H:%M:%S.%f")
+    days_since_signup = (datetime.now() - signup_date).days
+
+    if days_since_signup == 0:
+        contextual_message = "Welcome! Starting a new journey takes courage, and you've already taken the first step. Let's build healthy habits together."
+    elif days_since_signup <= 7:
+        contextual_message = "You're doing great in your first week! Remember that consistency is key, and every small step counts."
+    else:
+        contextual_message = "Keep up the amazing work! Your dedication is inspiring. Remember to celebrate your progress and stay focused on your goals."
+
     return render_template_string("""
     <!DOCTYPE html>
     <html lang="en-GB">
@@ -647,7 +659,7 @@ def dashboard():
             <h1>🌟 Welcome back, {{ user.name|title }}!</h1>
 
             <div class="reminder">
-                <p>💚 <strong>Daily Reminder:</strong> You're doing great! Remember to log your meals and movement today.</p>
+                <p>💚 <strong>Daily Reminder:</strong> {{ contextual_message }}</p>
             </div>
 
             <div class="dashboard-grid">
@@ -666,7 +678,8 @@ def dashboard():
                 <div class="card">
                     <h3>💭 Quick Stats</h3>
                     <p><strong>Motivation:</strong> {{ user.profile_data.motivationLevel }}/10</p>
-                    <p><strong>Stress:</strong> {{ user.profile_data.stressLevel }}/10</p>
+                    <p><strong>Stress:</strong>```python
+ {{ user.profile_data.stressLevel }}/10</p>
                     <p><strong>Sleep:</strong> {{ user.profile_data.sleepHours }} hours</p>
                 </div>
 
@@ -704,7 +717,7 @@ def dashboard():
         </div>
     </body>
     </html>
-    """, user=user)
+    """, user=user, contextual_message=contextual_message)
 
 @app.route("/daily-log")
 def daily_log():
@@ -723,20 +736,22 @@ def daily_log():
             * { box-sizing: border-box; }
             body { 
                 font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;
-                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
+                background: white; min-height: 100vh; color: #1a1a1a;
             }
-            .container { background: white; padding: 2em; border-radius: 20px; max-width: 600px; margin: 0 auto; }
+            .container { background: white; padding: 2em; border-radius: 20px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 2px solid #A8E6CF; }
             input, textarea, select { 
                 width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #A8E6CF; 
-                border-radius: 8px; font-size: 16px;
+                border-radius: 8px; font-size: 16px; background: white;
             }
-            label { display: block; margin-top: 15px; font-weight: 600; color: #2d5a3d; }
+            input:focus, textarea:focus, select:focus { outline: none; border-color: #1a1a1a; }
+            label { display: block; margin-top: 15px; font-weight: 600; color: #1a1a1a; }
             .button { 
-                background: linear-gradient(135deg, #A8E6CF, #7ED3B2); color: #2d5a3d; 
-                padding: 15px 30px; border: none; border-radius: 8px; font-size: 16px; 
-                font-weight: 600; cursor: pointer; width: 100%; margin-top: 20px;
+                background: #A8E6CF; color: #1a1a1a; 
+                padding: 15px 30px; border: 2px solid #A8E6CF; border-radius: 8px; font-size: 16px; 
+                font-weight: 600; cursor: pointer; width: 100%; margin-top: 20px; transition: all 0.2s ease;
             }
-            h1 { color: #2d5a3d; text-align: center; }
+            .button:hover { background: white; border-color: #A8E6CF; }
+            h1 { color: #1a1a1a; text-align: center; }
         </style>
     </head>
     <body>
@@ -829,6 +844,7 @@ def save_daily_log():
     }
 
     users_data[email]['daily_logs'].append(log_entry)
+    add_daily_log(email, log_entry)
 
     return render_template_string("""
     <!DOCTYPE html>
