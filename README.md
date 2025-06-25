@@ -27,6 +27,19 @@ STRIPE_SECRET_KEY=sk_test_...
 STRIPE_PUBLISHABLE_KEY=pk_test_...
 ```
 
+### Food Database APIs (Optional - enhance nutrition tracking)
+```
+# USDA Food Data Central (Free, no key required)
+USDA_API_KEY=optional-for-higher-limits
+
+# Edamam Food Database (1000 requests/month free)
+EDAMAM_APP_ID=your-edamam-app-id
+EDAMAM_APP_KEY=your-edamam-app-key
+
+# Spoonacular (150 requests/day free)
+SPOONACULAR_API_KEY=your-spoonacular-key
+```
+
 ### Security
 ```
 FLASK_SECRET_KEY=your-secure-random-key

@@ -10,6 +10,7 @@ from gdpr_compliance import gdpr_compliance
 from database import get_user, save_user, add_daily_log, get_all_users, init_database
 from security_monitoring import security_monitor
 from email_service import email_service
+from food_database import FoodDatabaseAPI, NutritionCalculator
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-change-in-production')
@@ -136,7 +137,7 @@ def login_user():
 
     # Handle legacy passwords (not hashed) and new hashed passwords
     password_valid = False
-    
+
     try:
         if user['password'].startswith('$2b$') and len(user['password']) > 20:
             # This is a hashed password
@@ -144,18 +145,18 @@ def login_user():
         else:
             # This is a legacy plaintext password
             password_valid = (user['password'] == password)
-            
+
             if password_valid:
                 # Update to hashed password
                 hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
                 user['password'] = hashed_password.decode('utf-8')
                 save_user(user)
-                
+
     except Exception as e:
         print(f"Password validation error: {e}")
         # Fallback to plaintext comparison for legacy passwords
         password_valid = (user['password'] == password)
-        
+
         if password_valid:
             # Update to hashed password
             try:
@@ -164,7 +165,7 @@ def login_user():
                 save_user(user)
             except Exception as hash_error:
                 print(f"Error updating password hash: {hash_error}")
-    
+
     if not password_valid:
         track_failed_login(email, ip_address)
         return jsonify({"success": False, "message": "Invalid password"}), 401
@@ -257,10 +258,10 @@ def forgot_password_page():
 def send_password_reset():
     """Send password reset email"""
     email = request.form.get('email')
-    
+
     if not email:
         return "Email is required", 400
-    
+
     user = get_user(email)
     if not user:
         # Don't reveal if email exists or not for security
@@ -288,17 +289,17 @@ def send_password_reset():
         </body>
         </html>
         """)
-    
+
     # Generate reset token
     import secrets
     reset_token = secrets.token_urlsafe(32)
     reset_expiry = (datetime.now() + timedelta(hours=1)).isoformat()
-    
+
     # Store reset token in user data
     user['reset_token'] = reset_token
     user['reset_token_expiry'] = reset_expiry
     save_user(user)
-    
+
     # Send reset email
     try:
         reset_link = f"{request.url_root}reset-password?token={reset_token}"
@@ -307,7 +308,7 @@ def send_password_reset():
     except Exception as e:
         print(f"Email sending error: {e}")
         message = "Reset link generated. Email service temporarily unavailable."
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html>
@@ -345,21 +346,21 @@ def send_password_reset():
 def find_account():
     """Help users find their account by name"""
     name = request.form.get('name')
-    
+
     if not name:
         return "Name is required", 400
-    
+
     # Search for users with matching name
     all_users = get_all_users()
     matching_users = []
-    
+
     for email, user_name, tier in all_users:
         if user_name and name.lower() in user_name.lower():
             # Partially mask email for privacy
             email_parts = email.split('@')
             masked_email = f"{email_parts[0][:2]}***@{email_parts[1]}"
             matching_users.append(masked_email)
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html>
@@ -389,7 +390,7 @@ def find_account():
                 <p>No accounts found with the name "{{ name }}".</p>
                 <p style="color: #666;">Try variations of your name or contact support if you need help.</p>
             {% endif %}
-            
+
             <a href="/forgot-password" class="button">Try Password Reset</a>
             <a href="/" class="button" style="background: #74b9ff;">← Back to Login</a>
         </div>
@@ -401,10 +402,10 @@ def find_account():
 def reset_password_form():
     """Show password reset form"""
     token = request.args.get('token')
-    
+
     if not token:
         return "Invalid reset link", 400
-    
+
     # Find user with this token
     all_users = get_all_users()
     user = None
@@ -416,7 +417,7 @@ def reset_password_form():
             if expiry and datetime.now() < datetime.fromisoformat(expiry):
                 user = user_data
                 break
-    
+
     if not user:
         return render_template_string("""
         <!DOCTYPE html>
@@ -431,7 +432,7 @@ def reset_password_form():
         </body>
         </html>
         """)
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html lang="en-GB">
@@ -472,7 +473,7 @@ def reset_password_form():
 
             <form method="POST" action="/update-password">
                 <input type="hidden" name="token" value="{{ token }}">
-                
+
                 <label for="password">New Password:</label>
                 <input type="password" name="password" id="password" required>
                 <div class="requirements">
@@ -495,18 +496,18 @@ def update_password():
     token = request.form.get('token')
     password = request.form.get('password')
     confirm_password = request.form.get('confirmPassword')
-    
+
     if not token or not password:
         return "Missing required fields", 400
-    
+
     if password != confirm_password:
         return "Passwords do not match", 400
-    
+
     # Validate password requirements
     import re
     if len(password) < 12 or not re.match(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])', password):
         return "Password does not meet requirements", 400
-    
+
     # Find user with this token
     all_users = get_all_users()
     user = None
@@ -518,20 +519,20 @@ def update_password():
             if expiry and datetime.now() < datetime.fromisoformat(expiry):
                 user = user_data
                 break
-    
+
     if not user:
         return "Invalid or expired token", 400
-    
+
     # Update password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     user['password'] = hashed_password.decode('utf-8')
-    
+
     # Clear reset token
     user.pop('reset_token', None)
     user.pop('reset_token_expiry', None)
-    
+
     save_user(user)
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html>
@@ -1043,12 +1044,12 @@ def dashboard():
     # Check if user has completed questionnaire
     if not user.get('profile_data'):
         return "Please complete your questionnaire first. <a href='/'>Start here</a>"
-    
+
     # Calculate streak and contextual messaging
     daily_logs = user.get('daily_logs', [])
     streak_days = 1
     total_logs = len(daily_logs)
-    
+
     if daily_logs:
         # Calculate actual streak based on recent days
         recent_dates = set()
@@ -1056,7 +1057,7 @@ def dashboard():
             if 'date' in log:
                 recent_dates.add(log['date'])
         streak_days = len(recent_dates)
-    
+
     signup_date = datetime.strptime(user['created_at'], "%Y-%m-%dT%H:%M:%S.%f")
     days_since_signup = (datetime.now() - signup_date).days
 
@@ -1111,7 +1112,7 @@ def dashboard():
             <div class="reminder">
                 <p>💚 <strong>Daily Motivation:</strong> {{ contextual_message }}</p>
             </div>
-            
+
             <!-- Streak and Progress Section -->
             <div class="card" style="background: linear-gradient(135deg, #A8E6CF, #D1F2EB); text-align: center; margin-bottom: 20px;">
                 <h3 style="color: #1a1a1a;">🔥 Your Progress</h3>
@@ -1152,8 +1153,7 @@ def dashboard():
                 <div class="card">
                     <h3>💭 Quick Stats</h3>
                     <p><strong>Motivation:</strong> {{ user.profile_data.motivationLevel }}/10</p>
-                    <p><strong>Stress:</strong>```python
- {{ user.profile_data.stressLevel }}/10</p>
+                    <p><strong>Stress:</strong> {{ user.profile_data.stressLevel }}/10</p>
                     <p><strong>Sleep:</strong> {{ user.profile_data.sleepHours }} hours</p>
                 </div>
 
@@ -1199,14 +1199,14 @@ def daily_log():
     email = request.args.get('email')
     if not email:
         return "Please provide email parameter"
-    
+
     # Get user for smart suggestions
     user = get_user(email) if email in users_data else None
     streak_days = 1
     predicted_breakfast = "Oats with berries"
     predicted_workout = "30min walk"
     habit_anchor = "have my morning coffee"
-    
+
     # Generate contextual message based on user state
     contextual_messages = [
         "Starting a new journey takes courage, and you've already taken the first step.",
@@ -1215,7 +1215,7 @@ def daily_log():
         "Your body is learning from every choice you make.",
         "Progress isn't always linear, but it's always valuable."
     ]
-    
+
     if user:
         # Calculate streak
         daily_logs = user.get('daily_logs', [])
@@ -1226,7 +1226,7 @@ def daily_log():
                 if 'date' in log:
                     recent_dates.add(log['date'])
             streak_days = len(recent_dates)
-        
+
         # Smart predictions based on recent logs
         if daily_logs:
             recent_foods = []
@@ -1236,7 +1236,7 @@ def daily_log():
                     recent_foods.append(log['food_log'])
                 if log.get('workout'):
                     recent_workouts.append(log['workout'])
-            
+
             # Extract common breakfast items
             if recent_foods:
                 breakfast_items = []
@@ -1245,16 +1245,16 @@ def daily_log():
                         breakfast_items.append(food.split('breakfast')[1].split(',')[0].strip())
                 if breakfast_items:
                     predicted_breakfast = breakfast_items[-1]  # Most recent
-            
+
             # Predict workout
             if recent_workouts:
                 workout_counts = {}
                 for workout in recent_workouts:
                     workout_counts[workout] = workout_counts.get(workout, 0) + 1
                 predicted_workout = max(workout_counts, key=workout_counts.get)
-    
+
     contextual_message = contextual_messages[streak_days % len(contextual_messages)]
-    
+
     return open("templates/daily-log.html").read().replace("{{ email }}", email)\
                                                 .replace("{{ today }}", datetime.now().strftime("%Y-%m-%d"))\
                                                 .replace("{{ streak_days or 1 }}", str(streak_days))\
@@ -1286,11 +1286,11 @@ def save_daily_log():
 
     users_data[email]['daily_logs'].append(log_entry)
     add_daily_log(email, log_entry)
-    
+
     # Calculate instant feedback score
     score = 5.0  # Base score
     insights = []
-    
+
     # Mood scoring
     mood_scores = {'excellent': 2, 'good': 1, 'okay': 0, 'low': -0.5}
     if log_entry.get('mood') in mood_scores:
@@ -1299,21 +1299,21 @@ def save_daily_log():
             insights.append("Your excellent mood shows you're in a great headspace! 😊")
         elif log_entry['mood'] == 'good':
             insights.append("Good mood = good choices ahead! 👍")
-    
+
     # Water intake scoring
     water_scores = {'excellent': 1.5, 'good': 1, 'moderate': 0.5, 'low': 0}
     if log_entry.get('water_intake') in water_scores:
         score += water_scores[log_entry['water_intake']]
         if log_entry['water_intake'] in ['excellent', 'good']:
             insights.append("Great hydration supports your metabolism! 💧")
-    
+
     # Workout scoring
     if log_entry.get('workout') and log_entry['workout'] != 'rest':
         score += 1
         insights.append("Movement is medicine for both body and mind! 💪")
     elif log_entry.get('workout') == 'rest':
         insights.append("Rest days are crucial for recovery - well done! 😴")
-    
+
     # Sleep scoring
     if log_entry.get('sleep_hours'):
         try:
@@ -1325,25 +1325,25 @@ def save_daily_log():
                 score += 0.5
         except:
             pass
-    
+
     # Food logging bonus
     if log_entry.get('food_log') and len(log_entry['food_log']) > 10:
         score += 0.5
         insights.append("Tracking your food helps identify patterns! 📝")
-    
+
     # Generate personalized insight
     user = users_data[email]
     daily_logs = user.get('daily_logs', [])
     streak_days = len(set(log.get('date') for log in daily_logs if log.get('date')))
-    
+
     if streak_days >= 7:
         insights.append(f"🔥 Amazing! {streak_days} days of consistent logging!")
     elif streak_days >= 3:
         insights.append(f"💚 Great streak! {streak_days} days and counting!")
-    
+
     # Cap score at 10
     final_score = min(10.0, score)
-    
+
     # Select best insights (max 2)
     selected_insights = insights[:2] if len(insights) > 2 else insights
     insight_text = " ".join(selected_insights) if selected_insights else "Every log helps us understand your patterns better! 🤖"
@@ -1405,20 +1405,20 @@ def save_daily_log():
         <div class="container">
             <div class="celebration">🎉</div>
             <h1>Daily Log Saved Successfully!</h1>
-            
+
             <div class="score-circle">{{ "%.1f"|format(final_score) }}/10</div>
-            
+
             <div class="streak-badge">🔥 Day {{ streak_days }} Streak</div>
-            
+
             <div class="insights">
                 <h3>🤖 Your Instant Insights</h3>
                 <p>{{ insight_text }}</p>
             </div>
-            
+
             <p style="color: #666; margin: 20px 0;">
                 Consistency beats perfection! Every log helps us understand your patterns and provide better guidance.
             </p>
-            
+
             <a href="/dashboard?email={{ email }}" class="button">🏠 Back to Dashboard</a>
             <a href="/daily-log?email={{ email }}" class="button" style="background: linear-gradient(135deg, #74b9ff, #0984e3);">📝 Log Tomorrow</a>
         </div>

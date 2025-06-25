@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
@@ -16,7 +15,7 @@
             background: white; padding: 2em; border-radius: 20px; max-width: 600px; 
             margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 2px solid #A8E6CF; 
         }
-        
+
         /* Streak and Progress Section */
         .streak-section {
             background: linear-gradient(135deg, #A8E6CF, #D1F2EB);
@@ -36,7 +35,7 @@
             animation: spin 2s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
+
         /* Quick Add Buttons */
         .quick-adds {
             margin-bottom: 24px;
@@ -61,7 +60,7 @@
         .quick-btn.selected {
             background: #3B7A57; color: white; border-color: #3B7A57;
         }
-        
+
         /* Smart Suggestions */
         .suggestions {
             background: #f8fffe; border: 1px solid #D1F2EB; padding: 16px;
@@ -79,7 +78,7 @@
         .suggestion-item:hover {
             background: #D1F2EB; border-color: #3B7A57;
         }
-        
+
         /* Form Elements */
         input, textarea, select { 
             width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #A8E6CF; 
@@ -94,7 +93,7 @@
             display: block; margin-top: 15px; font-weight: 600; color: #1a1a1a; 
             font-size: 0.95rem;
         }
-        
+
         /* Habit Stacking */
         .habit-stack {
             background: linear-gradient(135deg, #e6f3ff, #f0f8ff);
@@ -107,7 +106,7 @@
         .habit-stack p {
             color: #4a5568; margin: 0; font-size: 0.85rem; font-style: italic;
         }
-        
+
         /* Submit Button */
         .button { 
             background: linear-gradient(135deg, #3B7A57, #2d5a42);
@@ -128,7 +127,7 @@
             transform: translateY(-2px); 
             box-shadow: 0 8px 25px rgba(59, 122, 87, 0.3);
         }
-        
+
         /* Instant Feedback */
         .instant-feedback {
             background: #e3f9e5; border: 2px solid #7ED3B2; padding: 16px;
@@ -140,12 +139,12 @@
         .feedback-text {
             color: #2d5a42; text-align: center; margin-top: 8px; font-size: 0.9rem;
         }
-        
+
         h1 { color: #1a1a1a; text-align: center; margin-bottom: 8px; }
         .subtitle {
             text-align: center; color: #666; margin-bottom: 24px; font-size: 0.95rem;
         }
-        
+
         /* Motivational Elements */
         .motivation-boost {
             background: linear-gradient(135deg, #fff9e6, #ffeaa7);
@@ -154,6 +153,49 @@
         }
         .motivation-boost strong {
             color: #8b7000; font-size: 0.9rem;
+        }
+
+        /* Food Search Styles */
+        .food-search-container {
+            position: relative;
+        }
+        #food_search {
+            padding-right: 40px; /* Space for clear button */
+        }
+        .food-results {
+            position: absolute; top: 100%; left: 0; width: 100%;
+            background: white; border: 1px solid #ddd;
+            border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-height: 200px; overflow-y: auto; z-index: 10;
+            display: none; /* Hidden by default */
+        }
+        .food-results.show {
+            display: block;
+        }
+        .food-item {
+            padding: 10px; border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .food-item:last-child {
+            border-bottom: none;
+        }
+        .food-item:hover {
+            background: #f5f5f5;
+        }
+        .custom-food-btn {
+            background-color: #f0f0f0; color: #555;
+            border: none; padding: 8px 12px; border-radius: 6px;
+            cursor: pointer; font-size: 0.85rem; margin-top: 8px;
+        }
+
+        /* Nutrition Summary */
+        .nutrition-summary {
+            margin-top: 15px; padding: 15px;
+            border: 1px solid #ddd; border-radius: 8px;
+        }
+        .nutrition-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
         }
     </style>
 </head>
@@ -165,25 +207,25 @@
             <div class="streak-number" id="streakNumber">{{ streak_days or 1 }}</div>
             <div class="streak-text">Day Logging Streak! 🔥</div>
         </div>
-        
+
         <h1>💪 Quick Daily Check-in</h1>
         <p class="subtitle">Just log it - even if it's not perfect! Every entry helps us understand you better.</p>
-        
+
         <!-- Motivational Boost -->
         <div class="motivation-boost">
             <strong>💚 Daily Motivation:</strong> {{ contextual_message }}
         </div>
-        
+
         <!-- Habit Stacking Suggestion -->
         <div class="habit-stack">
             <h4>🔗 Habit Stack Reminder</h4>
             <p>Link your logging to an existing habit: "After I {{ habit_anchor or 'have my morning coffee' }}, I'll log my daily check-in."</p>
         </div>
-        
+
         <form method="POST" action="/save-daily-log" id="dailyLogForm">
             <input type="hidden" name="email" value="{{ email }}">
             <input type="hidden" name="date" value="{{ today }}">
-            
+
             <!-- Smart Suggestions -->
             <div class="suggestions">
                 <h4>🤖 Smart Suggestions <span style="font-size: 0.8rem; color: #666;">(based on your patterns)</span></h4>
@@ -194,7 +236,7 @@
                     <strong>Workout:</strong> {{ predicted_workout or "30min walk" }}
                 </div>
             </div>
-            
+
             <!-- Quick Add - Mood -->
             <div class="quick-adds">
                 <h3>😊 How are you feeling today?</h3>
@@ -206,7 +248,7 @@
                 </div>
                 <input type="hidden" name="mood" id="moodInput">
             </div>
-            
+
             <!-- Quick Add - Water -->
             <div class="quick-adds">
                 <h3>💧 Water intake today?</h3>
@@ -218,7 +260,7 @@
                 </div>
                 <input type="hidden" name="water_intake" id="waterInput">
             </div>
-            
+
             <!-- Quick Add - Workout -->
             <div class="quick-adds">
                 <h3>🏃‍♀️ Movement today?</h3>
@@ -231,63 +273,78 @@
                 </div>
                 <input type="hidden" name="workout" id="workoutInput">
             </div>
-            
+
             <!-- Batch Logging Section -->
             <label for="food_log">🍽️ What did you eat today? (Just the main stuff!)</label>
+            <div class="food-search-container">
+                <input type="text" id="food_search" placeholder="Search foods (e.g., 'chicken breast', 'apple')..." oninput="searchFoods(this.value)">
+                <div id="food_results" class="food-results"></div>
+                <button type="button" onclick="addCustomFood()" class="custom-food-btn">+ Add custom food</button>
+            </div>
             <textarea name="food_log" id="food_log" placeholder="E.g., oats with berries for breakfast, chicken salad for lunch..." rows="2"></textarea>
-            
+
+            <div id="nutrition_summary" class="nutrition-summary" style="display: none;">
+                <h4>Today's Nutrition:</h4>
+                <div class="nutrition-grid">
+                    <div>Calories: <span id="total_calories">0</span></div>
+                    <div>Protein: <span id="total_protein">0</span>g</div>
+                    <div>Carbs: <span id="total_carbs">0</span>g</div>
+                    <div>Fat: <span id="total_fat">0</span>g</div>
+                </div>
+            </div>
+
             <label for="workout_duration">⏱️ Workout Duration (minutes):</label>
             <input type="number" name="workout_duration" min="0" max="300" placeholder="30">
-            
+
             <label for="sleep_hours">😴 Hours of Sleep:</label>
             <input type="number" name="sleep_hours" step="0.5" min="0" max="24" placeholder="7.5">
-            
+
             <label for="stress_level">😰 Stress Level (1-10):</label>
             <input type="range" name="stress_level" min="1" max="10" value="5" oninput="updateStressDisplay(this.value)">
             <div style="text-align: center; color: #3B7A57; font-weight: 600;" id="stressDisplay">5/10</div>
-            
+
             <label for="weight">⚖️ Weight (kg) - Optional:</label>
             <input type="number" name="weight" step="0.1" min="30" max="300" placeholder="Leave blank if not weighing today">
-            
+
             <label for="notes">💭 Quick Notes (Optional):</label>
             <textarea name="notes" placeholder="Anything worth noting about today?" rows="2"></textarea>
-            
+
             <button type="submit" class="button" onclick="showInstantFeedback()">
                 💾 Log Today's Data & Get Instant Insights
             </button>
         </form>
-        
+
         <!-- Instant Feedback Section -->
         <div class="instant-feedback" id="instantFeedback">
             <div class="feedback-score">8.2/10</div>
             <div class="feedback-text">Great job staying consistent! Your sleep and mood combo is looking strong today. 🌟</div>
         </div>
-        
+
         <div style="text-align: center; margin-top: 20px;">
             <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
         </div>
     </div>
-    
+
     <script>
         let selectedValues = {};
-        
+
         function selectQuick(category, value) {
             // Remove previous selection
             document.querySelectorAll(`[onclick*="${category}"]`).forEach(btn => {
                 btn.classList.remove('selected');
             });
-            
+
             // Add selection to clicked button
             event.target.classList.add('selected');
-            
+
             // Store value
             selectedValues[category] = value;
             document.getElementById(category + 'Input').value = value;
-            
+
             // Show positive feedback
             showMicroFeedback(category, value);
         }
-        
+
         function showMicroFeedback(category, value) {
             const feedbacks = {
                 mood: {
@@ -310,7 +367,7 @@
                     rest: "Recovery is important! 😴"
                 }
             };
-            
+
             // Create temporary feedback element
             const feedback = document.createElement('div');
             feedback.textContent = feedbacks[category][value];
@@ -320,11 +377,11 @@
                 border-radius: 25px; font-weight: 600; z-index: 1000;
                 animation: fadeInOut 2s ease-in-out;
             `;
-            
+
             document.body.appendChild(feedback);
             setTimeout(() => feedback.remove(), 2000);
         }
-        
+
         function applySuggestion(type, value) {
             if (type === 'breakfast') {
                 document.getElementById('food_log').value = value + ', ';
@@ -336,14 +393,14 @@
                 if (foundType) {
                     selectQuick('workout', foundType);
                 }
-                
+
                 // Extract duration if present
                 const durationMatch = value.match(/(\d+)min/);
                 if (durationMatch) {
                     document.querySelector('[name="workout_duration"]').value = durationMatch[1];
                 }
             }
-            
+
             // Visual feedback
             event.target.style.background = '#D1F2EB';
             event.target.style.borderColor = '#3B7A57';
@@ -352,49 +409,49 @@
                 event.target.style.borderColor = '#A8E6CF';
             }, 1000);
         }
-        
+
         function updateStressDisplay(value) {
             document.getElementById('stressDisplay').textContent = value + '/10';
-            
+
             // Color coding for stress levels
             const display = document.getElementById('stressDisplay');
             if (value <= 3) display.style.color = '#00b894';
             else if (value <= 6) display.style.color = '#fdcb6e';
             else display.style.color = '#e17055';
         }
-        
+
         function showInstantFeedback() {
             // Calculate a simple score based on logged data
             let score = 5; // Base score
-            
+
             if (selectedValues.mood === 'excellent') score += 2;
             else if (selectedValues.mood === 'good') score += 1;
-            
+
             if (selectedValues.water === 'excellent') score += 1.5;
             else if (selectedValues.water === 'good') score += 1;
-            
+
             if (selectedValues.workout && selectedValues.workout !== 'rest') score += 1;
-            
+
             const foodLog = document.getElementById('food_log').value;
             if (foodLog.length > 10) score += 0.5;
-            
+
             // Show feedback after brief delay
             setTimeout(() => {
                 document.getElementById('instantFeedback').style.display = 'block';
                 document.querySelector('.feedback-score').textContent = Math.min(10, score.toFixed(1)) + '/10';
-                
+
                 const messages = [
                     "Great job staying consistent! 🌟",
                     "Your daily habits are building up! 💪",
                     "Every log helps us understand you better! 🤖",
                     "Consistency beats perfection! 💚"
                 ];
-                
+
                 document.querySelector('.feedback-text').textContent = 
                     messages[Math.floor(Math.random() * messages.length)];
             }, 500);
         }
-        
+
         // Add CSS animation
         const style = document.createElement('style');
         style.textContent = `
@@ -404,11 +461,11 @@
             }
         `;
         document.head.appendChild(style);
-        
+
         // Pre-fill suggestions based on time of day
         document.addEventListener('DOMContentLoaded', function() {
             const hour = new Date().getHours();
-            
+
             // Smart time-based suggestions
             if (hour < 10) {
                 // Morning - suggest breakfast items
