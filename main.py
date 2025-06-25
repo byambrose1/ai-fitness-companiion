@@ -1282,6 +1282,7 @@ def save_daily_log():
         'sleep_hours': request.form.get('sleep_hours'),
         'stress_level': request.form.get('stress_level'),
         'water_intake': request.form.get('water_intake'),
+        'tracking_devices': request.form.get('tracking_devices'),
         'notes': request.form.get('notes')
     }
 
@@ -2004,6 +2005,15 @@ def ai_response():
             user_profile = user_data['profile_data']
             recent_logs = user_data['daily_logs'][-7:] if user_data['daily_logs'] else []
 
+            # Extract notes and tracking device data from recent logs
+            recent_notes = []
+            tracking_data = []
+            for log in recent_logs:
+                if log.get('notes'):
+                    recent_notes.append(f"Day {log.get('date', 'unknown')}: {log['notes']}")
+                if log.get('tracking_devices'):
+                    tracking_data.append(f"Day {log.get('date', 'unknown')}: {log['tracking_devices']}")
+
             context = f"""
             You are a supportive, knowledgeable fitness and wellness coach. Answer the user's question based on their profile and recent data.
 
@@ -2014,9 +2024,12 @@ def ai_response():
 
             Recent daily logs (last 7 days): {recent_logs}
 
+            Recent notes from user: {recent_notes if recent_notes else 'None'}
+            Tracking device data: {tracking_data if tracking_data else 'None'}
+
             User Question: {question}
 
-            Provide a supportive, educational response in 3-4 sentences. Be specific and actionable.
+            Provide a supportive, educational response in 3-4 sentences. Be specific and actionable. Reference their notes and tracking data when relevant.
             """
 
             response = openai.ChatCompletion.create(
