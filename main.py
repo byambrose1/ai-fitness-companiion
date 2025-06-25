@@ -9,6 +9,7 @@ from data_protection import data_protection
 from gdpr_compliance import gdpr_compliance
 from database import get_user, save_user, add_daily_log, get_all_users, init_database
 from security_monitoring import security_monitor
+from email_service import email_service
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-change-in-production')
@@ -107,6 +108,14 @@ def register_user():
 
     save_user(user_data)
     data_protection.log_data_access(email, "user_registration", request.remote_addr)
+
+    # Send welcome email and add to Mailchimp
+    try:
+        email_service.send_welcome_email(email, name)
+        email_service.add_to_mailchimp(email, name, user_data)
+        print(f"✅ Welcome email sent to {email}")
+    except Exception as e:
+        print(f"⚠️ Email service error: {e}")
 
     return jsonify({"success": True, "message": "Account created successfully"})
 
