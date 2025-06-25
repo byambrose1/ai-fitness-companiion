@@ -691,8 +691,7 @@ def complete_signup():
     dob = questionnaire_data['form_data'].get("dob")
     if dob:
         birth_date = datetime.strptime(dob, "%Y-%m-%d")
-        today```python
- = datetime.today()
+        today = datetime.today()
         age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
     else:
         age = "Not provided"
