@@ -132,6 +132,12 @@ class FoodDatabaseAPI:
         edamam_foods = self.search_edamam_foods(query, limit_per_db)
         all_foods.extend(edamam_foods)
         
+        # Search Nutrition Label API for packaged foods
+        nutrition_api = NutritionLabelAPI()
+        packaged_food = nutrition_api.analyze_packaged_food(query)
+        if 'error' not in packaged_food:
+            all_foods.append(packaged_food)
+        
         return all_foods[:20]  # Return top 20 results
     
     def _extract_calories(self, nutrients: List[Dict]) -> float:
@@ -142,6 +148,45 @@ class FoodDatabaseAPI:
         return 0
 
 # Nutrition calculator helper
+class NutritionLabelAPI:
+    def __init__(self):
+        self.api_key = os.getenv('NUTRITION_LABEL_API_KEY', '')
+        self.base_url = "https://nutrition-label1.p.rapidapi.com"
+        
+    def analyze_packaged_food(self, product_name: str) -> Dict:
+        """Analyze packaged/branded foods with detailed nutrition labels"""
+        if not self.api_key:
+            return {"error": "Nutrition Label API key not configured"}
+        
+        try:
+            headers = {
+                'X-RapidAPI-Key': self.api_key,
+                'X-RapidAPI-Host': 'nutrition-label1.p.rapidapi.com'
+            }
+            
+            url = f"{self.base_url}/nutrition"
+            params = {'query': product_name}
+            
+            response = requests.get(url, headers=headers, params=params, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                return {
+                    'name': data.get('name', product_name),
+                    'calories_per_100g': data.get('calories', 0),
+                    'protein_per_100g': data.get('protein', 0),
+                    'carbs_per_100g': data.get('carbs', 0),
+                    'fat_per_100g': data.get('fat', 0),
+                    'fiber_per_100g': data.get('fiber', 0),
+                    'sugar_per_100g': data.get('sugar', 0),
+                    'sodium_per_100g': data.get('sodium', 0),
+                    'source': 'Nutrition Label API',
+                    'detailed_label': data.get('nutrition_label', {})
+                }
+        except Exception as e:
+            print(f"Nutrition Label API error: {e}")
+        
+        return {"error": "Nutrition analysis unavailable"}
+
 class NutritionCalculator:
     @staticmethod
     def calculate_serving_nutrition(food_data: Dict, serving_size_grams: float) -> Dict:

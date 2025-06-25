@@ -1,4 +1,3 @@
-
 # Fitness Companion App
 
 ## Environment Variables Setup
@@ -55,6 +54,24 @@ SPOONACULAR_API_KEY=your-spoonacular-key
 FLASK_SECRET_KEY=your-secure-random-key
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=your-secure-admin-password
+```
+
+### Additional Enhancement APIs (Optional)
+```
+# Weather API for workout recommendations (Free - 1000 calls/day)
+OPENWEATHER_API_KEY=your-openweather-api-key
+
+# Nutrition Label API for packaged foods (Free tier - 100 calls/day)
+# Get free key at: https://rapidapi.com/spoonacular/api/nutrition-label
+NUTRITION_LABEL_API_KEY=your-rapidapi-key
+
+# Nutritionix API alternative (Free tier - 200 calls/day)
+# Get at: https://www.nutritionix.com/business/api
+NUTRITIONIX_APP_ID=your-nutritionix-app-id
+NUTRITIONIX_APP_KEY=your-nutritionix-app-key
+
+# Google Maps API for location-based workout suggestions (Free tier)
+GOOGLE_MAPS_API_KEY=your-google-maps-key
 ```
 
 ## Features
