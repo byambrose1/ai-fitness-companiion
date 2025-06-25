@@ -452,6 +452,96 @@
             }, 500);
         }
 
+        // Food search functionality
+        let searchTimeout;
+        function searchFoods(query) {
+            clearTimeout(searchTimeout);
+            const resultsDiv = document.getElementById('food_results');
+            
+            if (query.length < 2) {
+                resultsDiv.classList.remove('show');
+                return;
+            }
+            
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/api/food-search?q=${encodeURIComponent(query)}`);
+                    const foods = await response.json();
+                    
+                    resultsDiv.innerHTML = '';
+                    
+                    if (foods.length > 0) {
+                        foods.slice(0, 5).forEach(food => {
+                            const item = document.createElement('div');
+                            item.className = 'food-item';
+                            item.innerHTML = `
+                                <strong>${food.name}</strong> - ${food.calories_per_100g || 0} cal/100g
+                                <br><small>${food.brand || food.source || ''}</small>
+                            `;
+                            item.onclick = () => selectFood(food);
+                            resultsDiv.appendChild(item);
+                        });
+                        resultsDiv.classList.add('show');
+                    } else {
+                        resultsDiv.innerHTML = '<div class="food-item">No foods found</div>';
+                        resultsDiv.classList.add('show');
+                    }
+                } catch (error) {
+                    console.error('Food search error:', error);
+                    resultsDiv.innerHTML = '<div class="food-item">Search temporarily unavailable</div>';
+                    resultsDiv.classList.add('show');
+                }
+            }, 300);
+        }
+        
+        function selectFood(food) {
+            const foodLog = document.getElementById('food_log');
+            const currentText = foodLog.value;
+            const newText = currentText + (currentText ? ', ' : '') + food.name;
+            foodLog.value = newText;
+            
+            // Hide search results
+            document.getElementById('food_results').classList.remove('show');
+            document.getElementById('food_search').value = '';
+            
+            // Update nutrition summary if visible
+            updateNutritionSummary();
+        }
+        
+        function addCustomFood() {
+            const customFood = prompt('Enter custom food item:');
+            if (customFood && customFood.trim()) {
+                const foodLog = document.getElementById('food_log');
+                const currentText = foodLog.value;
+                const newText = currentText + (currentText ? ', ' : '') + customFood.trim();
+                foodLog.value = newText;
+                updateNutritionSummary();
+            }
+        }
+        
+        function updateNutritionSummary() {
+            // Simple nutrition tracking - in a real app this would calculate based on selected foods
+            const foodText = document.getElementById('food_log').value;
+            if (foodText.length > 20) {
+                document.getElementById('nutrition_summary').style.display = 'block';
+                // Placeholder values - would be calculated from actual food data
+                document.getElementById('total_calories').textContent = '1,250';
+                document.getElementById('total_protein').textContent = '85';
+                document.getElementById('total_carbs').textContent = '140';
+                document.getElementById('total_fat').textContent = '45';
+            } else {
+                document.getElementById('nutrition_summary').style.display = 'none';
+            }
+        }
+        
+        // Hide search results when clicking outside
+        document.addEventListener('click', function(event) {
+            const searchContainer = document.querySelector('.food-search-container');
+            if (!searchContainer.contains(event.target)) {
+                document.getElementById('food_results').classList.remove('show');
+            }
+        });
+
         // Add CSS animation
         const style = document.createElement('style');
         style.textContent = `

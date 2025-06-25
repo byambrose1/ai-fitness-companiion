@@ -2246,6 +2246,37 @@ def food_search():
     results = food_db.search_food(query)
     return jsonify(results)
 
+# API endpoint for food search (used by daily log)
+@app.route("/api/food-search")
+def api_food_search():
+    """API endpoint for searching foods"""
+    query = request.args.get('q')
+    if not query or len(query) < 2:
+        return jsonify([])
+    
+    try:
+        # Initialize food database API
+        food_api = FoodDatabaseAPI()
+        results = food_api.search_all_databases(query, limit_per_db=3)
+        
+        # Format results for frontend
+        formatted_results = []
+        for food in results:
+            formatted_results.append({
+                'name': food.get('name', ''),
+                'brand': food.get('brand', ''),
+                'source': food.get('source', ''),
+                'calories_per_100g': food.get('calories_per_100g', 0),
+                'protein_per_100g': food.get('protein_per_100g', 0),
+                'carbs_per_100g': food.get('carbs_per_100g', 0),
+                'fat_per_100g': food.get('fat_per_100g', 0)
+            })
+        
+        return jsonify(formatted_results)
+    except Exception as e:
+        print(f"Food search API error: {e}")
+        return jsonify([])
+
 # Food Nutrition endpoint
 @app.route("/food-nutrition")
 def food_nutrition():
