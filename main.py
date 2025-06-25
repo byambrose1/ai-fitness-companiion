@@ -10,6 +10,7 @@ from gdpr_compliance import gdpr_compliance
 from database import get_user, save_user, add_daily_log, get_all_users, init_database
 from security_monitoring import security_monitor
 from email_service import email_service
+from food_database import food_db
 from food_database import FoodDatabaseAPI, NutritionCalculator
 
 app = Flask(__name__)
@@ -690,7 +691,8 @@ def complete_signup():
     dob = questionnaire_data['form_data'].get("dob")
     if dob:
         birth_date = datetime.strptime(dob, "%Y-%m-%d")
-        today = datetime.today()
+        today```python
+ = datetime.today()
         age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
     else:
         age = "Not provided"
@@ -1994,7 +1996,7 @@ def ai_response():
         </html>
         """, email=email, tier=tier)
 
-    # Generate AI response if OpenAI key is available
+    # Generate AI response if OpenAI key is available```python
     ai_response = "AI assistant temporarily unavailable. Please ensure OpenAI API key is configured in Secrets."
 
     if openai.api_key:
@@ -2233,6 +2235,31 @@ def admin_backup():
         }, f, indent=2)
 
     return f"✅ Backup created: {backup_filename}. <a href='/admin'>Back to admin</a>"
+
+# Food Database search endpoint
+@app.route("/food-search")
+def food_search():
+    """Search the food database"""
+    query = request.args.get('q')
+    if not query:
+        return jsonify({"error": "Please provide a search query."}), 400
+
+    results = food_db.search_food(query)
+    return jsonify(results)
+
+# Food Nutrition endpoint
+@app.route("/food-nutrition")
+def food_nutrition():
+    """Return nutrition data for a specific food"""
+    food_name = request.args.get('food')
+    if not food_name:
+        return jsonify({"error": "Please provide a food name."}), 400
+
+    nutrition = food_db.get_nutrition(food_name)
+    if nutrition:
+        return jsonify(nutrition)
+    else:
+        return jsonify({"error": f"Nutrition data not found for {food_name}"}), 404
 
 if __name__ == "__main__":
     # Start security monitoring

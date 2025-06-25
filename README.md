@@ -27,6 +27,16 @@ STRIPE_SECRET_KEY=sk_test_...
 STRIPE_PUBLISHABLE_KEY=pk_test_...
 ```
 
+### Food Database APIs (All Free)
+```
+# USDA FoodData Central (Free - Get key at https://fdc.nal.usda.gov/api-key-signup.html)
+FDC_API_KEY=your-fdc-api-key
+
+# Edamam Food Database (Free tier - 100 requests/month)
+EDAMAM_APP_ID=your-edamam-app-id
+EDAMAM_APP_KEY=your-edamam-app-key
+```
+
 ### Food Database APIs (Optional - enhance nutrition tracking)
 ```
 # USDA Food Data Central (Free, no key required)
@@ -54,6 +64,9 @@ ADMIN_PASSWORD=your-secure-admin-password
 - ✅ Mailchimp integration for user management
 - ✅ Enhanced menstrual cycle tracking
 - ✅ AI-powered personalized insights
+- ✅ Comprehensive food database search (UK & US foods)
+- ✅ AI food analysis and recommendations
+- ✅ Multiple free food database integrations
 - ✅ Subscription management with Stripe
 - ✅ PWA with offline capabilities
 - ✅ GDPR compliance and data protection
