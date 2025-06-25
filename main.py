@@ -1290,17 +1290,19 @@ def save_daily_log():
     add_daily_log(email, log_entry)
 
     # Calculate instant feedback score
-    score = 5.0  # Base score
+    score = 4.0  # Base score
     insights = []
 
     # Mood scoring
-    mood_scores = {'excellent': 2, 'good': 1, 'okay': 0, 'low': -0.5}
+    mood_scores = {'excellent': 2, 'good': 1.5, 'okay': 0.5, 'low': 0}
     if log_entry.get('mood') in mood_scores:
         score += mood_scores[log_entry['mood']]
         if log_entry['mood'] == 'excellent':
             insights.append("Your excellent mood shows you're in a great headspace! 😊")
         elif log_entry['mood'] == 'good':
             insights.append("Good mood = good choices ahead! 👍")
+        elif log_entry['mood'] == 'okay':
+            insights.append("Every day doesn't have to be perfect! 💚")
 
     # Water intake scoring
     water_scores = {'excellent': 1.5, 'good': 1, 'moderate': 0.5, 'low': 0}
@@ -1311,9 +1313,10 @@ def save_daily_log():
 
     # Workout scoring
     if log_entry.get('workout') and log_entry['workout'] != 'rest':
-        score += 1
+        score += 1.5
         insights.append("Movement is medicine for both body and mind! 💪")
     elif log_entry.get('workout') == 'rest':
+        score += 0.5
         insights.append("Rest days are crucial for recovery - well done! 😴")
 
     # Sleep scoring
@@ -1321,17 +1324,40 @@ def save_daily_log():
         try:
             sleep = float(log_entry['sleep_hours'])
             if 7 <= sleep <= 9:
-                score += 1
+                score += 1.5
                 insights.append("Optimal sleep supports hormone balance! 🌙")
             elif sleep >= 6:
-                score += 0.5
+                score += 1
+                insights.append("Good sleep foundation! 🌙")
         except:
             pass
 
     # Food logging bonus
     if log_entry.get('food_log') and len(log_entry['food_log']) > 10:
-        score += 0.5
+        score += 1
         insights.append("Tracking your food helps identify patterns! 📝")
+
+    # Stress level scoring
+    if log_entry.get('stress_level'):
+        try:
+            stress = int(log_entry['stress_level'])
+            if stress <= 3:
+                score += 0.5
+                insights.append("Low stress levels support your goals! 🧘‍♀️")
+            elif stress >= 8:
+                insights.append("High stress noted - consider relaxation techniques 🌸")
+        except:
+            pass
+
+    # Notes bonus - AI processing indicator
+    if log_entry.get('notes') and len(log_entry['notes']) > 5:
+        score += 0.5
+        insights.append("📝 Your notes have been analyzed by AI for personalized insights!")
+
+    # Tracking devices bonus
+    if log_entry.get('tracking_devices') and len(log_entry['tracking_devices']) > 10:
+        score += 0.5
+        insights.append("📱 Device data integrated for better health tracking!")
 
     # Generate personalized insight
     user = users_data[email]

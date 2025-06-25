@@ -212,7 +212,7 @@
         <p class="subtitle">Just log it - even if it's not perfect! Every entry helps us understand you better.</p>
         
         <div class="motivation-boost" style="background: linear-gradient(135deg, #e6f3ff, #f0f8ff); border-left-color: #74b9ff;">
-            <strong>📊 Your Daily Score:</strong> Based on mood, hydration, movement, sleep & food logging. Complete more fields for a more accurate score and better AI insights!
+            <strong>📊 Your Daily Score:</strong> Complete at least 3 sections (mood, water, movement) to receive your score instantly! More data = better AI insights and personalized advice.
         </div>
 
         <!-- Motivational Boost -->
@@ -310,12 +310,23 @@
             <label for="weight">⚖️ Weight (kg) - Optional:</label>
             <input type="number" name="weight" step="0.1" min="30" max="300" placeholder="Leave blank if not weighing today">
 
-            <label for="tracking_devices">📱 Tracking Device Data (Optional):</label>
+            <label for="tracking_devices">📱 Wearable Device Data (Optional):</label>
+            <div style="background: #f0f8ff; padding: 12px; border-radius: 8px; margin: 8px 0; font-size: 0.85rem; color: #2d3748;">
+                <strong>💡 How to add device data:</strong><br>
+                • Copy data from your fitness app (Fitbit, Apple Health, Garmin, etc.)<br>
+                • Include: steps, heart rate, sleep stages, active minutes, calories burned<br>
+                • This helps AI provide more accurate health insights
+            </div>
             <textarea name="tracking_devices" placeholder="E.g., Fitbit: 8,234 steps, 6.5hrs deep sleep, HR avg 72bpm | Apple Watch: 540 active calories..." rows="2"></textarea>
 
-            <label for="notes">💭 Quick Notes (Optional):</label>
-            <textarea name="notes" placeholder="Anything worth noting about today? (The AI reads these for personalized insights)" rows="2"></textarea>
-            <small style="color: #666; font-size: 0.85rem;">💡 The AI tracks your notes to provide more personalized feedback and insights</small>
+            <label for="notes">💭 Personal Notes (Optional - AI Analyzed):</label>
+            <div style="background: #e3f9e5; padding: 12px; border-radius: 8px; margin: 8px 0; font-size: 0.85rem; color: #2d5a42;">
+                <strong>🤖 AI reads your notes to:</strong><br>
+                • Track patterns in your mood, energy, and habits<br>
+                • Provide personalized advice based on your experiences<br>
+                • Remember what works (and doesn't work) for you
+            </div>
+            <textarea name="notes" placeholder="E.g., 'Felt bloated after lunch', 'Great energy during workout', 'Craved sugar all afternoon'..." rows="2"></textarea>
 
             <button type="submit" class="button" onclick="showInstantFeedback()">
                 💾 Log Today's Data & Get Instant Insights
@@ -429,8 +440,20 @@
         }
 
         function showInstantFeedback() {
+            // Check if minimum fields are completed
+            const requiredFields = [selectedValues.mood, selectedValues.water, selectedValues.workout];
+            const completedRequired = requiredFields.filter(field => field).length;
+            
+            if (completedRequired < 2) {
+                // Show message about needing more data
+                document.getElementById('instantFeedback').style.display = 'block';
+                document.querySelector('.feedback-score').textContent = 'Complete more fields';
+                document.querySelector('.feedback-text').textContent = 'Please complete at least mood and water intake to get your daily score! 📊';
+                return;
+            }
+
             // Calculate a simple score based on logged data
-            let score = 3; // Base score
+            let score = 4; // Base score
             let insights = [];
 
             // Mood scoring
@@ -462,7 +485,7 @@
 
             // Workout scoring
             if (selectedValues.workout && selectedValues.workout !== 'rest') {
-                score += 1;
+                score += 1.5;
                 insights.push("Movement is medicine for body and mind! 💪");
             } else if (selectedValues.workout === 'rest') {
                 score += 0.5;
@@ -484,11 +507,11 @@
             if (sleepHours) {
                 const sleep = parseFloat(sleepHours);
                 if (sleep >= 7 && sleep <= 9) {
-                    score += 1;
+                    score += 1.5;
                     insights.push("Optimal sleep supports hormone balance! 🌙");
                 } else if (sleep >= 6) {
-                    score += 0.5;
-                    insights.push("Decent sleep - every hour counts! 🌙");
+                    score += 1;
+                    insights.push("Good sleep foundation! 🌙");
                 }
             }
 
@@ -500,8 +523,22 @@
                     score += 0.5;
                     insights.push("Low stress levels support your goals! 🧘‍♀️");
                 } else if (stress >= 8) {
-                    insights.push("High stress - consider some relaxation techniques 🌸");
+                    insights.push("High stress - consider relaxation techniques 🌸");
                 }
+            }
+
+            // Notes and tracking devices bonus
+            const notes = document.querySelector('[name="notes"]').value;
+            const trackingData = document.querySelector('[name="tracking_devices"]').value;
+            
+            if (notes && notes.length > 5) {
+                score += 0.5;
+                insights.push("📝 Your notes help AI provide personalized insights!");
+            }
+            
+            if (trackingData && trackingData.length > 10) {
+                score += 0.5;
+                insights.push("📱 Device data integrated for better tracking!");
             }
 
             // Cap score at 10
@@ -515,7 +552,7 @@
             const selectedInsights = insights.slice(0, 2);
             const insightText = selectedInsights.length > 0 ? 
                 selectedInsights.join(' ') : 
-                "Every log entry helps us understand your patterns better! 🤖";
+                "Great job logging today! Every entry helps us understand your patterns better! 🤖";
 
             document.querySelector('.feedback-text').textContent = insightText;
         }
