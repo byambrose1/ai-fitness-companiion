@@ -617,16 +617,39 @@ def dashboard():
     if not user.get('profile_data'):
         return "Please complete your questionnaire first. <a href='/'>Start here</a>"
     
-    # Contextual message based on signup date (customize as needed)
+    # Calculate streak and contextual messaging
+    daily_logs = user.get('daily_logs', [])
+    streak_days = 1
+    total_logs = len(daily_logs)
+    
+    if daily_logs:
+        # Calculate actual streak based on recent days
+        recent_dates = set()
+        for log in daily_logs[-7:]:  # Last 7 logs
+            if 'date' in log:
+                recent_dates.add(log['date'])
+        streak_days = len(recent_dates)
+    
     signup_date = datetime.strptime(user['created_at'], "%Y-%m-%dT%H:%M:%S.%f")
     days_since_signup = (datetime.now() - signup_date).days
 
+    # Enhanced contextual messaging based on user behavior
     if days_since_signup == 0:
-        contextual_message = "Welcome! Starting a new journey takes courage, and you've already taken the first step. Let's build healthy habits together."
+        contextual_message = "🌟 Welcome! Starting a new journey takes courage, and you've already taken the first step. Let's build healthy habits together."
+    elif days_since_signup <= 3:
+        if total_logs >= 2:
+            contextual_message = f"💪 Amazing start! {total_logs} logs in {days_since_signup + 1} days. You're building momentum!"
+        else:
+            contextual_message = "🌱 Every expert was once a beginner. Take it one day at a time - you've got this!"
     elif days_since_signup <= 7:
-        contextual_message = "You're doing great in your first week! Remember that consistency is key, and every small step counts."
+        if streak_days >= 5:
+            contextual_message = f"🔥 Incredible! {streak_days}-day streak shows real commitment. Consistency is your superpower!"
+        else:
+            contextual_message = "💚 Remember: progress isn't about being perfect, it's about not giving up. Every log matters!"
+    elif total_logs >= 15:
+        contextual_message = f"🏆 Outstanding dedication! {total_logs} logs show you're serious about your health journey."
     else:
-        contextual_message = "Keep up the amazing work! Your dedication is inspiring. Remember to celebrate your progress and stay focused on your goals."
+        contextual_message = "🌟 Your journey is unique and valuable. Focus on progress, not perfection - you're doing better than you think!"
 
     return render_template_string("""
     <!DOCTYPE html>
@@ -659,14 +682,38 @@ def dashboard():
             <h1>🌟 Welcome back, {{ user.name|title }}!</h1>
 
             <div class="reminder">
-                <p>💚 <strong>Daily Reminder:</strong> {{ contextual_message }}</p>
+                <p>💚 <strong>Daily Motivation:</strong> {{ contextual_message }}</p>
+            </div>
+            
+            <!-- Streak and Progress Section -->
+            <div class="card" style="background: linear-gradient(135deg, #A8E6CF, #D1F2EB); text-align: center; margin-bottom: 20px;">
+                <h3 style="color: #1a1a1a;">🔥 Your Progress</h3>
+                <div style="display: flex; justify-content: space-around; align-items: center;">
+                    <div>
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #3B7A57;">{{ streak_days }}</div>
+                        <div style="font-size: 0.9rem; color: #2d5a42;">Day Streak</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #3B7A57;">{{ total_logs }}</div>
+                        <div style="font-size: 0.9rem; color: #2d5a42;">Total Logs</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #3B7A57;">{{ days_since_signup + 1 }}</div>
+                        <div style="font-size: 0.9rem; color: #2d5a42;">Days Active</div>
+                    </div>
+                </div>
             </div>
 
             <div class="dashboard-grid">
                 <div class="card">
-                    <h3>📊 Today's Scores</h3>
-                    <div class="score">N/A</div>
-                    <p>Complete your daily log to see your scores</p>
+                    <h3>📊 Quick Score</h3>
+                    {% if recent_score %}
+                        <div class="score">{{ recent_score }}/10</div>
+                        <p>Based on your latest entries</p>
+                    {% else %}
+                        <div class="score">Ready!</div>
+                        <p>Complete your daily log to see your score</p>
+                    {% endif %}
                 </div>
 
                 <div class="card">
@@ -717,110 +764,77 @@ def dashboard():
         </div>
     </body>
     </html>
-    """, user=user, contextual_message=contextual_message)
+    """, user=user, contextual_message=contextual_message, streak_days=streak_days, 
+         total_logs=total_logs, days_since_signup=days_since_signup, recent_score=None)
 
 @app.route("/daily-log")
 def daily_log():
     email = request.args.get('email')
     if not email:
         return "Please provide email parameter"
-
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html lang="en-GB">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Daily Log</title>
-        <style>
-            * { box-sizing: border-box; }
-            body { 
-                font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;
-                background: white; min-height: 100vh; color: #1a1a1a;
-            }
-            .container { background: white; padding: 2em; border-radius: 20px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 2px solid #A8E6CF; }
-            input, textarea, select { 
-                width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #A8E6CF; 
-                border-radius: 8px; font-size: 16px; background: white;
-            }
-            input:focus, textarea:focus, select:focus { outline: none; border-color: #1a1a1a; }
-            label { display: block; margin-top: 15px; font-weight: 600; color: #1a1a1a; }
-            .button { 
-                background: #A8E6CF; color: #1a1a1a; 
-                padding: 15px 30px; border: 2px solid #A8E6CF; border-radius: 8px; font-size: 16px; 
-                font-weight: 600; cursor: pointer; width: 100%; margin-top: 20px; transition: all 0.2s ease;
-            }
-            .button:hover { background: white; border-color: #A8E6CF; }
-            h1 { color: #1a1a1a; text-align: center; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>📝 Daily Log</h1>
-            <p style="text-align: center; color: #666;">Track your daily wellness journey</p>
-
-            <form method="POST" action="/save-daily-log">
-                <input type="hidden" name="email" value="{{ email }}">
-                <input type="hidden" name="date" value="{{ today }}">
-
-                <label for="food_log">🍽️ What did you eat today?</label>
-                <textarea name="food_log" placeholder="E.g., oats with berries for breakfast, chicken salad for lunch..." rows="3"></textarea>
-
-                <label for="workout">🏃‍♀️ Workout Type:</label>
-                <select name="workout">
-                    <option value="">-- Select --</option>
-                    <option value="cardio">Cardio</option>
-                    <option value="strength">Strength Training</option>
-                    <option value="yoga">Yoga</option>
-                    <option value="walking">Walking</option>
-                    <option value="other">Other</option>
-                    <option value="rest">Rest Day</option>
-                </select>
-
-                <label for="workout_duration">⏱️ Workout Duration (minutes):</label>
-                <input type="number" name="workout_duration" min="0" max="300">
-
-                <label for="weight">⚖️ Weight (kg) - Optional:</label>
-                <input type="number" name="weight" step="0.1" min="30" max="300">
-
-                <label for="mood">😊 Mood Today:</label>
-                <select name="mood">
-                    <option value="">-- Select --</option>
-                    <option value="excellent">Excellent</option>
-                    <option value="good">Good</option>
-                    <option value="okay">Okay</option>
-                    <option value="low">Low</option>
-                    <option value="stressed">Stressed</option>
-                </select>
-
-                <label for="sleep_hours">😴 Hours of Sleep:</label>
-                <input type="number" name="sleep_hours" step="0.5" min="0" max="24">
-
-                <label for="stress_level">😰 Stress Level (1-10):</label>
-                <input type="range" name="stress_level" min="1" max="10" value="5">
-
-                <label for="water_intake">💧 Water Intake:</label>
-                <select name="water_intake">
-                    <option value="">-- Select --</option>
-                    <option value="low">Less than 1L</option>
-                    <option value="moderate">1-2L</option>
-                    <option value="good">2-3L</option>
-                    <option value="excellent">3L+</option>
-                </select>
-
-                <label for="notes">💭 Additional Notes:</label>
-                <textarea name="notes" placeholder="How are you feeling today? Any observations?" rows="2"></textarea>
-
-                <button type="submit" class="button">💾 Save Today's Log</button>
-            </form>
-
-            <div style="text-align: center; margin-top: 20px;">
-                <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
-            </div>
-        </div>
-    </body>
-    </html>
-    """, email=email, today=datetime.now().strftime("%Y-%m-%d"))
+    
+    # Get user for smart suggestions
+    user = get_user(email) if email in users_data else None
+    streak_days = 1
+    predicted_breakfast = "Oats with berries"
+    predicted_workout = "30min walk"
+    habit_anchor = "have my morning coffee"
+    
+    # Generate contextual message based on user state
+    contextual_messages = [
+        "Starting a new journey takes courage, and you've already taken the first step.",
+        "Consistency beats perfection. Just log what you can!",
+        "Every small step counts toward your bigger goal.",
+        "Your body is learning from every choice you make.",
+        "Progress isn't always linear, but it's always valuable."
+    ]
+    
+    if user:
+        # Calculate streak
+        daily_logs = user.get('daily_logs', [])
+        if daily_logs:
+            # Simple streak calculation
+            recent_dates = set()
+            for log in daily_logs[-7:]:  # Last 7 logs
+                if 'date' in log:
+                    recent_dates.add(log['date'])
+            streak_days = len(recent_dates)
+        
+        # Smart predictions based on recent logs
+        if daily_logs:
+            recent_foods = []
+            recent_workouts = []
+            for log in daily_logs[-5:]:  # Last 5 logs
+                if log.get('food_log'):
+                    recent_foods.append(log['food_log'])
+                if log.get('workout'):
+                    recent_workouts.append(log['workout'])
+            
+            # Extract common breakfast items
+            if recent_foods:
+                breakfast_items = []
+                for food in recent_foods:
+                    if 'breakfast' in food.lower():
+                        breakfast_items.append(food.split('breakfast')[1].split(',')[0].strip())
+                if breakfast_items:
+                    predicted_breakfast = breakfast_items[-1]  # Most recent
+            
+            # Predict workout
+            if recent_workouts:
+                workout_counts = {}
+                for workout in recent_workouts:
+                    workout_counts[workout] = workout_counts.get(workout, 0) + 1
+                predicted_workout = max(workout_counts, key=workout_counts.get)
+    
+    contextual_message = contextual_messages[streak_days % len(contextual_messages)]
+    
+    return open("templates/daily-log.html").read().replace("{{ email }}", email)\
+                                                .replace("{{ today }}", datetime.now().strftime("%Y-%m-%d"))\
+                                                .replace("{{ streak_days or 1 }}", str(streak_days))\
+                                                .replace("{{ predicted_breakfast or \"Oats with berries\" }}", predicted_breakfast)\
+                                                .replace("{{ predicted_workout or \"30min walk\" }}", predicted_workout)\
+                                                .replace("{{ habit_anchor or 'have my morning coffee' }}", habit_anchor)\
+                                                .replace("{{ contextual_message }}", contextual_message)
 
 @app.route("/save-daily-log", methods=["POST"])
 def save_daily_log():
@@ -845,29 +859,145 @@ def save_daily_log():
 
     users_data[email]['daily_logs'].append(log_entry)
     add_daily_log(email, log_entry)
+    
+    # Calculate instant feedback score
+    score = 5.0  # Base score
+    insights = []
+    
+    # Mood scoring
+    mood_scores = {'excellent': 2, 'good': 1, 'okay': 0, 'low': -0.5}
+    if log_entry.get('mood') in mood_scores:
+        score += mood_scores[log_entry['mood']]
+        if log_entry['mood'] == 'excellent':
+            insights.append("Your excellent mood shows you're in a great headspace! 😊")
+        elif log_entry['mood'] == 'good':
+            insights.append("Good mood = good choices ahead! 👍")
+    
+    # Water intake scoring
+    water_scores = {'excellent': 1.5, 'good': 1, 'moderate': 0.5, 'low': 0}
+    if log_entry.get('water_intake') in water_scores:
+        score += water_scores[log_entry['water_intake']]
+        if log_entry['water_intake'] in ['excellent', 'good']:
+            insights.append("Great hydration supports your metabolism! 💧")
+    
+    # Workout scoring
+    if log_entry.get('workout') and log_entry['workout'] != 'rest':
+        score += 1
+        insights.append("Movement is medicine for both body and mind! 💪")
+    elif log_entry.get('workout') == 'rest':
+        insights.append("Rest days are crucial for recovery - well done! 😴")
+    
+    # Sleep scoring
+    if log_entry.get('sleep_hours'):
+        try:
+            sleep = float(log_entry['sleep_hours'])
+            if 7 <= sleep <= 9:
+                score += 1
+                insights.append("Optimal sleep supports hormone balance! 🌙")
+            elif sleep >= 6:
+                score += 0.5
+        except:
+            pass
+    
+    # Food logging bonus
+    if log_entry.get('food_log') and len(log_entry['food_log']) > 10:
+        score += 0.5
+        insights.append("Tracking your food helps identify patterns! 📝")
+    
+    # Generate personalized insight
+    user = users_data[email]
+    daily_logs = user.get('daily_logs', [])
+    streak_days = len(set(log.get('date') for log in daily_logs if log.get('date')))
+    
+    if streak_days >= 7:
+        insights.append(f"🔥 Amazing! {streak_days} days of consistent logging!")
+    elif streak_days >= 3:
+        insights.append(f"💚 Great streak! {streak_days} days and counting!")
+    
+    # Cap score at 10
+    final_score = min(10.0, score)
+    
+    # Select best insights (max 2)
+    selected_insights = insights[:2] if len(insights) > 2 else insights
+    insight_text = " ".join(selected_insights) if selected_insights else "Every log helps us understand your patterns better! 🤖"
 
     return render_template_string("""
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Log Saved</title>
+        <title>Daily Log Saved - Instant Insights!</title>
         <style>
-            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); }
-            .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; }
-            .success { color: #00b894; font-size: 18px; margin: 20px 0; }
-            .button { background: #A8E6CF; color: #2d5a3d; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+            body { 
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+                text-align: center; padding: 20px; 
+                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); 
+                min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            }
+            .container { 
+                max-width: 600px; margin: 0 auto; background: white; 
+                padding: 40px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            }
+            .celebration { font-size: 4rem; margin-bottom: 20px; animation: bounce 1s ease-in-out; }
+            @keyframes bounce {
+                0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+                40% { transform: translateY(-30px); }
+                60% { transform: translateY(-15px); }
+            }
+            .score-circle {
+                width: 120px; height: 120px; border-radius: 50%;
+                background: linear-gradient(135deg, #3B7A57, #A8E6CF);
+                display: flex; align-items: center; justify-content: center;
+                margin: 20px auto; color: white; font-size: 2rem; font-weight: 700;
+                box-shadow: 0 10px 30px rgba(59, 122, 87, 0.3);
+            }
+            .insights {
+                background: #e3f9e5; padding: 20px; border-radius: 12px; margin: 20px 0;
+                border-left: 5px solid #7ED3B2; text-align: left;
+            }
+            .insights h3 { margin: 0 0 12px 0; color: #3B7A57; }
+            .insights p { margin: 0; color: #2d5a42; line-height: 1.5; }
+            .button { 
+                background: linear-gradient(135deg, #3B7A57, #2d5a42); color: white; 
+                padding: 15px 30px; text-decoration: none; border-radius: 12px; 
+                font-weight: 600; display: inline-block; margin: 10px;
+                transition: all 0.2s ease;
+            }
+            .button:hover { 
+                transform: translateY(-2px); 
+                box-shadow: 0 8px 25px rgba(59, 122, 87, 0.3);
+            }
+            .streak-badge {
+                background: #fdcb6e; color: #8b7000; padding: 8px 16px;
+                border-radius: 20px; font-size: 14px; font-weight: 600;
+                display: inline-block; margin: 10px 0;
+            }
+            h1 { color: #3B7A57; margin-bottom: 20px; }
         </style>
     </head>
     <body>
         <div class="container">
-            <h2>✅ Daily Log Saved!</h2>
-            <div class="success">Your daily log has been recorded successfully.</div>
-            <p>Keep up the great work! Consistency is key to reaching your goals.</p>
-            <a href="/dashboard?email={{ email }}" class="button">← Back to Dashboard</a>
+            <div class="celebration">🎉</div>
+            <h1>Daily Log Saved Successfully!</h1>
+            
+            <div class="score-circle">{{ "%.1f"|format(final_score) }}/10</div>
+            
+            <div class="streak-badge">🔥 Day {{ streak_days }} Streak</div>
+            
+            <div class="insights">
+                <h3>🤖 Your Instant Insights</h3>
+                <p>{{ insight_text }}</p>
+            </div>
+            
+            <p style="color: #666; margin: 20px 0;">
+                Consistency beats perfection! Every log helps us understand your patterns and provide better guidance.
+            </p>
+            
+            <a href="/dashboard?email={{ email }}" class="button">🏠 Back to Dashboard</a>
+            <a href="/daily-log?email={{ email }}" class="button" style="background: linear-gradient(135deg, #74b9ff, #0984e3);">📝 Log Tomorrow</a>
         </div>
     </body>
     </html>
-    """, email=email)
+    """, email=email, final_score=final_score, insight_text=insight_text, streak_days=streak_days)
 
 @app.route("/subscription")
 def subscription_page():
