@@ -135,32 +135,39 @@ def login_user():
         return jsonify({"success": False, "message": "Account not found"}), 404
 
     # Handle legacy passwords (not hashed) and new hashed passwords
+    password_valid = False
+    
     try:
-        if user['password'].startswith('$2b$'):
+        if user['password'].startswith('$2b$') and len(user['password']) > 20:
             # This is a hashed password
-            if not bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-                track_failed_login(email, ip_address)
-                return jsonify({"success": False, "message": "Invalid password"}), 401
+            password_valid = bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8'))
         else:
-            # This is a legacy plaintext password - hash it and update
-            if user['password'] != password:
-                track_failed_login(email, ip_address)
-                return jsonify({"success": False, "message": "Invalid password"}), 401
+            # This is a legacy plaintext password
+            password_valid = (user['password'] == password)
             
-            # Update to hashed password
-            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-            user['password'] = hashed_password.decode('utf-8')
-            save_user(user)
+            if password_valid:
+                # Update to hashed password
+                hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+                user['password'] = hashed_password.decode('utf-8')
+                save_user(user)
+                
     except Exception as e:
-        # Handle any bcrypt errors
-        if user['password'] == password:
-            # Legacy plaintext password - update it
-            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-            user['password'] = hashed_password.decode('utf-8')
-            save_user(user)
-        else:
-            track_failed_login(email, ip_address)
-            return jsonify({"success": False, "message": "Invalid password"}), 401
+        print(f"Password validation error: {e}")
+        # Fallback to plaintext comparison for legacy passwords
+        password_valid = (user['password'] == password)
+        
+        if password_valid:
+            # Update to hashed password
+            try:
+                hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+                user['password'] = hashed_password.decode('utf-8')
+                save_user(user)
+            except Exception as hash_error:
+                print(f"Error updating password hash: {hash_error}")
+    
+    if not password_valid:
+        track_failed_login(email, ip_address)
+        return jsonify({"success": False, "message": "Invalid password"}), 401
 
     # Successful login
     data_protection.log_data_access(email, "login_success", ip_address)
