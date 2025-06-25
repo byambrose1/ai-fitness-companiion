@@ -1,29 +1,28 @@
-
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Fitness Companion - Understand Your Body, Finally Lose Fat</title>
-  
+
   <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#3B7A57">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="FitnessAI">
   <meta name="description" content="Your personalized AI-powered fitness and wellness companion">
-  
+
   <!-- PWA Manifest -->
   <link rel="manifest" href="/static/manifest.json">
-  
+
   <!-- Apple Touch Icons -->
   <link rel="apple-touch-icon" href="/static/icon-192.png">
   <link rel="apple-touch-icon" sizes="192x192" href="/static/icon-192.png">
   <link rel="apple-touch-icon" sizes="512x512" href="/static/icon-512.png">
-  
+
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="/static/icon-192.png">
-  
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -905,7 +904,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="inclusive-image" style="height: 180px; background: linear-gradient(135deg, #f0f8ff 0%, #3B7A57 100%);">
           <div class="image-text">
             <div>💪 Real progress, real people</div>
@@ -937,8 +936,7 @@
             <div class="ai-message">"Your sleep improved this week! This likely contributed to better hunger regulation. Consider maintaining your 7.5hr schedule."</div>
             <p style="margin-top: 12px; font-size: 0.85rem; color: #3B7A57; font-weight: 600;">Sleep Quality</p>
             <p style="font-size: 0.85rem; color: #3B7A57; font-weight: 600;">Hormones</p>
-          </div>
-        </div>
+          </div>        </div>
 
         <div class="hero-feature-card">
           <h3>Progress Trends</h3>
@@ -971,7 +969,7 @@
             🔐 Log In
           </button>
         </div>
-        
+
         <p class="cta-note">No sign-up needed to begin</p>
       </div>
     </div>
@@ -1276,6 +1274,9 @@
           <label for="loginPassword">Password:</label>
           <input type="password" id="loginPassword" placeholder="Your password" required>
           <button type="button" onclick="memberLogin()" class="btn-nav btn-submit" style="width: 100%; margin-top: 20px;">Log In</button>
+          <div style="text-align: center; margin-top: 15px;">
+            <a href="/forgot-password" style="color: #3B7A57; text-decoration: none; font-size: 14px;">🔐 Forgot Password?</a>
+          </div>
         </form>
       </div>
     </div>
@@ -1624,14 +1625,14 @@
       document.querySelectorAll('.feature-card, .step-card, .hero-feature-card').forEach(el => {
         observer.observe(el);
       });
-      
+
       // Register service worker for PWA
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('/static/sw.js')
             .then(function(registration) {
               console.log('ServiceWorker registration successful');
-              
+
               // Show install prompt
               let deferredPrompt;
               window.addEventListener('beforeinstallprompt', (e) => {
@@ -1639,7 +1640,7 @@
                 deferredPrompt = e;
                 showInstallPrompt();
               });
-              
+
               function showInstallPrompt() {
                 // Create install banner
                 const installBanner = document.createElement('div');
@@ -1656,7 +1657,7 @@
                   </div>
                 `;
                 document.body.appendChild(installBanner);
-                
+
                 window.installApp = function() {
                   deferredPrompt.prompt();
                   deferredPrompt.userChoice.then((choiceResult) => {
@@ -1664,7 +1665,7 @@
                     installBanner.remove();
                   });
                 };
-                
+
                 window.dismissInstall = function() {
                   installBanner.remove();
                 };

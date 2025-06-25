@@ -134,15 +134,426 @@ def login_user():
         track_failed_login(email, ip_address)
         return jsonify({"success": False, "message": "Account not found"}), 404
 
-    # Verify password with bcrypt
-    if not bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-        track_failed_login(email, ip_address)
-        return jsonify({"success": False, "message": "Invalid password"}), 401
+    # Handle legacy passwords (not hashed) and new hashed passwords
+    try:
+        if user['password'].startswith('$2b$'):
+            # This is a hashed password
+            if not bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+                track_failed_login(email, ip_address)
+                return jsonify({"success": False, "message": "Invalid password"}), 401
+        else:
+            # This is a legacy plaintext password - hash it and update
+            if user['password'] != password:
+                track_failed_login(email, ip_address)
+                return jsonify({"success": False, "message": "Invalid password"}), 401
+            
+            # Update to hashed password
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            user['password'] = hashed_password.decode('utf-8')
+            save_user(user)
+    except Exception as e:
+        # Handle any bcrypt errors
+        if user['password'] == password:
+            # Legacy plaintext password - update it
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            user['password'] = hashed_password.decode('utf-8')
+            save_user(user)
+        else:
+            track_failed_login(email, ip_address)
+            return jsonify({"success": False, "message": "Invalid password"}), 401
 
     # Successful login
     data_protection.log_data_access(email, "login_success", ip_address)
     session['user_email'] = email
     return jsonify({"success": True, "message": "Login successful"})
+
+@app.route("/forgot-password")
+def forgot_password_page():
+    """Show forgot password form"""
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html lang="en-GB">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Forgot Password - Fitness Companion</title>
+        <style>
+            * { box-sizing: border-box; }
+            body { 
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                margin: 0; padding: 20px;
+                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); 
+                min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            }
+            .container { 
+                background: white; padding: 40px; border-radius: 20px; 
+                max-width: 500px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            }
+            h1 { color: #3B7A57; text-align: center; margin-bottom: 20px; }
+            p { text-align: center; color: #666; margin-bottom: 30px; }
+            label { display: block; margin: 15px 0 8px 0; font-weight: 600; color: #3B7A57; }
+            input { 
+                width: 100%; padding: 16px; border: 2px solid #e5e5e5; 
+                border-radius: 12px; font-size: 16px; font-family: 'Inter', sans-serif;
+            }
+            input:focus { outline: none; border-color: #3B7A57; }
+            .button { 
+                background: #3B7A57; color: white; padding: 16px 32px; 
+                border: none; border-radius: 12px; font-size: 16px; font-weight: 600; 
+                cursor: pointer; width: 100%; margin-top: 20px;
+            }
+            .button:hover { background: #2d5a42; }
+            .help-section {
+                background: #f8fffe; padding: 20px; border-radius: 12px; margin-top: 30px;
+                border-left: 4px solid #A8E6CF;
+            }
+            .back-link { text-align: center; margin-top: 20px; }
+            .back-link a { color: #3B7A57; text-decoration: none; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🔐 Forgot Your Password?</h1>
+            <p>No worries! Enter your email address and we'll help you reset your password.</p>
+
+            <form method="POST" action="/send-password-reset">
+                <label for="email">Email Address:</label>
+                <input type="email" name="email" id="email" placeholder="Enter your email address" required>
+                <button type="submit" class="button">📧 Send Reset Link</button>
+            </form>
+
+            <div class="help-section">
+                <h3 style="margin-top: 0; color: #3B7A57;">🤔 Can't Remember Your Email?</h3>
+                <p style="margin-bottom: 15px;">If you can't remember which email you used to sign up:</p>
+                <ul style="text-align: left; color: #666;">
+                    <li>Check your most commonly used email accounts</li>
+                    <li>Search for "Welcome to Your Fitness Journey" in your inbox</li>
+                    <li>Look for emails from our fitness app</li>
+                    <li>Try signing up again - we'll let you know if an account already exists</li>
+                </ul>
+                <form method="POST" action="/find-account" style="margin-top: 15px;">
+                    <label for="name">Your Name (as registered):</label>
+                    <input type="text" name="name" placeholder="Enter your full name" required>
+                    <button type="submit" class="button" style="background: #74b9ff;">🔍 Find My Account</button>
+                </form>
+            </div>
+
+            <div class="back-link">
+                <a href="/">← Back to Login</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    """)
+
+@app.route("/send-password-reset", methods=["POST"])
+def send_password_reset():
+    """Send password reset email"""
+    email = request.form.get('email')
+    
+    if not email:
+        return "Email is required", 400
+    
+    user = get_user(email)
+    if not user:
+        # Don't reveal if email exists or not for security
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Password Reset Sent</title>
+            <style>
+                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; 
+                       background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
+                       display: flex; align-items: center; justify-content: center; }
+                .container { max-width: 500px; background: white; padding: 40px; border-radius: 15px; }
+                .button { background: #3B7A57; color: white; padding: 15px 30px; 
+                         text-decoration: none; border-radius: 8px; font-weight: 600; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h2>📧 Check Your Email</h2>
+                <p>If an account with that email exists, we've sent password reset instructions.</p>
+                <p style="color: #666;">If you don't receive an email within 5 minutes, check your spam folder or try again.</p>
+                <a href="/" class="button">← Back to Login</a>
+            </div>
+        </body>
+        </html>
+        """)
+    
+    # Generate reset token
+    import secrets
+    reset_token = secrets.token_urlsafe(32)
+    reset_expiry = (datetime.now() + timedelta(hours=1)).isoformat()
+    
+    # Store reset token in user data
+    user['reset_token'] = reset_token
+    user['reset_token_expiry'] = reset_expiry
+    save_user(user)
+    
+    # Send reset email
+    try:
+        reset_link = f"{request.url_root}reset-password?token={reset_token}"
+        email_service.send_password_reset_email(email, user['name'], reset_link)
+        message = "Password reset email sent successfully!"
+    except Exception as e:
+        print(f"Email sending error: {e}")
+        message = "Reset link generated. Email service temporarily unavailable."
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Password Reset Sent</title>
+        <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; 
+                   background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
+                   display: flex; align-items: center; justify-content: center; }
+            .container { max-width: 500px; background: white; padding: 40px; border-radius: 15px; }
+            .button { background: #3B7A57; color: white; padding: 15px 30px; 
+                     text-decoration: none; border-radius: 8px; font-weight: 600; }
+            .reset-link { background: #f8fffe; padding: 15px; border-radius: 8px; 
+                         margin: 20px 0; border-left: 4px solid #A8E6CF; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>📧 Password Reset Sent!</h2>
+            <p>{{ message }}</p>
+            {% if reset_link %}
+            <div class="reset-link">
+                <p><strong>Direct Reset Link:</strong></p>
+                <a href="{{ reset_link }}" style="color: #3B7A57;">{{ reset_link }}</a>
+            </div>
+            {% endif %}
+            <p style="color: #666;">This link expires in 1 hour.</p>
+            <a href="/" class="button">← Back to Login</a>
+        </div>
+    </body>
+    </html>
+    """, message=message, reset_link=reset_link)
+
+@app.route("/find-account", methods=["POST"])
+def find_account():
+    """Help users find their account by name"""
+    name = request.form.get('name')
+    
+    if not name:
+        return "Name is required", 400
+    
+    # Search for users with matching name
+    all_users = get_all_users()
+    matching_users = []
+    
+    for email, user_name, tier in all_users:
+        if user_name and name.lower() in user_name.lower():
+            # Partially mask email for privacy
+            email_parts = email.split('@')
+            masked_email = f"{email_parts[0][:2]}***@{email_parts[1]}"
+            matching_users.append(masked_email)
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Account Search Results</title>
+        <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; 
+                   background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
+                   display: flex; align-items: center; justify-content: center; }
+            .container { max-width: 500px; background: white; padding: 40px; border-radius: 15px; }
+            .button { background: #3B7A57; color: white; padding: 15px 30px; 
+                     text-decoration: none; border-radius: 8px; font-weight: 600; margin: 5px; }
+            .result { background: #f8fffe; padding: 15px; border-radius: 8px; 
+                     margin: 10px 0; border-left: 4px solid #A8E6CF; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>🔍 Account Search Results</h2>
+            {% if matching_users %}
+                <p>We found {{ matching_users|length }} account(s) with the name "{{ name }}":</p>
+                {% for email in matching_users %}
+                <div class="result">{{ email }}</div>
+                {% endfor %}
+                <p style="color: #666;">Recognize any of these emails? Use them to reset your password.</p>
+            {% else %}
+                <p>No accounts found with the name "{{ name }}".</p>
+                <p style="color: #666;">Try variations of your name or contact support if you need help.</p>
+            {% endif %}
+            
+            <a href="/forgot-password" class="button">Try Password Reset</a>
+            <a href="/" class="button" style="background: #74b9ff;">← Back to Login</a>
+        </div>
+    </body>
+    </html>
+    """, matching_users=matching_users, name=name)
+
+@app.route("/reset-password")
+def reset_password_form():
+    """Show password reset form"""
+    token = request.args.get('token')
+    
+    if not token:
+        return "Invalid reset link", 400
+    
+    # Find user with this token
+    all_users = get_all_users()
+    user = None
+    for email, name, tier in all_users:
+        user_data = get_user(email)
+        if user_data and user_data.get('reset_token') == token:
+            # Check if token is expired
+            expiry = user_data.get('reset_token_expiry')
+            if expiry and datetime.now() < datetime.fromisoformat(expiry):
+                user = user_data
+                break
+    
+    if not user:
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html>
+        <head><title>Invalid Reset Link</title></head>
+        <body style="font-family: Arial; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);">
+            <div style="max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px;">
+                <h2>🔗 Invalid or Expired Link</h2>
+                <p>This password reset link is invalid or has expired.</p>
+                <a href="/forgot-password" style="background: #3B7A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px;">Request New Reset Link</a>
+            </div>
+        </body>
+        </html>
+        """)
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html lang="en-GB">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Reset Password</title>
+        <style>
+            * { box-sizing: border-box; }
+            body { 
+                font-family: 'Inter', sans-serif; margin: 0; padding: 20px;
+                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); 
+                min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            }
+            .container { 
+                background: white; padding: 40px; border-radius: 20px; 
+                max-width: 500px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            }
+            h1 { color: #3B7A57; text-align: center; margin-bottom: 20px; }
+            label { display: block; margin: 15px 0 8px 0; font-weight: 600; color: #3B7A57; }
+            input { 
+                width: 100%; padding: 16px; border: 2px solid #e5e5e5; 
+                border-radius: 12px; font-size: 16px;
+            }
+            input:focus { outline: none; border-color: #3B7A57; }
+            .button { 
+                background: #3B7A57; color: white; padding: 16px 32px; 
+                border: none; border-radius: 12px; font-size: 16px; font-weight: 600; 
+                cursor: pointer; width: 100%; margin-top: 20px;
+            }
+            .requirements { font-size: 0.8rem; color: #666; margin-top: 4px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🔐 Reset Your Password</h1>
+            <p style="text-align: center; color: #666;">Enter your new password below</p>
+
+            <form method="POST" action="/update-password">
+                <input type="hidden" name="token" value="{{ token }}">
+                
+                <label for="password">New Password:</label>
+                <input type="password" name="password" id="password" required>
+                <div class="requirements">
+                    Must contain: 12+ characters, uppercase, lowercase, number, special character
+                </div>
+
+                <label for="confirmPassword">Confirm New Password:</label>
+                <input type="password" name="confirmPassword" id="confirmPassword" required>
+
+                <button type="submit" class="button">🔄 Update Password</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    """, token=token)
+
+@app.route("/update-password", methods=["POST"])
+def update_password():
+    """Update user password from reset"""
+    token = request.form.get('token')
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirmPassword')
+    
+    if not token or not password:
+        return "Missing required fields", 400
+    
+    if password != confirm_password:
+        return "Passwords do not match", 400
+    
+    # Validate password requirements
+    import re
+    if len(password) < 12 or not re.match(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])', password):
+        return "Password does not meet requirements", 400
+    
+    # Find user with this token
+    all_users = get_all_users()
+    user = None
+    for email, name, tier in all_users:
+        user_data = get_user(email)
+        if user_data and user_data.get('reset_token') == token:
+            # Check if token is expired
+            expiry = user_data.get('reset_token_expiry')
+            if expiry and datetime.now() < datetime.fromisoformat(expiry):
+                user = user_data
+                break
+    
+    if not user:
+        return "Invalid or expired token", 400
+    
+    # Update password
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    user['password'] = hashed_password.decode('utf-8')
+    
+    # Clear reset token
+    user.pop('reset_token', None)
+    user.pop('reset_token_expiry', None)
+    
+    save_user(user)
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Password Updated</title>
+        <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; 
+                   background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
+                   display: flex; align-items: center; justify-content: center; }
+            .container { max-width: 500px; background: white; padding: 40px; border-radius: 15px; }
+            .button { background: #3B7A57; color: white; padding: 15px 30px; 
+                     text-decoration: none; border-radius: 8px; font-weight: 600; }
+            .success-icon { font-size: 3rem; margin-bottom: 20px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="success-icon">✅</div>
+            <h2>Password Updated Successfully!</h2>
+            <p>Your password has been reset. You can now log in with your new password.</p>
+            <a href="/" class="button">🔑 Login Now</a>
+        </div>
+    </body>
+    </html>
+    """)
+
+# Track failed login attempts
+failed_attempts = {}
+suspicious_ips = set()
 
 # Track failed login attempts
 failed_attempts = {}

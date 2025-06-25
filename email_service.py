@@ -110,4 +110,69 @@ class EmailService:
             print(f"Email sending error: {e}")
             return False
 
+    def send_password_reset_email(self, email, name, reset_link):
+        """Send password reset email"""
+        if not self.smtp_username:
+            print("SMTP not configured")
+            return False
+
+        try:
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = "Password Reset Request - Fitness Companion 🔐"
+            msg['From'] = self.smtp_username
+            msg['To'] = email
+
+            html_body = f"""
+            <html>
+            <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); padding: 30px; text-align: center;">
+                    <h1 style="color: #3B7A57; margin: 0;">Password Reset Request 🔐</h1>
+                </div>
+                
+                <div style="padding: 30px; background: white;">
+                    <p>Hi {name},</p>
+                    <p>We received a request to reset your password for your Fitness Companion account.</p>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="{reset_link}" 
+                           style="background: #3B7A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                            🔄 Reset Your Password
+                        </a>
+                    </div>
+                    
+                    <p style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffd93d; margin: 20px 0;">
+                        <strong>⏰ Important:</strong> This link expires in 1 hour for your security.
+                    </p>
+                    
+                    <p style="color: #666; font-size: 14px;">
+                        If you didn't request this password reset, you can safely ignore this email. 
+                        Your password will remain unchanged.
+                    </p>
+                    
+                    <p style="color: #666; font-size: 14px;">
+                        If the button doesn't work, copy and paste this link into your browser:<br>
+                        <a href="{reset_link}" style="color: #3B7A57;">{reset_link}</a>
+                    </p>
+                    
+                    <p style="color: #666; font-size: 14px;">
+                        Need help? Reply to this email - we're here to support you! 💚
+                    </p>
+                </div>
+            </body>
+            </html>
+            """
+
+            msg.attach(MIMEText(html_body, 'html'))
+
+            server = smtplib.SMTP(self.smtp_server, self.smtp_port)
+            server.starttls()
+            server.login(self.smtp_username, self.smtp_password)
+            server.send_message(msg)
+            server.quit()
+            
+            return True
+        except Exception as e:
+            print(f"Password reset email error: {e}")
+            return False
+
 email_service = EmailService()
