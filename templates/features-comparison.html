@@ -1,0 +1,268 @@
+
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features Comparison - Free vs Premium</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            margin: 0; padding: 20px;
+            background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); 
+            min-height: 100vh; color: #1a1a1a;
+        }
+        .container { 
+            background: white; padding: 2em; border-radius: 20px; max-width: 1200px; 
+            margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-header { text-align: center; margin-bottom: 40px; }
+        .comparison-header h1 { color: #3B7A57; margin-bottom: 10px; }
+        .comparison-header p { color: #666; font-size: 1.1rem; }
+        
+        .plans-comparison { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px; 
+            margin: 40px 0; 
+        }
+        
+        .plan-column { 
+            background: white; border-radius: 15px; padding: 30px; 
+            border: 3px solid #e0e0e0; position: relative;
+        }
+        .plan-column.premium { 
+            border-color: #7ED3B2; 
+            background: linear-gradient(135deg, #f8fffe, #f0f9f5);
+        }
+        .plan-column.premium::before {
+            content: "⭐ MOST POPULAR";
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: #7ED3B2; color: white; padding: 6px 20px;
+            border-radius: 20px; font-size: 0.8rem; font-weight: bold;
+        }
+        
+        .plan-title { 
+            font-size: 1.8rem; font-weight: bold; color: #3B7A57; 
+            text-align: center; margin-bottom: 15px; 
+        }
+        .plan-price { 
+            font-size: 2.5rem; font-weight: bold; color: #2d5a42; 
+            text-align: center; margin-bottom: 25px; 
+        }
+        .plan-price span { font-size: 1rem; color: #666; }
+        
+        .feature-list { list-style: none; padding: 0; margin: 0; }
+        .feature-item { 
+            padding: 15px 0; border-bottom: 1px solid #f0f0f0; 
+            display: flex; align-items: center; gap: 12px;
+        }
+        .feature-item:last-child { border-bottom: none; }
+        .feature-icon { font-size: 1.2rem; }
+        .feature-text { flex: 1; }
+        .feature-limit { color: #f39c12; font-size: 0.9rem; font-weight: 500; }
+        
+        .upgrade-cta { 
+            background: linear-gradient(135deg, #7ED3B2, #A8E6CF); 
+            color: #2d5a42; padding: 15px 30px; border: none; 
+            border-radius: 12px; font-size: 1.1rem; font-weight: 600; 
+            cursor: pointer; width: 100%; margin-top: 25px;
+            text-decoration: none; display: block; text-align: center;
+        }
+        .upgrade-cta:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 25px rgba(126, 211, 178, 0.3);
+        }
+        .current-plan { 
+            background: #e3f2fd; color: #1976d2; 
+            cursor: not-allowed; opacity: 0.7;
+        }
+        
+        .motivation-section {
+            background: linear-gradient(135deg, #fff9e6, #ffeaa7);
+            border-left: 4px solid #fdcb6e; padding: 25px;
+            border-radius: 12px; margin: 30px 0; text-align: center;
+        }
+        .motivation-section h3 { color: #8b7000; margin-bottom: 15px; }
+        .motivation-section p { color: #856404; margin: 0; font-size: 1.1rem; }
+        
+        .success-stories {
+            background: #e3f9e5; padding: 25px; border-radius: 12px; 
+            margin: 30px 0; border-left: 4px solid #7ED3B2;
+        }
+        .success-stories h3 { color: #3B7A57; margin-bottom: 20px; }
+        .testimonial { 
+            background: white; padding: 20px; border-radius: 8px; 
+            margin: 15px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .testimonial-text { font-style: italic; color: #2d5a42; margin-bottom: 10px; }
+        .testimonial-author { font-weight: bold; color: #3B7A57; font-size: 0.9rem; }
+        
+        @media (max-width: 768px) {
+            .plans-comparison { grid-template-columns: 1fr; gap: 20px; }
+            .container { padding: 1.5em; margin: 0.5em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="comparison-header">
+            <h1>🎯 Choose Your Fitness Journey</h1>
+            <p>Compare features and find the perfect plan for your goals</p>
+        </div>
+
+        {% if user and user.subscription_tier == 'free' %}
+        <div class="motivation-section">
+            <h3>🚀 Ready to Supercharge Your Results?</h3>
+            <p>Premium users lose weight 3x faster with unlimited AI insights and personalized meal plans!</p>
+        </div>
+        {% endif %}
+
+        <div class="plans-comparison">
+            <!-- Free Plan -->
+            <div class="plan-column">
+                <div class="plan-title">🆓 Free Plan</div>
+                <div class="plan-price">£0<span>/month</span></div>
+                
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <span class="feature-icon">📝</span>
+                        <span class="feature-text">Daily logging</span>
+                        <span class="feature-limit">7 days history</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">🤖</span>
+                        <span class="feature-text">AI insights</span>
+                        <span class="feature-limit">3 questions/week</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">📊</span>
+                        <span class="feature-text">Basic progress tracking</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">📅</span>
+                        <span class="feature-text">Weekly check-ins</span>
+                        <span class="feature-limit">1 per week</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">🍎</span>
+                        <span class="feature-text">Basic food tracking</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">💧</span>
+                        <span class="feature-text">Habit tracking</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">📱</span>
+                        <span class="feature-text">Wearable device sync</span>
+                        <span class="feature-limit">Manual input</span>
+                    </li>
+                </ul>
+                
+                {% if not user or user.subscription_tier != 'free' %}
+                <a href="/subscription?email={{ user.email if user else '' }}" class="upgrade-cta">
+                    Select Free Plan
+                </a>
+                {% else %}
+                <div class="upgrade-cta current-plan">Current Plan</div>
+                {% endif %}
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="plan-column premium">
+                <div class="plan-title">✨ Premium Plan</div>
+                <div class="plan-price">£9.97<span>/month</span></div>
+                
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <span class="feature-icon">📝</span>
+                        <span class="feature-text">Unlimited daily logging</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">🤖</span>
+                        <span class="feature-text">Unlimited AI insights & chat</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">📊</span>
+                        <span class="feature-text">Advanced analytics & trends</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">📅</span>
+                        <span class="feature-text">Unlimited weekly check-ins</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">🍽️</span>
+                        <span class="feature-text">Personalized meal plans</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">🧬</span>
+                        <span class="feature-text">Hormone-aware recommendations</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">📱</span>
+                        <span class="feature-text">Advanced wearable integration</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">🎯</span>
+                        <span class="feature-text">Custom goal setting & tracking</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">📈</span>
+                        <span class="feature-text">Predictive weight loss modeling</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">💬</span>
+                        <span class="feature-text">Priority support</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">🔄</span>
+                        <span class="feature-text">Smart habit recommendations</span>
+                    </li>
+                    <li class="feature-item">
+                        <span class="feature-icon">📚</span>
+                        <span class="feature-text">Educational content library</span>
+                    </li>
+                </ul>
+                
+                {% if not user or user.subscription_tier != 'premium' %}
+                <a href="/subscription?email={{ user.email if user else '' }}" class="upgrade-cta">
+                    🚀 Upgrade to Premium
+                </a>
+                {% else %}
+                <div class="upgrade-cta current-plan">Current Plan</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="success-stories">
+            <h3>💪 Success Stories from Premium Users</h3>
+            
+            <div class="testimonial">
+                <div class="testimonial-text">
+                    "The AI insights completely changed how I approach weight loss. Finally understanding WHY my weight fluctuates has been game-changing!"
+                </div>
+                <div class="testimonial-author">- Sarah M., lost 12kg in 4 months</div>
+            </div>
+            
+            <div class="testimonial">
+                <div class="testimonial-text">
+                    "The meal plans actually work with my busy schedule and the hormone tracking helped me understand my energy patterns."
+                </div>
+                <div class="testimonial-author">- Emma K., lost 8kg in 3 months</div>
+            </div>
+            
+            <div class="testimonial">
+                <div class="testimonial-text">
+                    "I love how it connects my sleep, stress, and eating patterns. The wearable integration makes tracking effortless."
+                </div>
+                <div class="testimonial-author">- Lisa J., lost 15kg in 6 months</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/dashboard?email={{ user.email if user else '' }}" style="color: #2d5a3d; text-decoration: none; font-weight: 600;">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </div>
+</body>
+</html>
