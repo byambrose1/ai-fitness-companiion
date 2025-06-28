@@ -18,7 +18,7 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-change-in-production')
 
 # Admin credentials from environment variables
 ADMIN_USERNAME = os.getenv('ADMIN_USERNAME', 'admin')
-ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'change-this-password')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'FitnessAdmin2024!')
 
 # Serve static files for PWA
 @app.route('/static/<path:filename>')
