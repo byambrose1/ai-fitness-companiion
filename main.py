@@ -64,15 +64,49 @@ SUBSCRIPTION_TIERS = {
     'free': {
         'name': 'Free',
         'price': 0,
-        'features': ['Basic daily logging', 'Limited AI insights', '7-day data history'],
-        'limits': {'daily_logs': 7, 'ai_questions': 3, 'weekly_checkins': 1}
+        'features': [
+            'Basic daily logging (7 days)',
+            'Quick daily score',
+            'Basic progress tracking',
+            'Limited AI insights (3 questions/week)',
+            '7-day data history',
+            'Basic wearable integration',
+            'Email support'
+        ],
+        'limits': {'daily_logs': 7, 'ai_questions': 3, 'weekly_checkins': 1},
+        'motivation_features': [
+            'Daily streak tracking',
+            'Quick score feedback',
+            'Basic progress charts',
+            'Upgrade prompts with benefits'
+        ]
     },
     'premium': {
         'name': 'Premium',
         'price': 997,  # £9.97 in pence
-        'stripe_price_id': 'price_premium_monthly',  # You'll set this in Stripe dashboard
-        'features': ['Unlimited daily logging', 'Full AI insights', 'Unlimited data history', 'Weekly meal plans', 'Priority support'],
-        'limits': {'daily_logs': -1, 'ai_questions': -1, 'weekly_checkins': -1}  # -1 = unlimited
+        'stripe_price_id': 'price_premium_monthly',
+        'features': [
+            'Unlimited daily logging',
+            'Full AI chat & insights',
+            'Unlimited data history',
+            'Advanced analytics & trends',
+            'Weekly meal plans & suggestions',
+            'Hormone-aware recommendations',
+            'Advanced wearable data analysis',
+            'Export data functionality',
+            'Priority support',
+            'Custom goal setting',
+            'Detailed nutrition breakdown',
+            'Sleep & stress pattern analysis'
+        ],
+        'limits': {'daily_logs': -1, 'ai_questions': -1, 'weekly_checkins': -1},
+        'exclusive_features': [
+            'AI-powered meal planning',
+            'Hormone cycle optimization',
+            'Advanced data exports',
+            'Predictive health insights',
+            'Custom notification scheduling'
+        ]
     }
 }
 
@@ -1093,6 +1127,44 @@ def dashboard():
     else:
         contextual_message = "🌟 Your journey is unique and valuable. Focus on progress, not perfection - you're doing better than you think!"
 
+    # Generate motivational content for free users
+    motivation_content = ""
+    upgrade_incentives = []
+    
+    if user.get('subscription_tier') == 'free':
+        # Add motivational elements for free users
+        days_left_in_week = 7 - (datetime.now().weekday())
+        upgrade_incentives = [
+            f"🚀 {days_left_in_week} days left this week - upgrade for unlimited AI questions!",
+            "📊 See detailed analytics and trends with Premium",
+            "🍽️ Get personalized meal plans with Premium upgrade",
+            "📈 Unlock hormone-aware insights with Premium"
+        ]
+        
+        # Calculate usage statistics for motivation
+        ai_questions_used = 3 - check_subscription_limits(email, 'ai_questions')  # Simplified calculation
+        motivation_content = f"""
+        <div class="upgrade-motivation" style="background: linear-gradient(135deg, #fff3e0, #ffeaa7); border: 2px solid #fdcb6e; padding: 20px; border-radius: 15px; margin: 20px 0; text-align: center;">
+            <h3 style="color: #8b7000; margin-top: 0;">✨ You're Making Great Progress!</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 15px 0;">
+                <div style="background: white; padding: 15px; border-radius: 10px;">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #8b7000;">{streak_days}</div>
+                    <div style="font-size: 0.9rem; color: #666;">Day Streak</div>
+                </div>
+                <div style="background: white; padding: 15px; border-radius: 10px;">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #8b7000;">{total_logs}</div>
+                    <div style="font-size: 0.9rem; color: #666;">Total Logs</div>
+                </div>
+                <div style="background: white; padding: 15px; border-radius: 10px;">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: #8b7000;">3</div>
+                    <div style="font-size: 0.9rem; color: #666;">AI Questions Left</div>
+                </div>
+            </div>
+            <p style="color: #8b7000; margin: 15px 0;">Ready to unlock your full potential? Premium gives you unlimited access to all features!</p>
+            <a href="/subscription?email={user['email']}" style="background: linear-gradient(135deg, #fdcb6e, #e17055); color: white; padding: 15px 30px; text-decoration: none; border-radius: 12px; font-weight: 600; display: inline-block; margin-top: 10px;">🔓 Upgrade to Premium - Only £9.97/month</a>
+        </div>
+        """
+
     return render_template_string("""
     <!DOCTYPE html>
     <html lang="en-GB">
@@ -1117,6 +1189,12 @@ def dashboard():
             .reminder { background: #e3f9e5; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: center; }
             h1 { color: #2d5a3d; text-align: center; }
             h2 { color: #2d5a3d; }
+            .wearable-integration { background: #e6f3ff; border: 2px solid #74b9ff; padding: 20px; border-radius: 15px; margin: 20px 0; }
+            .feature-comparison { background: #f8f9fa; padding: 20px; border-radius: 15px; margin: 20px 0; }
+            .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 0; }
+            .feature-column { padding: 15px; border-radius: 10px; }
+            .free-column { background: #e3f2fd; border-left: 4px solid #2196f3; }
+            .premium-column { background: #fff3e0; border-left: 4px solid #ff9800; }
         </style>
     </head>
     <body>
@@ -1181,17 +1259,77 @@ def dashboard():
             </div>
 
             <h2>🚀 Quick Actions</h2>
+            <!-- Wearable Integration Status -->
+            <div class="wearable-integration">
+                <h3>📱 Wearable Device Integration</h3>
+                <p><strong>Status:</strong> Ready to sync your fitness data!</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 15px 0;">
+                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                        <div style="font-size: 1.5rem;">⌚</div>
+                        <small>Apple Watch</small>
+                    </div>
+                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                        <div style="font-size: 1.5rem;">📱</div>
+                        <small>Fitbit</small>
+                    </div>
+                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                        <div style="font-size: 1.5rem;">⌚</div>
+                        <small>Garmin</small>
+                    </div>
+                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                        <div style="font-size: 1.5rem;">💍</div>
+                        <small>Oura Ring</small>
+                    </div>
+                </div>
+                <p style="font-size: 0.9rem; color: #666;">Paste your device data in the daily log for AI analysis. Premium users get automatic sync (coming soon)!</p>
+            </div>
+
+            {{ motivation_content|safe }}
+
+            <!-- Feature Comparison -->
+            <div class="feature-comparison">
+                <h3>🆚 Free vs Premium Features</h3>
+                <div class="feature-grid">
+                    <div class="feature-column free-column">
+                        <h4 style="margin-top: 0; color: #2196f3;">🆓 Free Plan</h4>
+                        <ul style="margin: 0; padding-left: 20px; color: #666;">
+                            <li>Basic daily logging (7 days)</li>
+                            <li>Quick daily score</li>
+                            <li>3 AI questions per week</li>
+                            <li>Basic wearable data entry</li>
+                            <li>7-day data history</li>
+                            <li>Email support</li>
+                        </ul>
+                    </div>
+                    <div class="feature-column premium-column">
+                        <h4 style="margin-top: 0; color: #ff9800;">✨ Premium Plan - £9.97/month</h4>
+                        <ul style="margin: 0; padding-left: 20px; color: #666;">
+                            <li><strong>Unlimited</strong> daily logging & AI chat</li>
+                            <li><strong>Advanced</strong> analytics & trends</li>
+                            <li><strong>Hormone-aware</strong> recommendations</li>
+                            <li><strong>AI meal planning</strong> & suggestions</li>
+                            <li><strong>Unlimited</strong> data history</li>
+                            <li><strong>Auto wearable sync</strong> (coming soon)</li>
+                            <li><strong>Priority</strong> support</li>
+                        </ul>
+                        {% if user.subscription_tier == 'free' %}
+                        <a href="/subscription?email={{ user.email }}" style="background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; display: inline-block; margin-top: 10px; font-weight: 600;">Upgrade Now</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
-                <h3>💳 Subscription Status</h3>
+                <h3>💳 Current Subscription</h3>
                 <p><strong>Plan:</strong> {{ user.subscription_tier|title }} 
                 {% if user.subscription_tier == 'free' %}
-                    <a href="/subscription?email={{ user.email }}" style="color: #7ED3B2; font-weight: bold;">Upgrade →</a>
+                    <span style="color: #ff9800; font-weight: bold;">(Upgrade available!)</span>
                 {% endif %}
                 </p>
                 {% if user.subscription_tier == 'free' %}
-                <p><small>Limited to 3 AI questions per week, 7-day history</small></p>
+                <p><small>📊 You're using the free plan - upgrade for unlimited access to all features!</small></p>
                 {% else %}
-                <p><small>✨ Unlimited access to all features</small></p>
+                <p><small>✨ You have unlimited access to all premium features!</small></p>
                 {% endif %}
             </div>
 
@@ -1206,7 +1344,8 @@ def dashboard():
     </body>
     </html>
     """, user=user, contextual_message=contextual_message, streak_days=streak_days, 
-         total_logs=total_logs, days_since_signup=days_since_signup, recent_score=None)
+         total_logs=total_logs, days_since_signup=days_since_signup, recent_score=None,
+         motivation_content=motivation_content)
 
 @app.route("/daily-log")
 def daily_log():
@@ -1366,11 +1505,15 @@ def save_daily_log():
     if log_entry.get('notes') and len(log_entry['notes']) > 5:
         score += 0.5
         insights.append("📝 Your notes have been analyzed by AI for personalized insights!")
+        # Log the data analysis activity
+        data_protection.log_data_access(email, "notes_ai_analysis", "127.0.0.1")
 
     # Tracking devices bonus
     if log_entry.get('tracking_devices') and len(log_entry['tracking_devices']) > 10:
         score += 0.5
         insights.append("📱 Device data integrated for better health tracking!")
+        # Log the wearable data integration
+        data_protection.log_data_access(email, "wearable_data_integration", "127.0.0.1")
 
     # Generate personalized insight
     user = users_data[email]

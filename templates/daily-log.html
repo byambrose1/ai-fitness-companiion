@@ -312,12 +312,15 @@
 
             <label for="tracking_devices">📱 Wearable Device Data (Optional):</label>
             <div style="background: #f0f8ff; padding: 12px; border-radius: 8px; margin: 8px 0; font-size: 0.85rem; color: #2d3748;">
-                <strong>💡 How to add device data:</strong><br>
-                • Copy data from your fitness app (Fitbit, Apple Health, Garmin, etc.)<br>
-                • Include: steps, heart rate, sleep stages, active minutes, calories burned<br>
-                • This helps AI provide more accurate health insights
+                <strong>💡 Supported Devices & Data:</strong><br>
+                • <strong>Apple Watch/Health:</strong> Steps, heart rate, active calories, sleep stages<br>
+                • <strong>Fitbit:</strong> Steps, sleep score, resting HR, zone minutes<br>
+                • <strong>Garmin:</strong> Steps, stress score, body battery, sleep quality<br>
+                • <strong>Oura Ring:</strong> Readiness score, sleep stages, HRV<br>
+                • <strong>Samsung Health:</strong> Steps, sleep, stress levels<br>
+                <small style="color: #ff9800;"><strong>Note:</strong> Premium users will get automatic sync soon!</small>
             </div>
-            <textarea name="tracking_devices" placeholder="E.g., Fitbit: 8,234 steps, 6.5hrs deep sleep, HR avg 72bpm | Apple Watch: 540 active calories..." rows="2"></textarea>
+            <textarea name="tracking_devices" placeholder="E.g., Fitbit: 8,234 steps, Sleep Score 85, RHR 65bpm | Apple Watch: 540 active cal, 12 stand hours | Oura: Readiness 78, Sleep 85..." rows="2"></textarea>
 
             <label for="notes">💭 Personal Notes (Optional - AI Analyzed):</label>
             <div style="background: #e3f9e5; padding: 12px; border-radius: 8px; margin: 8px 0; font-size: 0.85rem; color: #2d5a42;">
