@@ -2132,46 +2132,591 @@ def admin_dashboard():
         return render_template_string("""
         <!DOCTYPE html>
         <html>
-        <head><title>Admin Login</title></head>
-        <body style="font-family: Arial; text-align: center; padding: 50px;">
-            <h2>Admin Login</h2>
-            <form method="POST">
-                <input type="text" name="username" placeholder="Username" required><br><br>
-                <input type="password" name="password" placeholder="Password" required><br><br>
-                <button type="submit">Login</button>
-            </form>
+        <head>
+            <title>Admin Login</title>
+            <style>
+                body { font-family: Arial, sans-serif; background: #f5f5f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+                .login-container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
+                h2 { color: #3B7A57; text-align: center; margin-bottom: 30px; }
+                input { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
+                button { width: 100%; padding: 12px; background: #3B7A57; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+                button:hover { background: #2d5a42; }
+            </style>
+        </head>
+        <body>
+            <div class="login-container">
+                <h2>🔐 Admin Access</h2>
+                <form method="POST">
+                    <input type="text" name="username" placeholder="Admin Username" required>
+                    <input type="password" name="password" placeholder="Admin Password" required>
+                    <button type="submit">Access Dashboard</button>
+                </form>
+            </div>
         </body>
         </html>
         """)
 
+    # Get detailed user information
     users = get_all_users()
+    detailed_users = []
+    
+    for email, name, tier in users:
+        user_data = get_user(email)
+        if user_data:
+            # Calculate user stats
+            daily_logs_count = len(user_data.get('daily_logs', []))
+            weekly_checkins_count = len(user_data.get('weekly_checkins', []))
+            join_date = user_data.get('created_at', 'Unknown')
+            
+            # Parse join date for better display
+            try:
+                from datetime import datetime
+                if join_date != 'Unknown':
+                    parsed_date = datetime.fromisoformat(join_date.replace('Z', '+00:00'))
+                    join_date_display = parsed_date.strftime('%d %b %Y')
+                    days_since_join = (datetime.now() - parsed_date).days
+                else:
+                    join_date_display = 'Unknown'
+                    days_since_join = 0
+            except:
+                join_date_display = 'Unknown'
+                days_since_join = 0
+            
+            # Get goal from profile data
+            goal = user_data.get('profile_data', {}).get('goal', 'Not specified')
+            motivation = user_data.get('profile_data', {}).get('motivation', '')[:100] + '...' if user_data.get('profile_data', {}).get('motivation', '') else 'Not provided'
+            
+            detailed_users.append({
+                'email': email,
+                'name': name,
+                'tier': tier,
+                'join_date': join_date_display,
+                'days_since_join': days_since_join,
+                'daily_logs': daily_logs_count,
+                'weekly_checkins': weekly_checkins_count,
+                'goal': goal.replace('_', ' ').title(),
+                'motivation': motivation,
+                'stripe_customer_id': user_data.get('stripe_customer_id', 'None'),
+                'subscription_status': user_data.get('subscription_status', 'Unknown')
+            })
+    
+    # Sort by join date (newest first)
+    detailed_users.sort(key=lambda x: x['days_since_join'])
+
     return render_template_string("""
     <!DOCTYPE html>
     <html>
-    <head><title>Admin Dashboard</title></head>
-    <body style="font-family: Arial; padding: 20px;">
-        <h2>Admin Dashboard</h2>
-        <p>Total Users: {{ users|length }}</p>
+    <head>
+        <title>Admin Dashboard - User Management</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f8f9fa; }
+            .header { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+            .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+            .stat-card { background: #3B7A57; color: white; padding: 20px; border-radius: 8px; text-align: center; }
+            .stat-number { font-size: 2rem; font-weight: bold; }
+            .stat-label { font-size: 0.9rem; opacity: 0.9; }
+            .search-bar { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; margin: 10px 0; }
+            .users-table { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+            .table-header { background: #3B7A57; color: white; padding: 15px; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 120px; gap: 15px; font-weight: bold; }
+            .user-row { padding: 15px; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 120px; gap: 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s; }
+            .user-row:hover { background: #f8f9fa; }
+            .user-row:last-child { border-bottom: none; }
+            .tier-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; text-align: center; }
+            .tier-free { background: #e3f2fd; color: #1976d2; }
+            .tier-premium { background: #fff3e0; color: #f57c00; }
+            .user-name { font-weight: bold; color: #333; }
+            .user-email { color: #666; font-size: 0.9rem; }
+            .user-goal { color: #555; font-size: 0.9rem; }
+            .actions { display: flex; gap: 8px; }
+            .btn { padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; text-decoration: none; color: white; }
+            .btn-edit { background: #2196f3; }
+            .btn-upgrade { background: #ff9800; }
+            .btn-view { background: #4caf50; }
+            .quick-actions { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+            .quick-actions a { display: inline-block; padding: 10px 15px; margin: 5px; background: #3B7A57; color: white; text-decoration: none; border-radius: 6px; }
+            .quick-actions a:hover { background: #2d5a42; }
+            .empty-state { text-align: center; padding: 40px; color: #666; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>🛡️ Admin Dashboard</h1>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ detailed_users|length }}</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card" style="background: #ff9800;">
+                    <div class="stat-number">{{ detailed_users|selectattr('tier', 'equalto', 'premium')|list|length }}</div>
+                    <div class="stat-label">Premium Users</div>
+                </div>
+                <div class="stat-card" style="background: #2196f3;">
+                    <div class="stat-number">{{ detailed_users|selectattr('tier', 'equalto', 'free')|list|length }}</div>
+                    <div class="stat-label">Free Users</div>
+                </div>
+                <div class="stat-card" style="background: #4caf50;">
+                    <div class="stat-number">{{ detailed_users|map(attribute='daily_logs')|sum }}</div>
+                    <div class="stat-label">Total Logs</div>
+                </div>
+            </div>
+        </div>
 
-        <h3>Find User</h3>
-        <form method="GET" action="/admin/find-user">
-            <input type="text" name="email" placeholder="User email">
-            <button type="submit">Find</button>
-        </form>
+        <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <a href="/admin/export">📊 Export Data</a>
+            <a href="/admin/data-retention">📅 Data Retention</a>
+            <a href="/admin/backup">💾 Create Backup</a>
+            <a href="/admin/logout">🚪 Logout</a>
+        </div>
 
-        <h3>Quick Actions</h3>
-        <a href="/admin/export">Export Data</a> | 
-        <a href="/admin/data-retention">Check Data Retention</a> | 
-        <a href="/admin/backup">Create Backup</a> | 
-        <a href="/admin/logout">Logout</a>
+        <div class="users-table">
+            <div class="table-header">
+                <div>User Details</div>
+                <div>Joined</div>
+                <div>Subscription</div>
+                <div>Goal</div>
+                <div>Activity</div>
+                <div>Status</div>
+                <div>Actions</div>
+            </div>
 
-        <h3>Recent Users</h3>
-        {% for email, name, tier in users[:10] %}
-        <p>{{ email }} - {{ name }} ({{ tier }})</p>
-        {% endfor %}
+            <input type="text" class="search-bar" placeholder="🔍 Search users by name, email, or goal..." onkeyup="filterUsers(this.value)">
+
+            {% if detailed_users %}
+                {% for user in detailed_users %}
+                <div class="user-row" onclick="viewUserDetails('{{ user.email }}')">
+                    <div>
+                        <div class="user-name">{{ user.name }}</div>
+                        <div class="user-email">{{ user.email }}</div>
+                        <div class="user-goal">{{ user.goal }}</div>
+                    </div>
+                    <div>
+                        <div>{{ user.join_date }}</div>
+                        <div style="font-size: 0.8rem; color: #666;">{{ user.days_since_join }} days ago</div>
+                    </div>
+                    <div>
+                        <div class="tier-badge tier-{{ user.tier }}">{{ user.tier|title }}</div>
+                        {% if user.stripe_customer_id != 'None' %}
+                        <div style="font-size: 0.8rem; color: #666;">Stripe: ✓</div>
+                        {% endif %}
+                    </div>
+                    <div>{{ user.goal }}</div>
+                    <div>
+                        <div>📝 {{ user.daily_logs }} logs</div>
+                        <div>📅 {{ user.weekly_checkins }} check-ins</div>
+                    </div>
+                    <div>{{ user.subscription_status|title }}</div>
+                    <div class="actions" onclick="event.stopPropagation();">
+                        <a href="/admin/user/{{ user.email }}" class="btn btn-view">View</a>
+                        {% if user.tier == 'free' %}
+                        <a href="/admin/upgrade/{{ user.email }}" class="btn btn-upgrade">Upgrade</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <h3>No users found</h3>
+                    <p>Users will appear here once they sign up</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <script>
+            function filterUsers(searchTerm) {
+                const rows = document.querySelectorAll('.user-row');
+                const lowerSearch = searchTerm.toLowerCase();
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(lowerSearch)) {
+                        row.style.display = 'grid';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            function viewUserDetails(email) {
+                window.location.href = `/admin/user/${encodeURIComponent(email)}`;
+            }
+        </script>
     </body>
     </html>
-    """, users=users)
+    """, detailed_users=detailed_users)
+
+@app.route("/admin/user/<email>")
+def admin_user_details(email):
+    if not session.get('admin_authenticated'):
+        return "Access denied", 403
+
+    user = get_user(email)
+    if not user:
+        return f"User {email} not found", 404
+
+    # Calculate user statistics
+    daily_logs = user.get('daily_logs', [])
+    weekly_checkins = user.get('weekly_checkins', [])
+    profile_data = user.get('profile_data', {})
+    
+    # Get recent activity
+    recent_logs = daily_logs[-10:] if daily_logs else []
+    
+    # Parse join date
+    try:
+        from datetime import datetime
+        join_date = datetime.fromisoformat(user['created_at'].replace('Z', '+00:00'))
+        join_date_display = join_date.strftime('%d %B %Y at %H:%M')
+        days_since_join = (datetime.now() - join_date).days
+    except:
+        join_date_display = user.get('created_at', 'Unknown')
+        days_since_join = 0
+
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>User Details - {{ user.name }}</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f8f9fa; }
+            .container { max-width: 1200px; margin: 0 auto; }
+            .header { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+            .user-info { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+            .info-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+            .info-card h3 { margin-top: 0; color: #3B7A57; }
+            .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
+            .stat-card { background: #3B7A57; color: white; padding: 15px; border-radius: 8px; text-align: center; }
+            .stat-number { font-size: 1.5rem; font-weight: bold; }
+            .stat-label { font-size: 0.8rem; opacity: 0.9; }
+            .tier-badge { padding: 6px 15px; border-radius: 20px; font-weight: bold; display: inline-block; }
+            .tier-free { background: #e3f2fd; color: #1976d2; }
+            .tier-premium { background: #fff3e0; color: #f57c00; }
+            .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; color: white; margin: 5px; display: inline-block; }
+            .btn-primary { background: #3B7A57; }
+            .btn-warning { background: #ff9800; }
+            .btn-danger { background: #f44336; }
+            .btn-secondary { background: #6c757d; }
+            .logs-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            .logs-table th, .logs-table td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+            .logs-table th { background: #f8f9fa; }
+            .back-link { color: #3B7A57; text-decoration: none; font-weight: bold; }
+            .back-link:hover { text-decoration: underline; }
+            .action-buttons { margin: 20px 0; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <a href="/admin" class="back-link">← Back to Admin Dashboard</a>
+                <h1>👤 {{ user.name }}</h1>
+                <p style="color: #666; margin: 5px 0;">{{ user.email }}</p>
+                <div class="tier-badge tier-{{ user.subscription_tier }}">{{ user.subscription_tier|title }} Plan</div>
+                
+                <div class="action-buttons">
+                    {% if user.subscription_tier == 'free' %}
+                    <a href="/admin/upgrade-user/{{ user.email }}" class="btn btn-warning">⬆️ Upgrade to Premium</a>
+                    {% else %}
+                    <a href="/admin/downgrade-user/{{ user.email }}" class="btn btn-secondary">⬇️ Downgrade to Free</a>
+                    {% endif %}
+                    <a href="/admin/edit-user/{{ user.email }}" class="btn btn-primary">✏️ Edit User</a>
+                    <a href="/admin/delete-user/{{ user.email }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">🗑️ Delete User</a>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ days_since_join }}</div>
+                    <div class="stat-label">Days Since Join</div>
+                </div>
+                <div class="stat-card" style="background: #2196f3;">
+                    <div class="stat-number">{{ daily_logs|length }}</div>
+                    <div class="stat-label">Daily Logs</div>
+                </div>
+                <div class="stat-card" style="background: #4caf50;">
+                    <div class="stat-number">{{ weekly_checkins|length }}</div>
+                    <div class="stat-label">Weekly Check-ins</div>
+                </div>
+                <div class="stat-card" style="background: #ff9800;">
+                    <div class="stat-number">{{ user.subscription_status|title }}</div>
+                    <div class="stat-label">Account Status</div>
+                </div>
+            </div>
+
+            <div class="user-info">
+                <div class="info-card">
+                    <h3>📋 Account Information</h3>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Name:</strong> {{ user.name }}</p>
+                    <p><strong>Joined:</strong> {{ join_date_display }}</p>
+                    <p><strong>Subscription:</strong> {{ user.subscription_tier|title }}</p>
+                    <p><strong>Status:</strong> {{ user.subscription_status|title }}</p>
+                    {% if user.stripe_customer_id %}
+                    <p><strong>Stripe Customer:</strong> {{ user.stripe_customer_id }}</p>
+                    {% else %}
+                    <p><strong>Stripe Customer:</strong> Not connected</p>
+                    {% endif %}
+                </div>
+
+                <div class="info-card">
+                    <h3>🎯 Profile & Goals</h3>
+                    {% if profile_data %}
+                    <p><strong>Goal:</strong> {{ profile_data.get('goal', 'Not specified')|replace('_', ' ')|title }}</p>
+                    <p><strong>Age:</strong> {{ profile_data.get('age', 'Not provided') }}</p>
+                    <p><strong>Gender:</strong> {{ profile_data.get('gender', 'Not specified')|title }}</p>
+                    <p><strong>Height:</strong> {{ profile_data.get('height', 'Not provided') }} cm</p>
+                    <p><strong>Weight:</strong> {{ profile_data.get('weight', 'Not provided') }} kg</p>
+                    <p><strong>Activity Level:</strong> {{ profile_data.get('activityLevel', 'Not specified')|replace('_', ' ')|title }}</p>
+                    <p><strong>Sleep Hours:</strong> {{ profile_data.get('sleepHours', 'Not provided') }}</p>
+                    <p><strong>Stress Level:</strong> {{ profile_data.get('stressLevel', 'Not provided') }}/10</p>
+                    {% else %}
+                    <p>Profile not completed</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if profile_data.get('motivation') %}
+            <div class="info-card">
+                <h3>💭 User's Motivation</h3>
+                <p>"{{ profile_data.motivation }}"</p>
+            </div>
+            {% endif %}
+
+            <div class="info-card">
+                <h3>📊 Recent Activity</h3>
+                {% if recent_logs %}
+                <table class="logs-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Weight</th>
+                            <th>Mood</th>
+                            <th>Sleep</th>
+                            <th>Workout</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in recent_logs %}
+                        <tr>
+                            <td>{{ log.get('date', 'N/A') }}</td>
+                            <td>{{ log.get('weight', 'N/A') }} kg</td>
+                            <td>{{ log.get('mood', 'N/A')|title }}</td>
+                            <td>{{ log.get('sleep_hours', 'N/A') }}h</td>
+                            <td>{{ log.get('workout', 'N/A') }}</td>
+                            <td>{{ (log.get('notes', '') or 'No notes')[:50] }}{% if log.get('notes', '') and log.get('notes')|length > 50 %}...{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p>No daily logs yet</p>
+                {% endif %}
+            </div>
+        </div>
+    </body>
+    </html>
+    """, user=user, daily_logs=daily_logs, weekly_checkins=weekly_checkins, 
+         profile_data=profile_data, recent_logs=recent_logs, 
+         join_date_display=join_date_display, days_since_join=days_since_join)
+
+@app.route("/admin/upgrade-user/<email>", methods=["GET", "POST"])
+def admin_upgrade_user(email):
+    if not session.get('admin_authenticated'):
+        return "Access denied", 403
+
+    user = get_user(email)
+    if not user:
+        return "User not found", 404
+
+    if request.method == "POST":
+        # Upgrade user to premium
+        user['subscription_tier'] = 'premium'
+        user['subscription_status'] = 'active'
+        save_user(user)
+        
+        data_protection.log_data_access(email, "admin_upgrade", request.remote_addr)
+        
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html>
+        <head><title>User Upgraded</title></head>
+        <body style="font-family: Arial; padding: 20px; text-align: center;">
+            <h2>✅ User Upgraded Successfully</h2>
+            <p>{{ email }} has been upgraded to Premium</p>
+            <a href="/admin/user/{{ email }}" style="color: #3B7A57;">← Back to User Details</a>
+        </body>
+        </html>
+        """, email=email)
+
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head><title>Upgrade User</title></head>
+    <body style="font-family: Arial; padding: 20px; text-align: center;">
+        <h2>⬆️ Upgrade User to Premium</h2>
+        <p>Are you sure you want to upgrade <strong>{{ email }}</strong> to Premium?</p>
+        <form method="POST" style="margin: 20px 0;">
+            <button type="submit" style="background: #3B7A57; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer;">Yes, Upgrade</button>
+            <a href="/admin/user/{{ email }}" style="background: #6c757d; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-left: 10px;">Cancel</a>
+        </form>
+    </body>
+    </html>
+    """, email=email)
+
+@app.route("/admin/downgrade-user/<email>", methods=["GET", "POST"])
+def admin_downgrade_user(email):
+    if not session.get('admin_authenticated'):
+        return "Access denied", 403
+
+    user = get_user(email)
+    if not user:
+        return "User not found", 404
+
+    if request.method == "POST":
+        # Downgrade user to free
+        user['subscription_tier'] = 'free'
+        user['subscription_status'] = 'active'
+        save_user(user)
+        
+        data_protection.log_data_access(email, "admin_downgrade", request.remote_addr)
+        
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html>
+        <head><title>User Downgraded</title></head>
+        <body style="font-family: Arial; padding: 20px; text-align: center;">
+            <h2>⬇️ User Downgraded Successfully</h2>
+            <p>{{ email }} has been downgraded to Free</p>
+            <a href="/admin/user/{{ email }}" style="color: #3B7A57;">← Back to User Details</a>
+        </body>
+        </html>
+        """, email=email)
+
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head><title>Downgrade User</title></head>
+    <body style="font-family: Arial; padding: 20px; text-align: center;">
+        <h2>⬇️ Downgrade User to Free</h2>
+        <p>Are you sure you want to downgrade <strong>{{ email }}</strong> to Free?</p>
+        <form method="POST" style="margin: 20px 0;">
+            <button type="submit" style="background: #f44336; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer;">Yes, Downgrade</button>
+            <a href="/admin/user/{{ email }}" style="background: #6c757d; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-left: 10px;">Cancel</a>
+        </form>
+    </body>
+    </html>
+    """, email=email)
+
+@app.route("/admin/edit-user/<email>", methods=["GET", "POST"])
+def admin_edit_user(email):
+    if not session.get('admin_authenticated'):
+        return "Access denied", 403
+
+    user = get_user(email)
+    if not user:
+        return "User not found", 404
+
+    if request.method == "POST":
+        # Update user details
+        user['name'] = request.form.get('name', user['name'])
+        user['subscription_tier'] = request.form.get('subscription_tier', user['subscription_tier'])
+        user['subscription_status'] = request.form.get('subscription_status', user['subscription_status'])
+        
+        # Update profile data if provided
+        profile_data = user.get('profile_data', {})
+        if request.form.get('goal'):
+            profile_data['goal'] = request.form.get('goal')
+        if request.form.get('height'):
+            profile_data['height'] = request.form.get('height')
+        if request.form.get('weight'):
+            profile_data['weight'] = request.form.get('weight')
+        
+        user['profile_data'] = profile_data
+        save_user(user)
+        
+        data_protection.log_data_access(email, "admin_edit", request.remote_addr)
+        
+        return render_template_string("""
+        <!DOCTYPE html>
+        <html>
+        <head><title>User Updated</title></head>
+        <body style="font-family: Arial; padding: 20px; text-align: center;">
+            <h2>✅ User Updated Successfully</h2>
+            <p>{{ email }} has been updated</p>
+            <a href="/admin/user/{{ email }}" style="color: #3B7A57;">← Back to User Details</a>
+        </body>
+        </html>
+        """, email=email)
+
+    profile_data = user.get('profile_data', {})
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Edit User - {{ user.name }}</title>
+        <style>
+            body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+            .form-group { margin: 15px 0; }
+            label { display: block; margin-bottom: 5px; font-weight: bold; }
+            input, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+            .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin: 5px; }
+            .btn-primary { background: #3B7A57; color: white; }
+            .btn-secondary { background: #6c757d; color: white; text-decoration: none; display: inline-block; }
+        </style>
+    </head>
+    <body>
+        <h1>✏️ Edit User: {{ user.name }}</h1>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" name="name" id="name" value="{{ user.name }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="subscription_tier">Subscription Tier:</label>
+                <select name="subscription_tier" id="subscription_tier">
+                    <option value="free" {% if user.subscription_tier == 'free' %}selected{% endif %}>Free</option>
+                    <option value="premium" {% if user.subscription_tier == 'premium' %}selected{% endif %}>Premium</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="subscription_status">Subscription Status:</label>
+                <select name="subscription_status" id="subscription_status">
+                    <option value="active" {% if user.subscription_status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="cancelled" {% if user.subscription_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    <option value="suspended" {% if user.subscription_status == 'suspended' %}selected{% endif %}>Suspended</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="goal">Goal:</label>
+                <select name="goal" id="goal">
+                    <option value="fat_loss" {% if profile_data.get('goal') == 'fat_loss' %}selected{% endif %}>Fat Loss</option>
+                    <option value="muscle_gain" {% if profile_data.get('goal') == 'muscle_gain' %}selected{% endif %}>Muscle Gain</option>
+                    <option value="general_health" {% if profile_data.get('goal') == 'general_health' %}selected{% endif %}>General Health</option>
+                    <option value="maintenance" {% if profile_data.get('goal') == 'maintenance' %}selected{% endif %}>Maintenance</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="height">Height (cm):</label>
+                <input type="number" name="height" id="height" value="{{ profile_data.get('height', '') }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="weight">Weight (kg):</label>
+                <input type="number" name="weight" id="weight" step="0.1" value="{{ profile_data.get('weight', '') }}">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+            <a href="/admin/user/{{ user.email }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </body>
+    </html>
+    """, user=user, profile_data=profile_data)
 
 @app.route("/admin/find-user")
 def admin_find_user():
@@ -2186,20 +2731,8 @@ def admin_find_user():
     if not user:
         return f"User {email} not found"
 
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html>
-    <head><title>User Details</title></head>
-    <body style="font-family: Arial; padding: 20px;">
-        <h2>User Details: {{ user.email }}</h2>
-        <p><strong>Name:</strong> {{ user.name }}</p>
-        <p><strong>Subscription:</strong> {{ user.subscription_tier }}</p>
-        <p><strong>Created:</strong> {{ user.created_at }}</p>
-        <p><strong>Daily Logs:</strong> {{ user.daily_logs|length }}</p>
-        <a href="/admin">← Back to Admin</a>
-    </body>
-    </html>
-    """, user=user)
+    # Redirect to the new detailed user view
+    return redirect(f"/admin/user/{email}")
 
 @app.route("/admin/logout")
 def admin_logout():
