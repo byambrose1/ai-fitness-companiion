@@ -696,11 +696,15 @@ def complete_signup():
     else:
         age = "Not provided"
 
+    # Hash password securely
+    import bcrypt
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
     # Create user profile
     user_profile = {
         'name': questionnaire_data['form_data'].get("name"),
         'email': email,
-        'password': password,  # In production, hash this
+        'password': hashed_password.decode('utf-8'),
         'dob': dob,
         'age': age,
         'created_at': datetime.now().isoformat(),
@@ -712,8 +716,11 @@ def complete_signup():
         'weekly_checkins': []
     }
 
-    # Save user
+    # Save user to database
     save_user(user_profile)
+    
+    # Add to users_data dictionary for immediate availability
+    users_data[email] = user_profile
 
     # Clear session data
     session.pop('questionnaire_data', None)
@@ -1037,10 +1044,16 @@ def form():
 @app.route("/dashboard")
 def dashboard():
     email = request.args.get('email')
-    if not email or email not in users_data:
-        return "User not found. Please complete your profile first."
+    if not email:
+        return "Please provide email parameter"
 
-    user = users_data[email]
+    # Get user from database (refresh users_data if needed)
+    user = get_user(email)
+    if not user:
+        return "User not found. Please complete your profile first."
+    
+    # Update users_data dictionary
+    users_data[email] = user
 
     # Check if user has completed questionnaire
     if not user.get('profile_data'):
