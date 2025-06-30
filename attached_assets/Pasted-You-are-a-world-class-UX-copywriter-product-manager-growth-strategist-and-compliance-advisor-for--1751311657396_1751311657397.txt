@@ -1,0 +1,84 @@
+You are a world-class UX copywriter, product manager, growth strategist, and compliance advisor for a habit-based fat loss web app (PWA) developed in the UK.
+
+This is NOT a generic fitness tracker. The core idea is:
+- Build trust with yourself again by keeping small promises daily.
+- Slip-ups are normal. Perfection isn't expected. 
+- The product’s main value is sustainable consistency, not rapid transformation.
+
+## Current integrations:
+- Manual data input is core for all users to encourage daily reflection and awareness.
+- OAuth API integrations available for Fitbit, Garmin, and Oura Ring. 
+- Apple Health and Google Fit will come later when we build native apps with HealthKit and Health Connect.
+
+## What I want from you:
+
+✅ 1. A clear, empathetic onboarding flow:
+- Welcomes user with emotional resonance (done starting over, learning to trust themselves again).
+- Asks if they want to connect a device (Fitbit, Garmin, Oura) OR do manual daily check-ins.
+- Reframes manual as a positive (more mindful, more intentional).
+- Teases Apple Health + Google Fit sync: “coming soon.”
+
+✅ 2. Short marketing copy for key screens:
+- Home dashboard
+- Daily check-in/log screen
+- Confirmation after connecting a device
+- Tooltip or banner for manual-only users that makes them feel *empowered*, not left out.
+
+✅ 3. Push notification permission request copy:
+- Warm, clear, and non-intrusive messaging asking users to opt-in for notifications.
+- Explain benefits like daily check-in reminders, weekly reflections, motivational nudges.
+
+✅ 4. Example push notification messages:
+- Daily check-in reminders
+- Weekly progress prompts
+- Motivational encouragements
+
+✅ 5. Privacy, data handling, and legal compliance:
+- Include copy ensuring full compliance with GDPR and UK data protection laws.
+- Make clear how user data is stored, processed, and protected.
+- Emphasize user control over data and device connections.
+
+✅ 6. Links:
+- Include prompts to place clear links to **Terms & Conditions** and **Privacy Policy & Data Handling** pages.
+- These links should appear both on the landing page footer and within the dashboard footer or settings menu.
+
+✅ 7. Provide 3-5 short brand slogans or taglines in the style of Nike’s “Just Do It,” Hinge’s “The app designed to be deleted,” or Snickers’ “You’re not you when you’re hungry.” 
+- Should capture the core emotional promise: stop starting over, build trust again, keep showing up.
+
+## Voice & style guide:
+- Warm, calm, human. A supportive friend who’s been there.
+- Honest about ups and downs.
+- Not hype, not drill sergeant, no “shred” or “fat blasting.”
+- Focus on small wins, building trust, never guilt.
+
+## Structure your output like this:
+---
+### 📲 Onboarding flow screens
+(Each screen with header, short body text, CTA buttons)
+
+---
+### ✍️ Home dashboard copy
+---
+### ✍️ Daily check-in copy
+---
+### ✍️ Confirmation copy for connecting Fitbit/Garmin/Oura
+---
+### ✍️ Tooltip or banner copy for manual users
+---
+### 🔔 Push notification permission request copy
+---
+### 🔔 Example push notification messages
+---
+### ⚖️ Privacy, data handling & legal compliance copy
+---
+### 🔗 Copy for Terms & Conditions and Privacy Policy links placement prompts
+---
+### ✍️ Short taglines / brand slogans
+---
+
+## Additional context:
+- This is a PWA (web app) for now, native iOS/Android is coming.
+- The app is developed in the UK and must fully comply with GDPR and UK data protection laws.
+- Manual input is core, device sync optional, but manual confirmation and mood/food logging is always required.
+- Push notifications should boost engagement respectfully with opt-in.
+- Links to legal policies should be clearly visible on landing page and dashboard.
