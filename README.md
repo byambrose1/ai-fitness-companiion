@@ -56,6 +56,28 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD=your-secure-admin-password
 ```
 
+### Fitness Tracker APIs (Automatic Sync)
+```
+# Fitbit API (Free - 150 requests/hour per user)
+# Get at: https://dev.fitbit.com/apps
+FITBIT_CLIENT_ID=your-fitbit-client-id
+FITBIT_CLIENT_SECRET=your-fitbit-client-secret
+
+# Oura Ring API (Free tier - 100 requests/day)
+# Get at: https://cloud.ouraring.com/oauth/applications
+OURA_CLIENT_ID=your-oura-client-id
+OURA_CLIENT_SECRET=your-oura-client-secret
+
+# Google Fit API (Free)
+# Get at: https://console.developers.google.com/
+GOOGLE_FIT_CLIENT_ID=your-google-fit-client-id
+GOOGLE_FIT_CLIENT_SECRET=your-google-fit-client-secret
+
+# Garmin Connect IQ API (Coming soon)
+GARMIN_CONSUMER_KEY=your-garmin-consumer-key
+GARMIN_CONSUMER_SECRET=your-garmin-consumer-secret
+```
+
 ### Additional Enhancement APIs (Optional)
 ```
 # Weather API for workout recommendations (Free - 1000 calls/day)
@@ -84,6 +106,9 @@ GOOGLE_MAPS_API_KEY=your-google-maps-key
 - ✅ Comprehensive food database search (UK & US foods)
 - ✅ AI food analysis and recommendations
 - ✅ Multiple free food database integrations
+- ✅ **Automatic fitness tracker sync** (Fitbit, Oura, Google Fit)
+- ✅ **OAuth-based device connections** with secure token management
+- ✅ **Real-time device data integration** for AI analysis
 - ✅ Subscription management with Stripe
 - ✅ PWA with offline capabilities
 - ✅ GDPR compliance and data protection

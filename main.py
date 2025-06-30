@@ -12,6 +12,8 @@ from security_monitoring import security_monitor
 from email_service import email_service
 from food_database import food_db
 from food_database import FoodDatabaseAPI, NutritionCalculator
+from fitness_tracker_apis import fitness_tracker_api
+from oauth_handlers import oauth_handler
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-change-in-production')
@@ -995,6 +997,448 @@ def form():
                             {% if goal == 'fat_loss' %}
                                 Focus on sustainable habits rather than quick fixes. With {{ sleep_hours }} hours of sleep and stress at {{ stress_level }}/10, prioritising recovery will support your fat loss goals.
                             {% elif goal == 'muscle_gain' %}
+
+
+# Fitness Tracker OAuth Routes
+@app.route("/connect-devices")
+def connect_devices():
+    """Show device connection options"""
+    email = request.args.get('email')
+    if not email:
+        return "Please provide email parameter"
+
+    user = get_user(email)
+    if not user:
+        return "User not found"
+
+    base_url = request.url_root.rstrip('/')
+    
+    # Get OAuth URLs for each service
+    fitbit_auth_url = oauth_handler.get_fitbit_auth_url(email, base_url)
+    oura_auth_url = oauth_handler.get_oura_auth_url(email, base_url)
+    google_fit_auth_url = oauth_handler.get_google_fit_auth_url(email, base_url)
+    
+    # Check which devices are already connected
+    fitness_tokens = user.get('fitness_tokens', {})
+    
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html lang="en-GB">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Connect Your Fitness Devices</title>
+        <style>
+            * { box-sizing: border-box; }
+            body { 
+                font-family: 'Inter', sans-serif; margin: 0; padding: 20px;
+                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
+            }
+            .container { background: white; padding: 2em; border-radius: 20px; max-width: 800px; margin: 0 auto; }
+            .device-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0; }
+            .device-card { 
+                background: #f8fffe; padding: 25px; border-radius: 15px; 
+                border-left: 5px solid #A8E6CF; text-align: center;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .device-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+            .device-card.connected { border-left-color: #00b894; background: #e8f5e8; }
+            .device-icon { font-size: 3rem; margin-bottom: 15px; }
+            .connect-btn { 
+                background: linear-gradient(135deg, #A8E6CF, #7ED3B2); color: #2d5a3d; 
+                padding: 12px 24px; border: none; border-radius: 10px; 
+                font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block;
+                transition: all 0.2s ease;
+            }
+            .connect-btn:hover { transform: translateY(-2px); }
+            .connect-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+            .connected-badge { 
+                background: #00b894; color: white; padding: 6px 12px; 
+                border-radius: 20px; font-size: 0.8rem; margin: 10px 0;
+            }
+            .auto-sync-info {
+                background: #e3f9e5; padding: 20px; border-radius: 12px; margin: 20px 0;
+                border-left: 5px solid #7ED3B2;
+            }
+            h1 { color: #3B7A57; text-align: center; }
+            .sync-btn {
+                background: linear-gradient(135deg, #74b9ff, #0984e3); color: white;
+                padding: 15px 30px; border: none; border-radius: 12px; font-weight: 600;
+                cursor: pointer; margin: 10px; font-size: 16px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🔗 Connect Your Fitness Devices</h1>
+            <p style="text-align: center; color: #666; margin-bottom: 30px;">
+                Automatically sync your fitness data for better AI insights!
+            </p>
+
+            <div class="auto-sync-info">
+                <h3 style="color: #3B7A57; margin-top: 0;">✨ Automatic Sync Benefits</h3>
+                <ul style="text-align: left; color: #2d5a42;">
+                    <li><strong>No Manual Entry:</strong> Your device data syncs automatically every day</li>
+                    <li><strong>Better AI Insights:</strong> More data = more accurate and personalized recommendations</li>
+                    <li><strong>Trend Analysis:</strong> Track patterns in sleep, activity, and recovery over time</li>
+                    <li><strong>Hormone-Aware Coaching:</strong> Adjust recommendations based on your cycle and stress</li>
+                </ul>
+            </div>
+
+            <div class="device-grid">
+                <div class="device-card {% if fitness_tokens.get('fitbit_access_token') %}connected{% endif %}">
+                    <div class="device-icon">⌚</div>
+                    <h3>Fitbit</h3>
+                    <p>Steps, sleep score, heart rate, active minutes</p>
+                    {% if fitness_tokens.get('fitbit_access_token') %}
+                        <div class="connected-badge">✅ Connected</div>
+                        <p style="font-size: 0.9rem; color: #666;">Syncing automatically</p>
+                    {% else %}
+                        {% if fitbit_auth_url %}
+                        <a href="{{ fitbit_auth_url }}" class="connect-btn">Connect Fitbit</a>
+                        {% else %}
+                        <button class="connect-btn" disabled>API Not Configured</button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <div class="device-card {% if fitness_tokens.get('oura_access_token') %}connected{% endif %}">
+                    <div class="device-icon">💍</div>
+                    <h3>Oura Ring</h3>
+                    <p>Readiness score, sleep stages, HRV, temperature</p>
+                    {% if fitness_tokens.get('oura_access_token') %}
+                        <div class="connected-badge">✅ Connected</div>
+                        <p style="font-size: 0.9rem; color: #666;">Syncing automatically</p>
+                    {% else %}
+                        {% if oura_auth_url %}
+                        <a href="{{ oura_auth_url }}" class="connect-btn">Connect Oura</a>
+                        {% else %}
+                        <button class="connect-btn" disabled>API Not Configured</button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <div class="device-card {% if fitness_tokens.get('google_fit_access_token') %}connected{% endif %}">
+                    <div class="device-icon">📱</div>
+                    <h3>Google Fit</h3>
+                    <p>Steps, activities, heart rate (Android devices)</p>
+                    {% if fitness_tokens.get('google_fit_access_token') %}
+                        <div class="connected-badge">✅ Connected</div>
+                        <p style="font-size: 0.9rem; color: #666;">Syncing automatically</p>
+                    {% else %}
+                        {% if google_fit_auth_url %}
+                        <a href="{{ google_fit_auth_url }}" class="connect-btn">Connect Google Fit</a>
+                        {% else %}
+                        <button class="connect-btn" disabled>API Not Configured</button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <div class="device-card">
+                    <div class="device-icon">🍎</div>
+                    <h3>Apple Health</h3>
+                    <p>Steps, workouts, sleep, heart rate (iPhone/Apple Watch)</p>
+                    <p style="font-size: 0.9rem; color: #666; margin: 15px 0;">
+                        Apple HealthKit requires an iOS app. For now, copy your Health app summary into the daily log.
+                    </p>
+                    <a href="/wearables-guide?email={{ email }}" class="connect-btn" style="background: #74b9ff;">View Guide</a>
+                </div>
+
+                <div class="device-card">
+                    <div class="device-icon">🏃</div>
+                    <h3>Garmin</h3>
+                    <p>VO2 max, body battery, training load, recovery</p>
+                    <p style="font-size: 0.9rem; color: #666; margin: 15px 0;">
+                        Garmin Connect API integration coming soon. Copy data from Garmin Connect app for now.
+                    </p>
+                    <a href="/wearables-guide?email={{ email }}" class="connect-btn" style="background: #74b9ff;">View Guide</a>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <button onclick="syncAllDevices()" class="sync-btn">🔄 Sync All Connected Devices Now</button>
+                <p style="font-size: 0.9rem; color: #666;">Last sync: <span id="lastSync">Never</span></p>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="/dashboard?email={{ email }}" style="color: #3B7A57; text-decoration: none; font-weight: 600;">← Back to Dashboard</a>
+            </div>
+        </div>
+
+        <script>
+            async function syncAllDevices() {
+                const syncBtn = document.querySelector('.sync-btn');
+                const originalText = syncBtn.textContent;
+                syncBtn.textContent = '🔄 Syncing...';
+                syncBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/api/sync-devices?email={{ email }}', {
+                        method: 'POST'
+                    });
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        document.getElementById('lastSync').textContent = new Date().toLocaleString();
+                        alert('✅ Devices synced successfully!');
+                    } else {
+                        alert('❌ Sync failed: ' + result.error);
+                    }
+                } catch (error) {
+                    alert('❌ Sync failed: ' + error.message);
+                } finally {
+                    syncBtn.textContent = originalText;
+                    syncBtn.disabled = false;
+                }
+            }
+        </script>
+    </body>
+    </html>
+    """, email=email, fitbit_auth_url=fitbit_auth_url, oura_auth_url=oura_auth_url, 
+         google_fit_auth_url=google_fit_auth_url, fitness_tokens=fitness_tokens)
+
+# OAuth Callback Routes
+@app.route("/oauth/fitbit/callback")
+def fitbit_oauth_callback():
+    """Handle Fitbit OAuth callback"""
+    code = request.args.get('code')
+    state = request.args.get('state')
+    error = request.args.get('error')
+    
+    if error:
+        return f"Fitbit authorization failed: {error}"
+    
+    if not code or not state:
+        return "Missing authorization code or state"
+    
+    # Extract user email from session (stored during auth URL generation)
+    user_email = None
+    for key in session.keys():
+        if key.startswith('fitbit_oauth_state_'):
+            if session[key] == state:
+                user_email = key.replace('fitbit_oauth_state_', '')
+                break
+    
+    if not user_email:
+        return "Invalid OAuth state"
+    
+    # Exchange code for tokens
+    base_url = request.url_root.rstrip('/')
+    result = oauth_handler.handle_fitbit_callback(code, state, user_email, base_url)
+    
+    if result.get('success'):
+        # Store tokens in user profile
+        user = get_user(user_email)
+        if user:
+            if 'fitness_tokens' not in user:
+                user['fitness_tokens'] = {}
+            
+            user['fitness_tokens']['fitbit_access_token'] = result['access_token']
+            user['fitness_tokens']['fitbit_refresh_token'] = result['refresh_token']
+            user['fitness_tokens']['fitbit_user_id'] = result['user_id']
+            save_user(user)
+            
+            return render_template_string("""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Fitbit Connected!</title></head>
+            <body style="font-family: Arial; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);">
+                <div style="max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px;">
+                    <h2>🎉 Fitbit Connected Successfully!</h2>
+                    <p>Your Fitbit data will now sync automatically each day.</p>
+                    <a href="/connect-devices?email={{ email }}" style="background: #3B7A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px;">← Back to Device Connections</a>
+                </div>
+            </body>
+            </html>
+            """, email=user_email)
+    else:
+        return f"Fitbit connection failed: {result.get('error')}"
+
+@app.route("/oauth/oura/callback")
+def oura_oauth_callback():
+    """Handle Oura OAuth callback"""
+    code = request.args.get('code')
+    state = request.args.get('state')
+    error = request.args.get('error')
+    
+    if error:
+        return f"Oura authorization failed: {error}"
+    
+    if not code or not state:
+        return "Missing authorization code or state"
+    
+    # Extract user email from session
+    user_email = None
+    for key in session.keys():
+        if key.startswith('oura_oauth_state_'):
+            if session[key] == state:
+                user_email = key.replace('oura_oauth_state_', '')
+                break
+    
+    if not user_email:
+        return "Invalid OAuth state"
+    
+    # Exchange code for tokens
+    base_url = request.url_root.rstrip('/')
+    result = oauth_handler.handle_oura_callback(code, state, user_email, base_url)
+    
+    if result.get('success'):
+        # Store tokens in user profile
+        user = get_user(user_email)
+        if user:
+            if 'fitness_tokens' not in user:
+                user['fitness_tokens'] = {}
+            
+            user['fitness_tokens']['oura_access_token'] = result['access_token']
+            user['fitness_tokens']['oura_refresh_token'] = result['refresh_token']
+            save_user(user)
+            
+            return render_template_string("""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Oura Connected!</title></head>
+            <body style="font-family: Arial; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);">
+                <div style="max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px;">
+                    <h2>🎉 Oura Ring Connected Successfully!</h2>
+                    <p>Your Oura data will now sync automatically each day.</p>
+                    <a href="/connect-devices?email={{ email }}" style="background: #3B7A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px;">← Back to Device Connections</a>
+                </div>
+            </body>
+            </html>
+            """, email=user_email)
+    else:
+        return f"Oura connection failed: {result.get('error')}"
+
+@app.route("/oauth/google/callback")
+def google_fit_oauth_callback():
+    """Handle Google Fit OAuth callback"""
+    code = request.args.get('code')
+    state = request.args.get('state')
+    error = request.args.get('error')
+    
+    if error:
+        return f"Google Fit authorization failed: {error}"
+    
+    if not code or not state:
+        return "Missing authorization code or state"
+    
+    # Extract user email from session
+    user_email = None
+    for key in session.keys():
+        if key.startswith('google_oauth_state_'):
+            if session[key] == state:
+                user_email = key.replace('google_oauth_state_', '')
+                break
+    
+    if not user_email:
+        return "Invalid OAuth state"
+    
+    # Exchange code for tokens
+    base_url = request.url_root.rstrip('/')
+    result = oauth_handler.handle_google_fit_callback(code, state, user_email, base_url)
+    
+    if result.get('success'):
+        # Store tokens in user profile
+        user = get_user(user_email)
+        if user:
+            if 'fitness_tokens' not in user:
+                user['fitness_tokens'] = {}
+            
+            user['fitness_tokens']['google_fit_access_token'] = result['access_token']
+            if result.get('refresh_token'):
+                user['fitness_tokens']['google_fit_refresh_token'] = result['refresh_token']
+            save_user(user)
+            
+            return render_template_string("""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Google Fit Connected!</title></head>
+            <body style="font-family: Arial; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);">
+                <div style="max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px;">
+                    <h2>🎉 Google Fit Connected Successfully!</h2>
+                    <p>Your Google Fit data will now sync automatically each day.</p>
+                    <a href="/connect-devices?email={{ email }}" style="background: #3B7A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px;">← Back to Device Connections</a>
+                </div>
+            </body>
+            </html>
+            """, email=user_email)
+    else:
+        return f"Google Fit connection failed: {result.get('error')}"
+
+# API Routes for device sync
+@app.route("/api/sync-devices", methods=["POST"])
+def api_sync_devices():
+    """API endpoint to sync all connected devices"""
+    email = request.args.get('email')
+    if not email:
+        return jsonify({"error": "Email required"}), 400
+    
+    user = get_user(email)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+    fitness_tokens = user.get('fitness_tokens', {})
+    if not fitness_tokens:
+        return jsonify({"error": "No devices connected"}), 400
+    
+    try:
+        # Sync data from all connected devices
+        sync_results = fitness_tracker_api.sync_all_connected_devices(fitness_tokens)
+        
+        # Store synced data in user's daily logs (if it's for today)
+        today = datetime.now().strftime('%Y-%m-%d')
+        consolidated_data = {
+            'date': today,
+            'timestamp': datetime.now().isoformat(),
+            'auto_synced': True,
+            'device_data': sync_results
+        }
+        
+        # Add to daily logs
+        add_daily_log(email, consolidated_data)
+        
+        # Also store in user profile for quick access
+        user['last_device_sync'] = datetime.now().isoformat()
+        user['latest_device_data'] = sync_results
+        save_user(user)
+        
+        return jsonify({
+            "success": True,
+            "synced_devices": len([r for r in sync_results if not r.get('error')]),
+            "data": sync_results
+        })
+        
+    except Exception as e:
+        return jsonify({"error": f"Sync failed: {str(e)}"}), 500
+
+@app.route("/api/device-status")
+def api_device_status():
+    """Get status of connected devices"""
+    email = request.args.get('email')
+    if not email:
+        return jsonify({"error": "Email required"}), 400
+    
+    user = get_user(email)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+    
+    fitness_tokens = user.get('fitness_tokens', {})
+    last_sync = user.get('last_device_sync', 'Never')
+    
+    connected_devices = []
+    if fitness_tokens.get('fitbit_access_token'):
+        connected_devices.append('Fitbit')
+    if fitness_tokens.get('oura_access_token'):
+        connected_devices.append('Oura Ring')
+    if fitness_tokens.get('google_fit_access_token'):
+        connected_devices.append('Google Fit')
+    
+    return jsonify({
+        "connected_devices": connected_devices,
+        "last_sync": last_sync,
+        "auto_sync_enabled": len(connected_devices) > 0
+    })
+
                                 Consistency with protein intake and progressive training will be key. Your {{ activity_level|replace('_', ' ') }} activity level provides a solid foundation.
                             {% elif goal == 'general_health' %}
                                 Small, consistent improvements in nutrition and movement will compound over time. Focus on building sustainable habits.
@@ -1259,29 +1703,66 @@ def dashboard():
             </div>
 
             <h2>🚀 Quick Actions</h2>
-            <!-- Wearable Integration Status -->
+            <!-- Automatic Device Sync Status -->
             <div class="wearable-integration">
-                <h3>📱 Wearable Device Integration</h3>
-                <p><strong>Status:</strong> Ready to sync your fitness data!</p>
+                <h3>📱 Automatic Device Sync</h3>
+                {% set fitness_tokens = user.get('fitness_tokens', {}) %}
+                {% set connected_devices = [] %}
+                {% if fitness_tokens.get('fitbit_access_token') %}{% set _ = connected_devices.append('Fitbit') %}{% endif %}
+                {% if fitness_tokens.get('oura_access_token') %}{% set _ = connected_devices.append('Oura Ring') %}{% endif %}
+                {% if fitness_tokens.get('google_fit_access_token') %}{% set _ = connected_devices.append('Google Fit') %}{% endif %}
+                
+                {% if connected_devices %}
+                <p><strong>Status:</strong> <span style="color: #00b894; font-weight: bold;">✅ {{ connected_devices|length }} device(s) connected</span></p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 15px 0;">
+                    {% if 'Fitbit' in connected_devices %}
+                    <div style="text-align: center; padding: 10px; background: #e8f5e8; border: 2px solid #00b894; border-radius: 8px;">
+                        <div style="font-size: 1.5rem;">⌚</div>
+                        <small>Fitbit ✅</small>
+                    </div>
+                    {% endif %}
+                    {% if 'Oura Ring' in connected_devices %}
+                    <div style="text-align: center; padding: 10px; background: #e8f5e8; border: 2px solid #00b894; border-radius: 8px;">
+                        <div style="font-size: 1.5rem;">💍</div>
+                        <small>Oura Ring ✅</small>
+                    </div>
+                    {% endif %}
+                    {% if 'Google Fit' in connected_devices %}
+                    <div style="text-align: center; padding: 10px; background: #e8f5e8; border: 2px solid #00b894; border-radius: 8px;">
+                        <div style="font-size: 1.5rem;">📱</div>
+                        <small>Google Fit ✅</small>
+                    </div>
+                    {% endif %}
+                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                        <div style="font-size: 1.5rem;">🍎</div>
+                        <small>Apple Health</small>
+                        <div style="font-size: 0.7rem; color: #666;">Manual Entry</div>
+                    </div>
+                </div>
+                <p style="font-size: 0.9rem; color: #00b894; font-weight: 600;">🔄 Automatic sync enabled! Data updates daily.</p>
+                <p style="font-size: 0.8rem; color: #666;">Last sync: {{ user.get('last_device_sync', 'Never') }}</p>
+                {% else %}
+                <p><strong>Status:</strong> <span style="color: #ff9800; font-weight: bold;">⚠️ No devices connected</span></p>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 15px 0;">
                     <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
                         <div style="font-size: 1.5rem;">⌚</div>
-                        <small>Apple Watch</small>
-                    </div>
-                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                        <div style="font-size: 1.5rem;">📱</div>
                         <small>Fitbit</small>
-                    </div>
-                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                        <div style="font-size: 1.5rem;">⌚</div>
-                        <small>Garmin</small>
                     </div>
                     <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
                         <div style="font-size: 1.5rem;">💍</div>
                         <small>Oura Ring</small>
                     </div>
+                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                        <div style="font-size: 1.5rem;">📱</div>
+                        <small>Google Fit</small>
+                    </div>
+                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                        <div style="font-size: 1.5rem;">🍎</div>
+                        <small>Apple Health</small>
+                    </div>
                 </div>
-                <p style="font-size: 0.9rem; color: #666;">Paste your device data in the daily log for AI analysis. Premium users get automatic sync (coming soon)!</p>
+                <p style="font-size: 0.9rem; color: #666;">Connect your devices for automatic data sync!</p>
+                {% endif %}
             </div>
 
             {{ motivation_content|safe }}
@@ -1337,6 +1818,7 @@ def dashboard():
                 <a href="/daily-log?email={{ user.email }}" class="button">📝 Daily Log</a>
                 <a href="/weekly-checkin?email={{ user.email }}" class="button">📅 Weekly Check-in</a>
                 <a href="/ai-chat?email={{ user.email }}" class="button">🤖 Ask AI</a>
+                <a href="/connect-devices?email={{ user.email }}" class="button">🔗 Connect Devices</a>
                 <a href="/subscription?email={{ user.email }}" class="button">💳 Subscription</a>
                 <a href="/" class="button">⚙️ Update Profile</a>
             </div>
