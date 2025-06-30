@@ -210,7 +210,7 @@
 
         <h1>💪 Quick Daily Check-in</h1>
         <p class="subtitle">Just log it - even if it's not perfect! Every entry helps us understand you better.</p>
-        
+
         <div class="motivation-boost" style="background: linear-gradient(135deg, #e6f3ff, #f0f8ff); border-left-color: #74b9ff;">
             <strong>📊 Your Daily Score:</strong> Complete at least 3 sections (mood, water, movement) to receive your score instantly! More data = better AI insights and personalized advice.
         </div>
@@ -446,7 +446,7 @@
             // Check if minimum fields are completed
             const requiredFields = [selectedValues.mood, selectedValues.water, selectedValues.workout];
             const completedRequired = requiredFields.filter(field => field).length;
-            
+
             if (completedRequired < 2) {
                 // Show message about needing more data
                 document.getElementById('instantFeedback').style.display = 'block';
@@ -533,12 +533,12 @@
             // Notes and tracking devices bonus
             const notes = document.querySelector('[name="notes"]').value;
             const trackingData = document.querySelector('[name="tracking_devices"]').value;
-            
+
             if (notes && notes.length > 5) {
                 score += 0.5;
                 insights.push("📝 Your notes help AI provide personalized insights!");
             }
-            
+
             if (trackingData && trackingData.length > 10) {
                 score += 0.5;
                 insights.push("📱 Device data integrated for better tracking!");
@@ -565,19 +565,19 @@
         function searchFoods(query) {
             clearTimeout(searchTimeout);
             const resultsDiv = document.getElementById('food_results');
-            
+
             if (query.length < 2) {
                 resultsDiv.classList.remove('show');
                 return;
             }
-            
+
             searchTimeout = setTimeout(async () => {
                 try {
                     const response = await fetch(`/api/food-search?q=${encodeURIComponent(query)}`);
                     const foods = await response.json();
-                    
+
                     resultsDiv.innerHTML = '';
-                    
+
                     if (foods.length > 0) {
                         foods.slice(0, 5).forEach(food => {
                             const item = document.createElement('div');
@@ -601,21 +601,21 @@
                 }
             }, 300);
         }
-        
+
         function selectFood(food) {
             const foodLog = document.getElementById('food_log');
             const currentText = foodLog.value;
             const newText = currentText + (currentText ? ', ' : '') + food.name;
             foodLog.value = newText;
-            
+
             // Hide search results
             document.getElementById('food_results').classList.remove('show');
             document.getElementById('food_search').value = '';
-            
+
             // Update nutrition summary if visible
             updateNutritionSummary();
         }
-        
+
         function addCustomFood() {
             const customFood = prompt('Enter custom food item:');
             if (customFood && customFood.trim()) {
@@ -626,7 +626,7 @@
                 updateNutritionSummary();
             }
         }
-        
+
         function updateNutritionSummary() {
             // Simple nutrition tracking - in a real app this would calculate based on selected foods
             const foodText = document.getElementById('food_log').value;
@@ -641,7 +641,7 @@
                 document.getElementById('nutrition_summary').style.display = 'none';
             }
         }
-        
+
         // Hide search results when clicking outside
         document.addEventListener('click', function(event) {
             const searchContainer = document.querySelector('.food-search-container');

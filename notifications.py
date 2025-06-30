@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta
 import json
 
@@ -24,17 +23,35 @@ class SmartNotifications:
                 'time': 'user_preference',
                 'message': "💡 After you {habit_anchor}, remember to log your day!",
                 'condition': 'habit_reminder'
-            }
+            },
+            'daily_checkin': [
+                "Time for your 2-minute check-in. How are you feeling today? 💚",
+                "Your body and mind are worth 2 minutes of attention. Ready to check in?",
+                "No pressure, just presence. How did today treat you?",
+                "Consistency over perfection. Ready for today's gentle check-in?",
+                "Another chance to show up for yourself. You've got this. 🌟"
+            ],
+            'weekly_reflection': [
+                "Weekly reflection time: What's one thing you're proud of this week?",
+                "Take a moment to appreciate how far you've come this week 🌟",
+                "Time for your weekly check-in. You've been showing up - that matters."
+            ],
+            'encouragement': [
+                "You've been consistent lately. Take a moment to appreciate that. 🎉",
+                "Rough week? That's human. Small steps still count. Check in when ready.",
+                "Every day you show up, you're rebuilding trust with yourself.",
+                "Progress isn't perfect, but your effort is. Keep going. 💚"
+            ]
         }
-    
+
     def generate_contextual_reminder(self, user_data):
         """Generate personalized reminder based on user patterns"""
         daily_logs = user_data.get('daily_logs', [])
         today = datetime.now().strftime("%Y-%m-%d")
-        
+
         # Check if user logged today
         logged_today = any(log.get('date') == today for log in daily_logs)
-        
+
         if not logged_today:
             # Check user's typical logging time
             log_times = []
@@ -42,7 +59,7 @@ class SmartNotifications:
                 if 'timestamp' in log:
                     log_time = datetime.fromisoformat(log['timestamp']).hour
                     log_times.append(log_time)
-            
+
             if log_times:
                 avg_time = sum(log_times) / len(log_times)
                 if avg_time < 12:  # Morning logger
@@ -55,9 +72,9 @@ class SmartNotifications:
                         'message': "🌙 End your day with a quick 2-minute log?",
                         'suggested_time': '20:00'
                     }
-        
+
         return None
-    
+
     def get_streak_motivation(self, streak_days):
         """Get streak-specific motivational messages"""
         if streak_days >= 30:
