@@ -1008,7 +1008,7 @@ def form():
         activity_level=activity_level, exercise_details=exercise_details, wearables=wearables,
         weight_changes=weight_changes, body_feeling=body_feeling, weekly_weigh_in=weekly_weigh_in,
         stress_level=stress_level, support_system=support_system, support_explanation=support_explanation,
-        ai_consent=ai_consent)
+        ai_consent=ai_consent
 
     return render_template("index.html")
 
