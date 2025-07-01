@@ -23,7 +23,7 @@ ADMIN_USERNAME = os.getenv('ADMIN_USERNAME', 'admin')
 ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'FitnessAdmin2024!')
 
 # Serve static files for PWA
-@app.route('/static/<path:filename}')
+@app.route('/static/<path:filename>')
 def static_files(filename):
     return send_from_directory('static', filename)
 
