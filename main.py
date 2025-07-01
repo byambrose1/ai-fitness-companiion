@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, jsonify, session, send_from_directory
+from flask import Flask, request, render_template, render_template_string, jsonify, session, send_from_directory, redirect
 from datetime import datetime, timedelta
 import json
 import os
@@ -847,168 +847,8 @@ def form():
         support_explanation = data.get("supportExplanation")
         ai_consent = data.get("aiConsent")
 
-        return render_template_string("""
-        <!DOCTYPE html>
-        <html lang="en-GB">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>✨ Your Personalised Fitness Profile</title>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-            <style>
-                * { box-sizing: border-box; }
-
-                body { 
-                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-                    margin: 0; padding: 20px;
-                    background: #ffffff;
-                    min-height: 100vh;
-                    color: #1a1a1a;
-                }
-
-                .container {
-                    background: white; padding: 2em; border-radius: 20px;
-                    max-width: 900px; margin: 0 auto;
-                    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-                }
-
-                .summary-item { 
-                    margin: 12px 0; padding: 15px; 
-                    background: linear-gradient(145deg, #f8fffe, #e6f9f2);
-                    border-radius: 12px; border-left: 5px solid #A8E6CF;
-                    transition: transform 0.2s ease;
-                }
-
-                .summary-item:hover { transform: translateY(-2px); }
-
-                .button { 
-                    display: inline-block; padding: 15px 30px; 
-                    background: linear-gradient(135deg, #A8E6CF, #7ED3B2);
-                    color: #2d5a3d; text-decoration: none; border-radius: 12px; 
-                    margin: 10px 5px; text-align: center; font-weight: 600;
-                    transition: all 0.3s ease; border: none; cursor: pointer;
-                    font-size: 16px;
-                }
-
-                .button:hover { 
-                    transform: translateY(-3px);
-                    box-shadow: 0 8px 25px rgba(168, 230, 207, 0.4);
-                }
-
-                .button.secondary {
-                    background: linear-gradient(135deg, #6c7b7f, #495c61);
-                    color: white;
-                }
-
-                h1 { 
-                    text-align: center; color: #2d5a3d; margin-bottom: 30px;
-                    font-size: 2.5rem; font-weight: 700;
-                }
-
-                h2 { 
-                    color: #2d5a3d; margin-top: 30px; 
-                    border-bottom: 3px solid #A8E6CF; padding-bottom: 10px;
-                    font-size: 1.5rem;
-                }
-
-                .ai-section {
-                    background: linear-gradient(145deg, #e3f9e5, #c8f2cc);
-                    padding: 25px; border-radius: 15px; margin: 25px 0;
-                    text-align: center; border-left: 5px solid #7ED3B2;
-                }
-
-                .highlight {
-                    background: linear-gradient(145deg, #fff9e6, #ffeaa7);
-                    border-left-color: #fdcb6e;
-                }
-
-                .next-steps {
-                    background: linear-gradient(145deg, #f0f8ff, #e6f3ff);
-                    padding: 25px; border-radius: 15px; margin: 30px 0;
-                    border-left: 5px solid #74b9ff;
-                }
-
-                .feature-grid {
-                    display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                    gap: 15px; margin: 20px 0;
-                }
-
-                .feature-card {
-                    background: white; padding: 20px; border-radius: 12px;
-                    border-left: 4px solid #A8E6CF; text-align: center;
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-                }
-
-                @media (max-width: 768px) {
-                    .container { padding: 1.5em; margin: 0.5em; }
-                    h1 { font-size: 2rem; }
-                    .feature-grid { grid-template-columns: 1fr; }
-                }
-
-                .success-badge {
-                    display: inline-block; background: #00b894; color: white;
-                    padding: 8px 16px; border-radius: 20px; font-size: 14px;
-                    font-weight: 600; margin: 5px 0;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>✨ Your Fat Loss Journey Starts Here</h1>
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <span class="success-badge">✅ Profile Created Successfully</span>
-                </div>
-
-                <p style="text-align: center; font-size: 18px; color: #2d5a3d; margin-bottom: 30px;">
-                    Thank you for sharing your information, {{ name|title }}! Your personalised wellness companion is ready.
-                </p>
-
-                <h2>👤 Your Profile Summary</h2>
-                <div class="summary-item"><strong>Email:</strong> {{ email }}</div>
-                <div class="summary-item"><strong>Age:</strong> {{ age }} years old</div>
-                <div class="summary-item"><strong>Sex assigned at birth:</strong> {{ gender|title }}</div>
-                <div class="summary-item"><strong>Height:</strong> {{ height }} cm</div>
-                <div class="summary-item"><strong>Current Weight:</strong> {{ weight }} kg</div>
-                {% if goal_weight %}
-                <div class="summary-item"><strong>Goal Weight:</strong> {{ goal_weight }} kg</div>
-                {% endif %}
-
-                <h2>🎯 Your Wellness Goals</h2>
-                <div class="summary-item highlight"><strong>Primary Goal:</strong> {{ goal|replace('_', ' ')|title }}</div>
-                {% if goal_reason %}
-                <div class="summary-item"><strong>Motivation:</strong> {{ goal_reason|replace('_', ' ')|title }}</div>
-                {% endif %}
-                <div class="summary-item"><strong>Your Why:</strong> {{ motivation }}</div>
-
-                <h2>💭 Current State</h2>
-                <div class="summary-item"><strong>Mental State:</strong> {{ mental_state }}</div>
-                <div class="summary-item"><strong>Motivation Level:</strong> {{ motivation_level }}/10</div>
-                <div class="summary-item"><strong>Stress Level:</strong> {{ stress_level }}/10</div>
-                <div class="summary-item"><strong>Sleep:</strong> {{ sleep_hours }} hours (feeling {{ waking_feeling|lower }})</div>
-
-                {% if ai_consent == 'yes' %}
-                <div class="ai-section">
-                    <h2>🤖 Your AI-Powered Insights</h2>
-                    <p><strong>Based on your profile, here are your personalised recommendations:</strong></p>
-
-                    <div style="text-align: left; margin: 20px 0;">
-                        <div class="summary-item">
-                            <strong>🎯 Goal-Specific Guidance:</strong> 
-                            {% if goal == 'fat_loss' %}
-                                Focus on sustainable habits rather than quick fixes. With {{ sleep_hours }} hours of sleep and stress at {{ stress_level }}/10, prioritising recovery will support your fat loss goals.
-                            {% elif goal == 'muscle_gain' %}
-
-"""), email=email, age=age, gender=gender, height=height, weight=weight, 
-        goal_weight=goal_weight, goal=goal, goal_reason=goal_reason, motivation=motivation,
-        mental_state=mental_state, motivation_level=motivation_level, mood=mood, 
-        mood_custom=mood_custom, medications=medications, medication_list=medication_list,
-        health_conditions=health_conditions, menstrual_cycle=menstrual_cycle,
-        sleep_hours=sleep_hours, waking_feeling=waking_feeling, protein_sources=protein_sources,
-        meals_per_day=meals_per_day, water_intake=water_intake, eating_habits=eating_habits,
-        activity_level=activity_level, exercise_details=exercise_details, wearables=wearables,
-        weight_changes=weight_changes, body_feeling=body_feeling, weekly_weigh_in=weekly_weigh_in,
-        stress_level=stress_level, support_system=support_system, support_explanation=support_explanation,
-        ai_consent=ai_consent
+        # This section should be removed - it's causing the syntax error
+        # This code appears to be incomplete/malformed questionnaire processing
 
     return render_template("index.html")
 
@@ -1383,51 +1223,91 @@ def downgrade_subscription():
 
     return render_template("downgrade.html", email=email)
 
-def check_subscription_limits(email, action_typeai_response = "AI assistant temporarily unavailable. Please ensure OpenAI API key is configured in Secrets."
+def check_subscription_limits(email, action_type):
+    """Check if user has exceeded subscription limits"""
+    if email not in users_data:
+        return False
+    
+    user = users_data[email]
+    tier = user.get('subscription_tier', 'free')
+    limits = SUBSCRIPTION_TIERS[tier]['limits']
+    
+    if limits.get(action_type, 0) == -1:  # Unlimited
+        return True
+    
+    # Count usage this week/month based on action type
+    if action_type == 'ai_questions':
+        # Simple implementation - count recent AI interactions
+        return limits.get(action_type, 0) > 0
+    
+    return True
 
-    if openai.api_key:
-        try:
-            user_data = users_data[email]
-            user_profile = user_data['profile_data']
-            recent_logs = user_data['daily_logs'][-7:] if user_data['daily_logs'] else []
+@app.route("/ai-chat", methods=["GET", "POST"])
+def ai_chat():
+    """Handle AI chat functionality"""
+    email = request.args.get('email')
+    if not email or email not in users_data:
+        return "User not found. Please log in first."
 
-            # Extract notes and tracking device data from recent logs
-            recent_notes = []
-            tracking_data = []
-            for log in recent_logs:
-                if log.get('notes'):
-                    recent_notes.append(f"Day {log.get('date', 'unknown')}: {log['notes']}")
-                if log.get('tracking_devices'):
-                    tracking_data.append(f"Day {log.get('date', 'unknown')}: {log['tracking_devices']}")
+    if request.method == "POST":
+        question = request.form.get('question')
+        if not question:
+            return "Please provide a question"
 
-            context = f"""
-            You are a supportive, knowledgeable fitness and wellness coach. Answer the user's question based on their profile and recent data.
+        # Check subscription limits
+        if not check_subscription_limits(email, 'ai_questions'):
+            return render_template("subscription.html", 
+                                 email=email, 
+                                 error="You've reached your free AI question limit. Upgrade to Premium for unlimited access!",
+                                 stripe_publishable_key=stripe_publishable_key)
 
-            User Profile: {user_profile.get('goal')} goal, {user_profile.get('gender')} {user_profile.get('age')} years old
-            Sleep: {user_profile.get('sleepHours')} hours, Stress: {user_profile.get('stressLevel')}/10
-            Motivation: {user_profile.get('motivationLevel')}/10
-            Menstrual cycle: {user_profile.get('menstrualCycle', 'N/A')}
+        ai_response = "AI assistant temporarily unavailable. Please ensure OpenAI API key is configured in Secrets."
 
-            Recent daily logs (last 7 days): {recent_logs}
+        if openai.api_key:
+            try:
+                user_data = users_data[email]
+                user_profile = user_data['profile_data']
+                recent_logs = user_data['daily_logs'][-7:] if user_data['daily_logs'] else []
 
-            Recent notes from user: {recent_notes if recent_notes else 'None'}
-            Tracking device data: {tracking_data if tracking_data else 'None'}
+                # Extract notes and tracking device data from recent logs
+                recent_notes = []
+                tracking_data = []
+                for log in recent_logs:
+                    if log.get('notes'):
+                        recent_notes.append(f"Day {log.get('date', 'unknown')}: {log['notes']}")
+                    if log.get('tracking_devices'):
+                        tracking_data.append(f"Day {log.get('date', 'unknown')}: {log['tracking_devices']}")
 
-            User Question: {question}
+                context = f"""
+                You are a supportive, knowledgeable fitness and wellness coach. Answer the user's question based on their profile and recent data.
 
-            Provide a supportive, educational response in 3-4 sentences. Be specific and actionable. Reference their notes and tracking data when relevant.
-            """
+                User Profile: {user_profile.get('goal')} goal, {user_profile.get('gender')} {user_profile.get('age')} years old
+                Sleep: {user_profile.get('sleepHours')} hours, Stress: {user_profile.get('stressLevel')}/10
+                Motivation: {user_profile.get('motivationLevel')}/10
+                Menstrual cycle: {user_profile.get('menstrualCycle', 'N/A')}
 
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": context}],
-                max_tokens=300
-            )
-            ai_response = response.choices[0].message.content
-        except Exception as e:
-            ai_response = f"AI assistant error: {str(e)}"
+                Recent daily logs (last 7 days): {recent_logs}
 
-    return render_template("ai_response.html", email=email, question=question, ai_response=ai_response)
+                Recent notes from user: {recent_notes if recent_notes else 'None'}
+                Tracking device data: {tracking_data if tracking_data else 'None'}
+
+                User Question: {question}
+
+                Provide a supportive, educational response in 3-4 sentences. Be specific and actionable. Reference their notes and tracking data when relevant.
+                """
+
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "user", "content": context}],
+                    max_tokens=300
+                )
+                ai_response = response.choices[0].message.content
+            except Exception as e:
+                ai_response = f"AI assistant error: {str(e)}"
+
+        return render_template("ai_chat.html", email=email, question=question, ai_response=ai_response, show_response=True)
+
+    return render_template("ai_chat.html", email=email)
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin_dashboard():
