@@ -23,7 +23,7 @@ ADMIN_USERNAME = os.getenv('ADMIN_USERNAME', 'admin')
 ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'FitnessAdmin2024!')
 
 # Serve static files for PWA
-@app.route('/static/<path:filename>')
+@app.route('/static/<path:filename}')
 def static_files(filename):
     return send_from_directory('static', filename)
 
@@ -1383,114 +1383,7 @@ def downgrade_subscription():
 
     return render_template("downgrade.html", email=email)
 
-def check_subscription_limits(email, action_type):
-    """Check if user has reached their subscription limits"""
-    if email not in users_data:
-        return False
-
-    user = users_data[email]
-    tier = user.get('subscription_tier', 'free')
-    limits = SUBSCRIPTION_TIERS[tier]['limits']
-
-    if limits.get(action_type, 0) == -1:  # Unlimited
-        return True
-
-    # Count current usage
-    if action_type == 'daily_logs':
-        current_count = len(user['daily_logs'])
-    elif action_type == 'weekly_checkins':
-        current_count = len(user['weekly_checkins'])
-    elif action_type == 'ai_questions':
-        # Count AI questions from today
-        today = datetime.now().strftime("%Y-%m-%d")
-        current_count = sum(1 for log in user.get('ai_logs', []) if log.get('date') == today)
-    else:
-        return True
-
-    return current_count < limits.get(action_type, 0)
-
-@app.route("/weekly-checkin")
-def weekly_checkin():
-    email = request.args.get('email')
-    if not email:
-        return "Please provide email parameter"
-
-    return render_template("weekly_checkin.html", email=email, today=datetime.now().strftime("%Y-%m-%d"))
-
-@app.route("/save-weekly-checkin", methods=["POST"])
-def save_weekly_checkin():
-    email = request.form.get('email')
-    if email not in users_data:
-        return "User not found"
-
-    # Save the weekly check-in
-    checkin_data = {
-        'week_of': request.form.get('week_of'),
-        'timestamp': datetime.now().isoformat(),
-        'adherence': request.form.get('adherence'),
-        'energy': request.form.get('energy'),
-        'bloating': request.form.get('bloating'),
-        'hunger': request.form.get('hunger'),
-        'weight_change': request.form.get('weight_change'),
-        'challenges': request.form.get('challenges'),
-        'wins': request.form.get('wins'),
-        'focus_next_week': request.form.get('focus_next_week')
-    }
-
-    users_data[email]['weekly_checkins'].append(checkin_data)
-
-    # Generate AI feedback if OpenAI key is available
-    ai_feedback = "AI feedback temporarily unavailable. Please ensure OpenAI API key is configured."
-
-    if openai.api_key:
-        try:
-            user_profile = users_data[email]['profile_data']
-            prompt = f"""
-            Based on this user's weekly check-in and profile, provide supportive, educational feedback:
-
-            User Profile: {user_profile.get('goal')} goal, stress level {user_profile.get('stressLevel')}/10
-            Weekly Check-in: Adherence {checkin_data['adherence']}/10, Energy: {checkin_data['energy']}
-            Challenges: {checkin_data['challenges']}
-            Wins: {checkin_data['wins']}
-
-            Provide 3-4 sentences of encouraging, specific advice focusing on sustainable habits.
-            """
-
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=200
-            )
-            ai_feedback = response.choices[0].message.content
-        except Exception as e:
-            ai_feedback = f"AI feedback unavailable: {str(e)}"
-
-    return render_template("save_weekly_checkin.html", email=email, ai_feedback=ai_feedback)
-
-@app.route("/ai-chat")
-def ai_chat():
-    email = request.args.get('email')
-    if not email:
-        return "Please provide email parameter"
-
-    return render_template("ai_chat.html", email=email)
-
-@app.route("/ai-response", methods=["POST"])
-def ai_response():
-    email = request.form.get('email')
-    question = request.form.get('question')
-
-    if email not in users_data:
-        return "User not found"
-
-    # Check subscription limits
-    if not check_subscription_limits(email, 'ai_questions'):
-        user = users_data[email]
-        tier = user.get('subscription_tier', 'free')
-        return render_template("ai_limit_reached.html", email=email, tier=tier)
-
-    # Generate AI response if OpenAI key is available```python
-    ai_response = "AI assistant temporarily unavailable. Please ensure OpenAI API key is configured in Secrets."
+def check_subscription_limits(email, action_typeai_response = "AI assistant temporarily unavailable. Please ensure OpenAI API key is configured in Secrets."
 
     if openai.api_key:
         try:
@@ -2017,9 +1910,7 @@ def admin_downgrade_user(email):
     <html>
     <head><title>Downgrade User</title></head>
     <body style="font-family: Arial; padding: 20px; text-align: center;">
-        <h2>⬇️ Downgrade User to Free</h2>
-        ```python
-        <p>Are you sure you want to downgrade <strong>{{ email }}</strong> to Free?</p>
+        <h2>⬇️ Downgrade User to Free</h2>        <p>Are you sure you want to downgrade <strong>{{ email }}</strong> to Free?</p>
         <form method="POST" style="margin: 20px 0;">
             <button type="submit" style="background: #f44336; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer;">Yes, Downgrade</button>
             <a href="/admin/user/{{ email }}" style="background: #6c757d; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-left: 10px;">Cancel</a>
