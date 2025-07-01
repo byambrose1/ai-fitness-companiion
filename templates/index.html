@@ -1105,12 +1105,12 @@
               <label for="menstrualCycle">Where are you in your cycle today?</label>
               <select name="menstrualCycle" id="menstrualCycle">
                 <option value="">-- Please select --</option>
-                <option value="just_started">Just started (days 1-3)</option>
-                <option value="follicular">Follicular phase (days 4-6)</option>
+                <option value="just_started">Period just started (days 1-3)</option>
+                <option value="follicular">Period just finished (days 4-6)</option>
                 <option value="ovulation">Around ovulation (days 7-14)</option>
-                <option value="luteal">Luteal phase (days 15-21)</option>
+                <option value="luteal">Between ovulation and period (days 15-21)</option>
                 <option value="end_of_cycle">End of cycle (days 22-28)</option>
-                <option value="about_to_start">About to start (PMS phase)</option>
+                <option value="about_to_start">About to start my period (PMS phase)</option>
                 <option value="not_sure">Not sure</option>
               </select>
             </div>
@@ -1417,6 +1417,12 @@
           document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
           updateProgress();
           updateButtons();
+          
+          // Smooth scroll to top of modal content
+          document.querySelector('.modal-body').scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
         }
       }
     }
@@ -1428,6 +1434,12 @@
         document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
         updateProgress();
         updateButtons();
+        
+        // Smooth scroll to top of modal content
+        document.querySelector('.modal-body').scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
       }
     }
 
