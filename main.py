@@ -1034,40 +1034,7 @@ def connect_devices():
                 font-family: 'Inter', sans-serif; 
                 margin: 0; 
                 "background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);" 
-                min-height: 100vh;
-            }
-            .container { background: white; padding: 2em; border-radius: 20px; max-width: 800px; margin: 0 auto; }
-            .device-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0; }
-            .device-card { 
-                background: #f8fffe; padding: 25px; border-radius: 15px; 
-                border-left: 5px solid #A8E6CF; text-align: center;
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-            }
-            .device-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-            .device-card.connected { border-left-color: #00b894; background: #e8f5e8; }
-            .device-icon { font-size: 3rem; margin-bottom: 15px; }
-            .connect-btn { 
-                background: linear-gradient(135deg, #A8E6CF, #7ED3B2); color: #2d5a3d; 
-                padding: 12px 24px; border: none; border-radius: 10px; 
-                font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block;
-                transition: all 0.2s ease;
-            }
-            .connect-btn:hover { transform: translateY(-2px); }
-            .connect-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-            .connected-badge { 
-                background: #00b894; color: white; padding: 6px 12px; 
-                border-radius: 20px; font-size: 0.8rem; margin: 10px 0;
-            }
-            .auto-sync-info {
-                background: #e3f9e5; padding: 20px; border-radius: 12px; margin: 20px 0;
-                border-left: 5px solid #7ED3B2;
-            }
-            h1 { color: #3B7A57; text-align: center; }
-            .sync-btn {
-                background: linear-gradient(135deg, #74b9ff, #0984e3); color: white;
-                padding: 15px 30px; border: none; border-radius: 12px; font-weight: 600;
-                cursor: pointer; margin: 10px; font-size: 16px;
-            }
+                
         </style>
         </style>
     </head>
