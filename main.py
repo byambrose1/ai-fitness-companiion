@@ -2350,4 +2350,20 @@ def api_device_status():
 if __name__ == "__main__":
     # Start security monitoring
     security_monitor.start_monitoring()
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    
+    # Try to find an available port
+    import socket
+    def find_free_port():
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('', 0))
+            s.listen(1)
+            port = s.getsockname()[1]
+        return port
+    
+    # Try port 5000 first, then find a free port
+    try:
+        app.run(host="0.0.0.0", port=5000, debug=True)
+    except OSError:
+        free_port = find_free_port()
+        print(f"Port 5000 in use, starting on port {free_port}")
+        app.run(host="0.0.0.0", port=free_port, debug=True)
