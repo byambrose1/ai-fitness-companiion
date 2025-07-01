@@ -1046,7 +1046,6 @@ def connect_devices():
             }
             .device-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
             .device-card.connected { border-left-color: #00b894; background: #e8f5e8; }
-        </style>
             .device-icon { font-size: 3rem; margin-bottom: 15px; }
             .connect-btn { 
                 background: linear-gradient(135deg, #A8E6CF, #7ED3B2); color: #2d5a3d; 
