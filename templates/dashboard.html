@@ -9,131 +9,249 @@
 </head>
 <body>
     <div class="container">
-        <h1>🌟 Welcome back, {{ user.name|title }}!</h1>
-
-        <div class="reminder">
-            <p>💚 <strong>Daily Motivation:</strong> {{ contextual_message }}</p>
+        <!-- Welcome Header -->
+        <div class="welcome-header">
+            <h1>🌟 Welcome back, {{ user.name|title }}!</h1>
+            <p class="daily-motivation">💚 <strong>Today's Focus:</strong> {{ contextual_message }}</p>
         </div>
 
-        <!-- Streak and Progress Section -->
-        <div class="card" style="background: linear-gradient(135deg, #A8E6CF, #D1F2EB); text-align: center; margin-bottom: 20px;">
-            <h3 style="color: #1a1a1a;">🔥 Your Progress</h3>
-            <div style="display: flex; justify-content: space-around; align-items: center;">
-                <div>
-                    <div style="font-size: 2.5rem; font-weight: 700; color: #3B7A57;">{{ streak_days }}</div>
-                    <div style="font-size: 0.9rem; color: #2d5a42;">Day Streak</div>
-                </div>
-                <div>
-                    <div style="font-size: 2.5rem; font-weight: 700; color: #3B7A57;">{{ total_logs }}</div>
-                    <div style="font-size: 0.9rem; color: #2d5a42;">Total Logs</div>
-                </div>
-                <div>
-                    <div style="font-size: 2.5rem; font-weight: 700; color: #3B7A57;">{{ days_since_signup + 1 }}</div>
-                    <div style="font-size: 0.9rem; color: #2d5a42;">Days Active</div>
-                </div>
+        <!-- Progress Stats Row -->
+        <div class="progress-stats">
+            <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-number">{{ streak_days }}</div>
+                <div class="stat-label">Day Streak</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-number">{{ total_logs }}</div>
+                <div class="stat-label">Total Logs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-number">{{ days_since_signup + 1 }}</div>
+                <div class="stat-label">Days Active</div>
             </div>
         </div>
 
-        <div class="dashboard-grid">
-            <div class="card">
-                <h3>📊 Quick Score</h3>
-                {% if recent_score %}
-                    <div class="score">{{ recent_score }}/10</div>
-                    <p>Based on your latest entries</p>
-                {% else %}
-                    <div class="score">Ready!</div>
-                    <p>Complete your daily log to see your score</p>
-                {% endif %}
+        <!-- Main Dashboard Grid -->
+        <div class="main-dashboard-grid">
+            <!-- Quick Score Card -->
+            <div class="dashboard-card score-card">
+                <div class="card-header">
+                    <h3>📊 Your Daily Score</h3>
+                </div>
+                <div class="card-content">
+                    {% if recent_score %}
+                        <div class="score-display">
+                            <span class="score-number">{{ recent_score }}</span>
+                            <span class="score-max">/10</span>
+                        </div>
+                        <p class="score-description">Based on your latest entries</p>
+                    {% else %}
+                        <div class="score-display ready">Ready!</div>
+                        <p class="score-description">Complete your daily log to see your score</p>
+                    {% endif %}
+                </div>
             </div>
 
-            <div class="card">
-                <h3>🎯 Your Goal</h3>
-                <p><strong>{{ user.profile_data.goal|replace('_', ' ')|title }}</strong></p>
-                <p>{{ user.profile_data.motivation[:100] }}...</p>
-            </div>
-
-            <div class="card">
-                <h3>💭 Quick Stats</h3>
-                <p><strong>Motivation:</strong> {{ user.profile_data.motivationLevel }}/10</p>
-                <p><strong>Stress:</strong> {{ user.profile_data.stressLevel }}/10</p>
-                <p><strong>Sleep:</strong> {{ user.profile_data.sleepHours }} hours</p>
-            </div>
-
+            <!-- Cycle Status Card -->
             {% if user.profile_data.menstrualCycle %}
-            <div class="card">
-                <h3>🌙 Cycle Status</h3>
-                <p>{{ user.profile_data.menstrualCycle|replace('_', ' ')|title }}</p>
-                <p><small>Adjusting recommendations based on your cycle phase</small></p>
+            <div class="dashboard-card cycle-card">
+                <div class="card-header">
+                    <h3>🌸 Your Cycle Today</h3>
+                </div>
+                <div class="card-content">
+                    <div class="cycle-status">
+                        <div class="cycle-phase">{{ user.profile_data.menstrualCycle|replace('_', ' ')|title }}</div>
+                        <div class="cycle-tip">
+                            {% if 'first_half' in user.profile_data.menstrualCycle %}
+                                💧 Stay hydrated and be gentle with yourself during this time
+                            {% elif 'second_half' in user.profile_data.menstrualCycle %}
+                                🌿 Light movement and rest can help ease any discomfort
+                            {% elif 'ovulation' in user.profile_data.menstrualCycle %}
+                                ⚡ You might have more energy - perfect for trying new activities!
+                            {% elif 'early_luteal' in user.profile_data.menstrualCycle %}
+                                🧘 Great time to focus on strength training and protein
+                            {% elif 'late_luteal' in user.profile_data.menstrualCycle %}
+                                🍃 Consider gentle yoga and magnesium-rich foods
+                            {% else %}
+                                💪 Listen to your body and adjust your routine as needed
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             </div>
             {% endif %}
+
+            <!-- Your Goal Card -->
+            <div class="dashboard-card goal-card">
+                <div class="card-header">
+                    <h3>🎯 Your Goal</h3>
+                </div>
+                <div class="card-content">
+                    <div class="goal-title">{{ user.profile_data.goal|replace('_', ' ')|title }}</div>
+                    <p class="goal-description">{{ user.profile_data.motivation[:100] }}...</p>
+                </div>
+            </div>
+
+            <!-- Key Metrics Card -->
+            <div class="dashboard-card metrics-card">
+                <div class="card-header">
+                    <h3>💭 Today's Snapshot</h3>
+                </div>
+                <div class="card-content">
+                    <div class="metric-row">
+                        <div class="metric-label">Motivation</div>
+                        <div class="metric-value">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ (user.profile_data.motivationLevel * 10) }}%"></div>
+                            </div>
+                            <span class="metric-number">{{ user.profile_data.motivationLevel }}/10</span>
+                        </div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label">Stress Level</div>
+                        <div class="metric-value">
+                            <div class="progress-bar">
+                                <div class="progress-fill stress-bar" style="width: {{ (user.profile_data.stressLevel * 10) }}%"></div>
+                            </div>
+                            <span class="metric-number">{{ user.profile_data.stressLevel }}/10</span>
+                        </div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label">Sleep Hours</div>
+                        <div class="metric-value">
+                            <div class="sleep-display">
+                                <span class="sleep-icon">😴</span>
+                                <span class="metric-number">{{ user.profile_data.sleepHours }}h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <h2>🚀 Quick Actions</h2>
-        <!-- Automatic Device Sync Status -->
-        <div class="wearable-integration">
-            <h3>📱 Automatic Device Sync</h3>
+        <!-- Device Tracking Section -->
+        <div class="tracking-philosophy">
+            <h3>📱 Your Tracking Journey</h3>
             {% set fitness_tokens = user.get('fitness_tokens', {}) %}
             {% set connected_devices = [] %}
             {% if fitness_tokens.get('fitbit_access_token') %}{% set _ = connected_devices.append('Fitbit') %}{% endif %}
             {% if fitness_tokens.get('oura_access_token') %}{% set _ = connected_devices.append('Oura Ring') %}{% endif %}
             {% if fitness_tokens.get('google_fit_access_token') %}{% set _ = connected_devices.append('Google Fit') %}{% endif %}
             
+            <div class="tracking-insight">
+                <p class="tracking-message">Your device can track steps and sleep, but only you can track how you feel. Manual logging builds powerful habits, with or without a device. 💪</p>
+            </div>
+            
             {% if connected_devices %}
-            <p><strong>Status:</strong> <span style="color: #00b894; font-weight: bold;">✅ {{ connected_devices|length }} device(s) connected</span></p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 15px 0;">
-                {% if 'Fitbit' in connected_devices %}
-                <div style="text-align: center; padding: 10px; background: #e8f5e8; border: 2px solid #00b894; border-radius: 8px;">
-                    <div style="font-size: 1.5rem;">⌚</div>
-                    <small>Fitbit ✅</small>
+            <div class="device-status connected">
+                <div class="device-header">
+                    <span class="status-badge connected">✅ {{ connected_devices|length }} device(s) syncing</span>
+                    <span class="sync-info">🔄 Auto-sync enabled</span>
                 </div>
-                {% endif %}
-                {% if 'Oura Ring' in connected_devices %}
-                <div style="text-align: center; padding: 10px; background: #e8f5e8; border: 2px solid #00b894; border-radius: 8px;">
-                    <div style="font-size: 1.5rem;">💍</div>
-                    <small>Oura Ring ✅</small>
+                <div class="device-grid-mini">
+                    {% if 'Fitbit' in connected_devices %}
+                    <div class="mini-device-card connected">
+                        <div class="device-icon">⌚</div>
+                        <small>Fitbit</small>
+                    </div>
+                    {% endif %}
+                    {% if 'Oura Ring' in connected_devices %}
+                    <div class="mini-device-card connected">
+                        <div class="device-icon">💍</div>
+                        <small>Oura Ring</small>
+                    </div>
+                    {% endif %}
+                    {% if 'Google Fit' in connected_devices %}
+                    <div class="mini-device-card connected">
+                        <div class="device-icon">📱</div>
+                        <small>Google Fit</small>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-                {% if 'Google Fit' in connected_devices %}
-                <div style="text-align: center; padding: 10px; background: #e8f5e8; border: 2px solid #00b894; border-radius: 8px;">
-                    <div style="font-size: 1.5rem;">📱</div>
-                    <small>Google Fit ✅</small>
-                </div>
-                {% endif %}
-                <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                    <div style="font-size: 1.5rem;">🍎</div>
-                    <small>Apple Health</small>
-                    <div style="font-size: 0.7rem; color: #666;">Manual Entry</div>
-                </div>
+                <p class="sync-note">Last sync: {{ user.get('last_device_sync', 'Never') }}</p>
             </div>
-            <p style="font-size: 0.9rem; color: #00b894; font-weight: 600;">🔄 Automatic sync enabled! Data updates daily.</p>
-            <p style="font-size: 0.8rem; color: #666;">Last sync: {{ user.get('last_device_sync', 'Never') }}</p>
             {% else %}
-            <p><strong>Status:</strong> <span style="color: #ff9800; font-weight: bold;">⚠️ No devices connected</span></p>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 15px 0;">
-                <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                    <div style="font-size: 1.5rem;">⌚</div>
-                    <small>Fitbit</small>
+            <div class="device-status not-connected">
+                <div class="device-header">
+                    <span class="status-badge manual">📝 Manual tracking (perfectly valid!)</span>
                 </div>
-                <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                    <div style="font-size: 1.5rem;">💍</div>
-                    <small>Oura Ring</small>
-                </div>
-                <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                    <div style="font-size: 1.5rem;">📱</div>
-                    <small>Google Fit</small>
-                </div>
-                <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                    <div style="font-size: 1.5rem;">🍎</div>
-                    <small>Apple Health</small>
+                <p class="manual-tracking-encouragement">You're building mindful habits by consciously checking in with yourself. This self-awareness is incredibly valuable for long-term success! 🌟</p>
+                <div class="device-grid-mini">
+                    <div class="mini-device-card available">
+                        <div class="device-icon">⌚</div>
+                        <small>Fitbit</small>
+                    </div>
+                    <div class="mini-device-card available">
+                        <div class="device-icon">💍</div>
+                        <small>Oura Ring</small>
+                    </div>
+                    <div class="mini-device-card available">
+                        <div class="device-icon">📱</div>
+                        <small>Google Fit</small>
+                    </div>
+                    <div class="mini-device-card available">
+                        <div class="device-icon">🍎</div>
+                        <small>Apple Health</small>
+                    </div>
                 </div>
             </div>
-            <p style="font-size: 0.9rem; color: #666;">Connect your devices for automatic data sync!</p>
             {% endif %}
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions-section">
+            <h2>🚀 Quick Actions</h2>
+            <div class="action-buttons">
+                <a href="/daily-log?email={{ user.email }}" class="action-btn primary">
+                    <span class="btn-icon">📝</span>
+                    <span class="btn-text">Daily Log</span>
+                </a>
+                <a href="/weekly-checkin?email={{ user.email }}" class="action-btn secondary">
+                    <span class="btn-icon">📅</span>
+                    <span class="btn-text">Weekly Check-in</span>
+                </a>
+                <a href="/ai-chat?email={{ user.email }}" class="action-btn accent">
+                    <span class="btn-icon">🤖</span>
+                    <span class="btn-text">Ask AI</span>
+                </a>
+                <a href="/connect-devices?email={{ user.email }}" class="action-btn secondary">
+                    <span class="btn-icon">🔗</span>
+                    <span class="btn-text">Connect Devices</span>
+                </a>
+                <a href="/?email={{ user.email }}" class="action-btn tertiary">
+                    <span class="btn-icon">⚙️</span>
+                    <span class="btn-text">Update Profile</span>
+                </a>
+            </div>
         </div>
 
         {{ motivation_content|safe }}
 
-        <!-- Feature Comparison -->
+        <!-- Subscription Status -->
+        <div class="subscription-section">
+            <div class="subscription-card">
+                <h3>💳 Your Plan</h3>
+                <div class="plan-info">
+                    <span class="plan-name">{{ user.subscription_tier|title }} Plan</span>
+                    {% if user.subscription_tier == 'free' %}
+                        <span class="plan-status upgrade-available">Upgrade Available!</span>
+                    {% else %}
+                        <span class="plan-status premium">Premium Active ✨</span>
+                    {% endif %}
+                </div>
+                {% if user.subscription_tier == 'free' %}
+                <p class="plan-description">You're using the free plan. Upgrade for unlimited AI insights and advanced features!</p>
+                <a href="/subscription?email={{ user.email }}" class="upgrade-btn">Upgrade to Premium</a>
+                {% else %}
+                <p class="plan-description">You have unlimited access to all premium features! Thank you for your support. 🙏</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Feature Comparison (moved down) -->
         <div class="feature-comparison">
             <h3>🆚 Free vs Premium Features</h3>
             <div class="feature-grid">
@@ -159,34 +277,8 @@
                         <li><strong>Auto wearable sync</strong> (coming soon)</li>
                         <li><strong>Priority</strong> support</li>
                     </ul>
-                    {% if user.subscription_tier == 'free' %}
-                    <a href="/subscription?email={{ user.email }}" style="background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; display: inline-block; margin-top: 10px; font-weight: 600;">Upgrade Now</a>
-                    {% endif %}
                 </div>
             </div>
-        </div>
-
-        <div class="card">
-            <h3>💳 Current Subscription</h3>
-            <p><strong>Plan:</strong> {{ user.subscription_tier|title }} 
-            {% if user.subscription_tier == 'free' %}
-                <span style="color: #ff9800; font-weight: bold;">(Upgrade available!)</span>
-            {% endif %}
-            </p>
-            {% if user.subscription_tier == 'free' %}
-            <p><small>📊 You're using the free plan - upgrade for unlimited access to all features!</small></p>
-            {% else %}
-            <p><small>✨ You have unlimited access to all premium features!</small></p>
-            {% endif %}
-        </div>
-
-        <div style="text-align: center;">
-            <a href="/daily-log?email={{ user.email }}" class="button">📝 Daily Log</a>
-            <a href="/weekly-checkin?email={{ user.email }}" class="button">📅 Weekly Check-in</a>
-            <a href="/ai-chat?email={{ user.email }}" class="button">🤖 Ask AI</a>
-            <a href="/connect-devices?email={{ user.email }}" class="button">🔗 Connect Devices</a>
-            <a href="/subscription?email={{ user.email }}" class="button">💳 Subscription</a>
-            <a href="/?email={{ user.email }}" class="button">⚙️ Update Profile</a>
         </div>
     </div>
 </body>
