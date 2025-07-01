@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Check-in</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>📅 Weekly Check-in</h1>
+        <p style="text-align: center; color: #666;">Reflect on your week and get AI-powered feedback</p>
+
+        <form method="POST" action="/save-weekly-checkin">
+            <input type="hidden" name="email" value="{{ email }}">
+            <input type="hidden" name="week_of" value="{{ today }}">
+
+            <label for="adherence">📊 How well did you follow your plan this week? (1-10):</label>
+            <input type="range" name="adherence" min="1" max="10" value="5" oninput="document.getElementById('adherence-value').textContent = this.value">
+            <span id="adherence-value">5</span>/10
+
+            <label for="energy">⚡ Average energy level this week:</label>
+            <select name="energy">
+                <option value="very_low">Very Low</option>
+                <option value="low">Low</option>
+                <option value="moderate">Moderate</option>
+                <option value="high">High</option>
+                <option value="very_high">Very High</option>
+            </select>
+
+            <label for="bloating">🫃 Bloating/digestive issues:</label>
+            <select name="bloating">
+                <option value="none">None</option>
+                <option value="mild">Mild</option>
+                <option value="moderate">Moderate</option>
+                <option value="severe">Severe</option>
+            </select>
+
+            <label for="hunger">🍽️ Hunger levels:</label>
+            <select name="hunger">
+                <option value="very_low">Very Low</option>
+                <option value="low">Low</option>
+                <option value="normal">Normal</option>
+                <option value="high">High</option>
+                <option value="very_high">Very High</option>
+            </select>
+
+            <label for="weight_change">⚖️ Weight difference from last week (optional):</label>
+            <input type="number" name="weight_change" step="0.1" placeholder="e.g., -0.5 or +1.2">
+
+            <label for="challenges">🤔 What were your biggest challenges this week?</label>
+            <textarea name="challenges" placeholder="E.g., busy schedule, stress eating, lack of motivation..." rows="3"></textarea>
+
+            <label for="wins">🎉 What went well this week?</label>
+            <textarea name="wins" placeholder="E.g., consistent workouts, better sleep, healthy meal prep..." rows="3"></textarea>
+
+            <label for="focus_next_week">🎯 What do you want to focus on next week?</label>
+            <textarea name="focus_next_week" placeholder="E.g., increase water intake, try new recipes, prioritize sleep..." rows="2"></textarea>
+
+            <button type="submit" class="button">💾 Submit Check-in & Get AI Feedback</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

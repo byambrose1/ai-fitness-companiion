@@ -1,0 +1,98 @@
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Plans</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>💳 Choose Your Plan</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Unlock the full potential of your fitness journey
+        </p>
+
+        <div class="plans-grid">
+            <div class="plan-card {% if current_tier == 'free' %}current{% endif %}">
+                {% if current_tier == 'free' %}
+                <div class="current-badge">Current Plan</div>
+                {% endif %}
+                <h2>🆓 Free</h2>
+                <div class="price">£0<span style="font-size: 1rem;">/month</span></div>
+                <ul class="features">
+                    <li>Basic daily logging</li>
+                    <li>Limited AI insights (3/week)</li>
+                    <li>7-day data history</li>
+                    <li>1 weekly check-in</li>
+                </ul>
+                {% if current_tier != 'free' %}
+                <form method="POST" action="/downgrade">
+                    <input type="hidden" name="email" value="{{ email }}">
+                    <button type="submit" class="button">Downgrade to Free</button>
+                </form>
+                {% else %}
+                <button class="button" disabled>Current Plan</button>
+                {% endif %}
+            </div>
+
+            <div class="plan-card premium {% if current_tier == 'premium' %}current{% endif %}">
+                {% if current_tier == 'premium' %}
+                <div class="current-badge">Current Plan</div>
+                {% endif %}
+                <h2>✨ Premium</h2>
+                <div class="price">£9.97<span style="font-size: 1rem;">/month</span></div>
+                <ul class="features">
+                    <li>Unlimited daily logging</li>
+                    <li>Full AI insights & chat</li>
+                    <li>Unlimited data history</li>
+                    <li>Weekly meal plans</li>
+                    <li>Priority support</li>
+                    <li>Advanced analytics</li>
+                </ul>
+                {% if current_tier != 'premium' %}
+                <button onclick="createCheckoutSession('{{ email }}')" class="button">Upgrade to Premium</button>
+                {% else %}
+                <button class="button" disabled>Current Plan</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        const stripe = Stripe('{{ stripe_publishable_key }}');
+
+        async function createCheckoutSession(email) {
+            const response = await fetch('/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `email=${email}`
+            });
+
+            const session = await response.json();
+
+            if (session.error) {
+                alert('Error: ' + session.error);
+                return;
+            }
+
+            // Redirect to Stripe Checkout
+            const result = await stripe.redirectToCheckout({
+                sessionId: session.id
+            });
+
+            if (result.error) {
+                alert(result.error.message);
+            }
+        }
+    </script>
+</body>
+</html>

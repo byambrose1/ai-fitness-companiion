@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Wellness Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AI Wellness Assistant</h1>
+        <p style="text-align: center; color: #666;">Ask me anything about your fitness journey!</p>
+
+        <form method="POST" action="/ai-response">
+            <input type="hidden" name="email" value="{{ email }}">
+            <textarea name="question" class="chat-input" rows="4" placeholder="E.g., Why didn't I lose weight this week? Why do I feel bloated today? What should I improve?"></textarea>
+            <button type="submit" class="button">💬 Ask AI Assistant</button>
+        </form>
+
+        <div class="suggested-questions">
+            <h3>💡 Suggested Questions:</h3>
+            <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Why didn\\'t I lose weight this week?'">Why didn't I lose weight this week?</div>
+            <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Why do I feel bloated today?'">Why do I feel bloated today?</div>
+            <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'What should I focus on next week?'">What should I focus on next week?</div>
+            <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'How can I improve my energy levels?'">How can I improve my energy levels?</div>
+            <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Tips for better sleep?'">Tips for better sleep?</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

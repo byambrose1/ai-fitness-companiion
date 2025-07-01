@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string, jsonify, session, send_from_directory
+from flask import Flask, request, render_template, jsonify, session, send_from_directory
 from datetime import datetime, timedelta
 import json
 import os
@@ -754,7 +754,7 @@ def complete_signup():
 
     # Save user to database
     save_user(user_profile)
-    
+
     # Add to users_data dictionary for immediate availability
     users_data[email] = user_profile
 
@@ -998,484 +998,7 @@ def form():
                                 Focus on sustainable habits rather than quick fixes. With {{ sleep_hours }} hours of sleep and stress at {{ stress_level }}/10, prioritising recovery will support your fat loss goals.
                             {% elif goal == 'muscle_gain' %}
 
-
-# Fitness Tracker OAuth Routes
-@app.route("/connect-devices")
-def connect_devices():
-    """Show device connection options"""
-    email = request.args.get('email')
-    if not email:
-        return "Please provide email parameter"
-
-    user = get_user(email)
-    if not user:
-        return "User not found"
-
-    base_url = request.url_root.rstrip('/')
-    
-    # Get OAuth URLs for each service
-    fitbit_auth_url = oauth_handler.get_fitbit_auth_url(email, base_url)
-    oura_auth_url = oauth_handler.get_oura_auth_url(email, base_url)
-    google_fit_auth_url = oauth_handler.get_google_fit_auth_url(email, base_url)
-    
-    # Check which devices are already connected
-    fitness_tokens = user.get('fitness_tokens', {})
-    
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html lang="en-GB">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Connect Your Fitness Devices</title>
-        <style>
-            * { box-sizing: border-box; }
-            body { 
-                font-family: 'Inter', sans-serif; 
-                margin: 0; 
-                "background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);" 
-                
-        </style>
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>🔗 Connect Your Fitness Devices</h1>
-            <p style="text-align: center; color: #666; margin-bottom: 30px;">
-                Automatically sync your fitness data for better AI insights!
-            </p>
-
-            <div class="auto-sync-info">
-                <h3 style="color: #3B7A57; margin-top: 0;">✨ Automatic Sync Benefits</h3>
-                <ul style="text-align: left; color: #2d5a42;">
-                    <li><strong>No Manual Entry:</strong> Your device data syncs automatically every day</li>
-                    <li><strong>Better AI Insights:</strong> More data = more accurate and personalized recommendations</li>
-                    <li><strong>Trend Analysis:</strong> Track patterns in sleep, activity, and recovery over time</li>
-                    <li><strong>Hormone-Aware Coaching:</strong> Adjust recommendations based on your cycle and stress</li>
-                </ul>
-            </div>
-
-            <div class="device-grid">
-                <div class="device-card {% if fitness_tokens.get('fitbit_access_token') %}connected{% endif %}">
-                    <div class="device-icon">⌚</div>
-                    <h3>Fitbit</h3>
-                    <p>Steps, sleep score, heart rate, active minutes</p>
-                    {% if fitness_tokens.get('fitbit_access_token') %}
-                        <div class="connected-badge">✅ Connected</div>
-                        <p style="font-size: 0.9rem; color: #666;">Syncing automatically</p>
-                    {% else %}
-                        {% if fitbit_auth_url %}
-                        <a href="{{ fitbit_auth_url }}" class="connect-btn">Connect Fitbit</a>
-                        {% else %}
-                        <button class="connect-btn" disabled>API Not Configured</button>
-                        {% endif %}
-                    {% endif %}
-                </div>
-
-                <div class="device-card {% if fitness_tokens.get('oura_access_token') %}connected{% endif %}">
-                    <div class="device-icon">💍</div>
-                    <h3>Oura Ring</h3>
-                    <p>Readiness score, sleep stages, HRV, temperature</p>
-                    {% if fitness_tokens.get('oura_access_token') %}
-                        <div class="connected-badge">✅ Connected</div>
-                        <p style="font-size: 0.9rem; color: #666;">Syncing automatically</p>
-                    {% else %}
-                        {% if oura_auth_url %}
-                        <a href="{{ oura_auth_url }}" class="connect-btn">Connect Oura</a>
-                        {% else %}
-                        <button class="connect-btn" disabled>API Not Configured</button>
-                        {% endif %}
-                    {% endif %}
-                </div>
-
-                <div class="device-card {% if fitness_tokens.get('google_fit_access_token') %}connected{% endif %}">
-                    <div class="device-icon">📱</div>
-                    <h3>Google Fit</h3>
-                    <p>Steps, activities, heart rate (Android devices)</p>
-                    {% if fitness_tokens.get('google_fit_access_token') %}
-                        <div class="connected-badge">✅ Connected</div>
-                        <p style="font-size: 0.9rem; color: #666;">Syncing automatically</p>
-                    {% else %}
-                        {% if google_fit_auth_url %}
-                        <a href="{{ google_fit_auth_url }}" class="connect-btn">Connect Google Fit</a>
-                        {% else %}
-                        <button class="connect-btn" disabled>API Not Configured</button>
-                        {% endif %}
-                    {% endif %}
-                </div>
-
-                <div class="device-card">
-                    <div class="device-icon">🍎</div>
-                    <h3>Apple Health</h3>
-                    <p>Steps, workouts, sleep, heart rate (iPhone/Apple Watch)</p>
-                    <p style="font-size: 0.9rem; color: #666; margin: 15px 0;">
-                        Apple HealthKit requires an iOS app. For now, copy your Health app summary into the daily log.
-                    </p>
-                    <a href="/wearables-guide?email={{ email }}" class="connect-btn" style="background: #74b9ff;">View Guide</a>
-                </div>
-
-                <div class="device-card">
-                    <div class="device-icon">🏃</div>
-                    <h3>Garmin</h3>
-                    <p>VO2 max, body battery, training load, recovery</p>
-                    <p style="font-size: 0.9rem; color: #666; margin: 15px 0;">
-                        Garmin Connect API integration coming soon. Copy data from Garmin Connect app for now.
-                    </p>
-                    <a href="/wearables-guide?email={{ email }}" class="connect-btn" style="background: #74b9ff;">View Guide</a>
-                </div>
-            </div>
-
-            <div style="text-align: center; margin: 30px 0;">
-                <button onclick="syncAllDevices()" class="sync-btn">🔄 Sync All Connected Devices Now</button>
-                <p style="font-size: 0.9rem; color: #666;">Last sync: <span id="lastSync">Never</span></p>
-            </div>
-
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="/dashboard?email={{ email }}" style="color: #3B7A57; text-decoration: none; font-weight: 600;">← Back to Dashboard</a>
-            </div>
-        </div>
-
-        <script>
-            async function syncAllDevices() {
-                const syncBtn = document.querySelector('.sync-btn');
-                const originalText = syncBtn.textContent;
-                syncBtn.textContent = '🔄 Syncing...';
-                syncBtn.disabled = true;
-
-                try {
-                    const response = await fetch('/api/sync-devices?email={{ email }}', {
-                        method: 'POST'
-                    });
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        document.getElementById('lastSync').textContent = new Date().toLocaleString();
-                        alert('✅ Devices synced successfully!');
-                    } else {
-                        alert('❌ Sync failed: ' + result.error);
-                    }
-                } catch (error) {
-                    alert('❌ Sync failed: ' + error.message);
-                } finally {
-                    syncBtn.textContent = originalText;
-                    syncBtn.disabled = false;
-                }
-            }
-        </script>
-    </body>
-    </html>
-    """, email=email, fitbit_auth_url=fitbit_auth_url, oura_auth_url=oura_auth_url, 
-         google_fit_auth_url=google_fit_auth_url, fitness_tokens=fitness_tokens)
-
-# OAuth Callback Routes
-@app.route("/oauth/fitbit/callback")
-def fitbit_oauth_callback():
-    """Handle Fitbit OAuth callback"""
-    code = request.args.get('code')
-    state = request.args.get('state')
-    error = request.args.get('error')
-    
-    if error:
-        return f"Fitbit authorization failed: {error}"
-    
-    if not code or not state:
-        return "Missing authorization code or state"
-    
-    # Extract user email from session (stored during auth URL generation)
-    user_email = None
-    for key in session.keys():
-        if key.startswith('fitbit_oauth_state_'):
-            if session[key] == state:
-                user_email = key.replace('fitbit_oauth_state_', '')
-                break
-    
-    if not user_email:
-        return "Invalid OAuth state"
-    
-    # Exchange code for tokens
-    base_url = request.url_root.rstrip('/')
-    result = oauth_handler.handle_fitbit_callback(code, state, user_email, base_url)
-    
-    if result.get('success'):
-        # Store tokens in user profile
-        user = get_user(user_email)
-        if user:
-            if 'fitness_tokens' not in user:
-                user['fitness_tokens'] = {}
-            
-            user['fitness_tokens']['fitbit_access_token'] = result['access_token']
-            user['fitness_tokens']['fitbit_refresh_token'] = result['refresh_token']
-            user['fitness_tokens']['fitbit_user_id'] = result['user_id']
-            save_user(user)
-            
-            return render_template_string("""
-            <!DOCTYPE html>
-            <html>
-            <head><title>Fitbit Connected!</title></head>
-            <body style="font-family: Arial; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);">
-                <div style="max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px;">
-                    <h2>🎉 Fitbit Connected Successfully!</h2>
-                    <p>Your Fitbit data will now sync automatically each day.</p>
-                    <a href="/connect-devices?email={{ email }}" style="background: #3B7A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px;">← Back to Device Connections</a>
-                </div>
-            </body>
-            </html>
-            """, email=user_email)
-    else:
-        return f"Fitbit connection failed: {result.get('error')}"
-
-@app.route("/oauth/oura/callback")
-def oura_oauth_callback():
-    """Handle Oura OAuth callback"""
-    code = request.args.get('code')
-    state = request.args.get('state')
-    error = request.args.get('error')
-    
-    if error:
-        return f"Oura authorization failed: {error}"
-    
-    if not code or not state:
-        return "Missing authorization code or state"
-    
-    # Extract user email from session
-    user_email = None
-    for key in session.keys():
-        if key.startswith('oura_oauth_state_'):
-            if session[key] == state:
-                user_email = key.replace('oura_oauth_state_', '')
-                break
-    
-    if not user_email:
-        return "Invalid OAuth state"
-    
-    # Exchange code for tokens
-    base_url = request.url_root.rstrip('/')
-    result = oauth_handler.handle_oura_callback(code, state, user_email, base_url)
-    
-    if result.get('success'):
-        # Store tokens in user profile
-        user = get_user(user_email)
-        if user:
-            if 'fitness_tokens' not in user:
-                user['fitness_tokens'] = {}
-            
-            user['fitness_tokens']['oura_access_token'] = result['access_token']
-            user['fitness_tokens']['oura_refresh_token'] = result['refresh_token']
-            save_user(user)
-            
-            return render_template_string("""
-            <!DOCTYPE html>
-            <html>
-            <head><title>Oura Connected!</title></head>
-            <body style="font-family: Arial; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);">
-                <div style="max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px;">
-                    <h2>🎉 Oura Ring Connected Successfully!</h2>
-                    <p>Your Oura data will now sync automatically each day.</p>
-                    <a href="/connect-devices?email={{ email }}" style="background: #3B7A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px;">← Back to Device Connections</a>
-                </div>
-            </body>
-            </html>
-            """, email=user_email)
-    else:
-        return f"Oura connection failed: {result.get('error')}"
-
-@app.route("/oauth/google/callback")
-def google_fit_oauth_callback():
-    """Handle Google Fit OAuth callback"""
-    code = request.args.get('code')
-    state = request.args.get('state')
-    error = request.args.get('error')
-    
-    if error:
-        return f"Google Fit authorization failed: {error}"
-    
-    if not code or not state:
-        return "Missing authorization code or state"
-    
-    # Extract user email from session
-    user_email = None
-    for key in session.keys():
-        if key.startswith('google_oauth_state_'):
-            if session[key] == state:
-                user_email = key.replace('google_oauth_state_', '')
-                break
-    
-    if not user_email:
-        return "Invalid OAuth state"
-    
-    # Exchange code for tokens
-    base_url = request.url_root.rstrip('/')
-    result = oauth_handler.handle_google_fit_callback(code, state, user_email, base_url)
-    
-    if result.get('success'):
-        # Store tokens in user profile
-        user = get_user(user_email)
-        if user:
-            if 'fitness_tokens' not in user:
-                user['fitness_tokens'] = {}
-            
-            user['fitness_tokens']['google_fit_access_token'] = result['access_token']
-            if result.get('refresh_token'):
-                user['fitness_tokens']['google_fit_refresh_token'] = result['refresh_token']
-            save_user(user)
-            
-            return render_template_string("""
-            <!DOCTYPE html>
-            <html>
-            <head><title>Google Fit Connected!</title></head>
-            <body style="font-family: Arial; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);">
-                <div style="max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px;">
-                    <h2>🎉 Google Fit Connected Successfully!</h2>
-                    <p>Your Google Fit data will now sync automatically each day.</p>
-                    <a href="/connect-devices?email={{ email }}" style="background: #3B7A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px;">← Back to Device Connections</a>
-                </div>
-            </body>
-            </html>
-            """, email=user_email)
-    else:
-        return f"Google Fit connection failed: {result.get('error')}"
-
-# API Routes for device sync
-@app.route("/api/sync-devices", methods=["POST"])
-def api_sync_devices():
-    """API endpoint to sync all connected devices"""
-    email = request.args.get('email')
-    if not email:
-        return jsonify({"error": "Email required"}), 400
-    
-    user = get_user(email)
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    
-    fitness_tokens = user.get('fitness_tokens', {})
-    if not fitness_tokens:
-        return jsonify({"error": "No devices connected"}), 400
-    
-    try:
-        # Sync data from all connected devices
-        sync_results = fitness_tracker_api.sync_all_connected_devices(fitness_tokens)
-        
-        # Store synced data in user's daily logs (if it's for today)
-        today = datetime.now().strftime('%Y-%m-%d')
-        consolidated_data = {
-            'date': today,
-            'timestamp': datetime.now().isoformat(),
-            'auto_synced': True,
-            'device_data': sync_results
-        }
-        
-        # Add to daily logs
-        add_daily_log(email, consolidated_data)
-        
-        # Also store in user profile for quick access
-        user['last_device_sync'] = datetime.now().isoformat()
-        user['latest_device_data'] = sync_results
-        save_user(user)
-        
-        return jsonify({
-            "success": True,
-            "synced_devices": len([r for r in sync_results if not r.get('error')]),
-            "data": sync_results
-        })
-        
-    except Exception as e:
-        return jsonify({"error": f"Sync failed: {str(e)}"}), 500
-
-@app.route("/api/device-status")
-def api_device_status():
-    """Get status of connected devices"""
-    email = request.args.get('email')
-    if not email:
-        return jsonify({"error": "Email required"}), 400
-    
-    user = get_user(email)
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    
-    fitness_tokens = user.get('fitness_tokens', {})
-    last_sync = user.get('last_device_sync', 'Never')
-    
-    connected_devices = []
-    if fitness_tokens.get('fitbit_access_token'):
-        connected_devices.append('Fitbit')
-    if fitness_tokens.get('oura_access_token'):
-        connected_devices.append('Oura Ring')
-    if fitness_tokens.get('google_fit_access_token'):
-        connected_devices.append('Google Fit')
-    
-    return jsonify({
-        "connected_devices": connected_devices,
-        "last_sync": last_sync,
-        "auto_sync_enabled": len(connected_devices) > 0
-    })
-
-                                Consistency with protein intake and progressive training will be key. Your {{ activity_level|replace('_', ' ') }} activity level provides a solid foundation.
-                            {% elif goal == 'general_health' %}
-                                Small, consistent improvements in nutrition and movement will compound over time. Focus on building sustainable habits.
-                            {% else %}
-                                Regular movement and stress management techniques will significantly benefit your mental wellbeing journey.
-                            {% endif %}
-                        </div>
-
-                        <div class="summary-item">
-                            <strong>🧠 Wellbeing Focus:</strong>
-                            {% if stress_level|int > 6 %}
-                                Your stress levels suggest prioritising stress management techniques. Consider meditation, walks, or other relaxation methods alongside your fitness goals.
-                            {% elif motivation_level|int < 5 %}
-                                Building momentum with small wins will help increase motivation. Start with achievable daily goals.
-                            {% else %}
-                                You're in a good headspace to pursue your goals. Use this positive energy to establish consistent routines.
-                            {% endif %}
-                        </div>
-
-                        {% if menstrual_cycle and menstrual_cycle != '' %}
-                        <div class="summary-item">
-                            <strong>🌙 Cycle-Aware Tips:</strong>
-                            Your menstrual cycle affects energy, appetite, and recovery. We'll help you adjust expectations and strategies throughout your cycle for better results.
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-
-                <div class="next-steps">
-                    <h2>🚀 What's Next?</h2>
-                    <p style="margin-bottom: 20px;">Your fitness companion is now set up! Here's what you can look forward to:</p>
-
-                    <div class="feature-grid">
-                        <div class="feature-card">
-                            <h3>📝 Daily Logging</h3>
-                            <p>Track food, exercise, mood, and sleep with our intelligent system</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🤖 AI Feedback</h3>
-                            <p>Get personalised insights based on your data and goals</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>📊 Progress Tracking</h3>
-                            <p>Monitor your journey with smart analytics and trends</p>
-                        </div>
-                        <div class="feature-card">
-                            <h3>🔔 Gentle Reminders</h3>
-                            <p>Stay on track with supportive, non-judgmental prompts</p>
-                        </div>
-                    </div>
-
-                    <p style="text-align: center; margin-top: 25px; font-style: italic; color: #666;">
-                        💚 Remember: This is about progress, not perfection. Small consistent steps lead to lasting change.
-                    </p>
-                </div>
-
-                <div style="text-align: center; margin-top: 30px;">
-                    <a href="/dashboard?email={{ email }}" class="button">🏠 Go to Dashboard</a>
-                    <a href="/daily-log?email={{ email }}" class="button">📝 Start Daily Log</a>
-                    <a href="/" class="button secondary">↺ Update Profile</a>
-                </div>
-            </div>
-        </body>
-        </html>
-        """, 
-        name=name, email=email, age=age, gender=gender, height=height, weight=weight, 
+"""), email=email, age=age, gender=gender, height=height, weight=weight, 
         goal_weight=goal_weight, goal=goal, goal_reason=goal_reason, motivation=motivation,
         mental_state=mental_state, motivation_level=motivation_level, mood=mood, 
         mood_custom=mood_custom, medications=medications, medication_list=medication_list,
@@ -1487,7 +1010,7 @@ def api_device_status():
         stress_level=stress_level, support_system=support_system, support_explanation=support_explanation,
         ai_consent=ai_consent)
 
-    return open("templates/index.html").read()
+    return render_template("index.html")
 
 @app.route("/dashboard")
 def dashboard():
@@ -1499,7 +1022,7 @@ def dashboard():
     user = get_user(email)
     if not user:
         return "User not found. Please complete your profile first."
-    
+
     # Update users_data dictionary
     users_data[email] = user
 
@@ -1544,7 +1067,7 @@ def dashboard():
     # Generate motivational content for free users
     motivation_content = ""
     upgrade_incentives = []
-    
+
     if user.get('subscription_tier') == 'free':
         # Add motivational elements for free users
         days_left_in_week = 7 - (datetime.now().weekday())
@@ -1554,7 +1077,7 @@ def dashboard():
             "🍽️ Get personalized meal plans with Premium upgrade",
             "📈 Unlock hormone-aware insights with Premium"
         ]
-        
+
         # Calculate usage statistics for motivation
         ai_questions_used = 3 - check_subscription_limits(email, 'ai_questions')  # Simplified calculation
         motivation_content = f"""
@@ -1579,223 +1102,7 @@ def dashboard():
         </div>
         """
 
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html lang="en-GB">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Your Wellness Dashboard</title>
-        <style>
-            * { box-sizing: border-box; }
-            body { 
-                font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;
-                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
-            }
-            .container { background: white; padding: 2em; border-radius: 20px; max-width: 1000px; margin: 0 auto; }
-            .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0; }
-            .card { background: #f8fffe; padding: 20px; border-radius: 15px; border-left: 5px solid #A8E6CF; }
-            .score { font-size: 2rem; font-weight: bold; color: #2d5a3d; }
-            .button { 
-                display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #A8E6CF, #7ED3B2);
-                color: #2d5a3d; text-decoration: none; border-radius: 8px; margin: 5px; font-weight: 600;
-            }
-            .reminder { background: #e3f9e5; padding: 15px; border-radius: 10px; margin: 15px 0; text-align: center; }
-            h1 { color: #2d5a3d; text-align: center; }
-            h2 { color: #2d5a3d; }
-            .wearable-integration { background: #e6f3ff; border: 2px solid #74b9ff; padding: 20px; border-radius: 15px; margin: 20px 0; }
-            .feature-comparison { background: #f8f9fa; padding: 20px; border-radius: 15px; margin: 20px 0; }
-            .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 0; }
-            .feature-column { padding: 15px; border-radius: 10px; }
-            .free-column { background: #e3f2fd; border-left: 4px solid #2196f3; }
-            .premium-column { background: #fff3e0; border-left: 4px solid #ff9800; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>🌟 Welcome back, {{ user.name|title }}!</h1>
-
-            <div class="reminder">
-                <p>💚 <strong>Daily Motivation:</strong> {{ contextual_message }}</p>
-            </div>
-
-            <!-- Streak and Progress Section -->
-            <div class="card" style="background: linear-gradient(135deg, #A8E6CF, #D1F2EB); text-align: center; margin-bottom: 20px;">
-                <h3 style="color: #1a1a1a;">🔥 Your Progress</h3>
-                <div style="display: flex; justify-content: space-around; align-items: center;">
-                    <div>
-                        <div style="font-size: 2.5rem; font-weight: 700; color: #3B7A57;">{{ streak_days }}</div>
-                        <div style="font-size: 0.9rem; color: #2d5a42;">Day Streak</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2.5rem; font-weight: 700; color: #3B7A57;">{{ total_logs }}</div>
-                        <div style="font-size: 0.9rem; color: #2d5a42;">Total Logs</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2.5rem; font-weight: 700; color: #3B7A57;">{{ days_since_signup + 1 }}</div>
-                        <div style="font-size: 0.9rem; color: #2d5a42;">Days Active</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-grid">
-                <div class="card">
-                    <h3>📊 Quick Score</h3>
-                    {% if recent_score %}
-                        <div class="score">{{ recent_score }}/10</div>
-                        <p>Based on your latest entries</p>
-                    {% else %}
-                        <div class="score">Ready!</div>
-                        <p>Complete your daily log to see your score</p>
-                    {% endif %}
-                </div>
-
-                <div class="card">
-                    <h3>🎯 Your Goal</h3>
-                    <p><strong>{{ user.profile_data.goal|replace('_', ' ')|title }}</strong></p>
-                    <p>{{ user.profile_data.motivation[:100] }}...</p>
-                </div>
-
-                <div class="card">
-                    <h3>💭 Quick Stats</h3>
-                    <p><strong>Motivation:</strong> {{ user.profile_data.motivationLevel }}/10</p>
-                    <p><strong>Stress:</strong> {{ user.profile_data.stressLevel }}/10</p>
-                    <p><strong>Sleep:</strong> {{ user.profile_data.sleepHours }} hours</p>
-                </div>
-
-                {% if user.profile_data.menstrualCycle %}
-                <div class="card">
-                    <h3>🌙 Cycle Status</h3>
-                    <p>{{ user.profile_data.menstrualCycle|replace('_', ' ')|title }}</p>
-                    <p><small>Adjusting recommendations based on your cycle phase</small></p>
-                </div>
-                {% endif %}
-            </div>
-
-            <h2>🚀 Quick Actions</h2>
-            <!-- Automatic Device Sync Status -->
-            <div class="wearable-integration">
-                <h3>📱 Automatic Device Sync</h3>
-                {% set fitness_tokens = user.get('fitness_tokens', {}) %}
-                {% set connected_devices = [] %}
-                {% if fitness_tokens.get('fitbit_access_token') %}{% set _ = connected_devices.append('Fitbit') %}{% endif %}
-                {% if fitness_tokens.get('oura_access_token') %}{% set _ = connected_devices.append('Oura Ring') %}{% endif %}
-                {% if fitness_tokens.get('google_fit_access_token') %}{% set _ = connected_devices.append('Google Fit') %}{% endif %}
-                
-                {% if connected_devices %}
-                <p><strong>Status:</strong> <span style="color: #00b894; font-weight: bold;">✅ {{ connected_devices|length }} device(s) connected</span></p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 15px 0;">
-                    {% if 'Fitbit' in connected_devices %}
-                    <div style="text-align: center; padding: 10px; background: #e8f5e8; border: 2px solid #00b894; border-radius: 8px;">
-                        <div style="font-size: 1.5rem;">⌚</div>
-                        <small>Fitbit ✅</small>
-                    </div>
-                    {% endif %}
-                    {% if 'Oura Ring' in connected_devices %}
-                    <div style="text-align: center; padding: 10px; background: #e8f5e8; border: 2px solid #00b894; border-radius: 8px;">
-                        <div style="font-size: 1.5rem;">💍</div>
-                        <small>Oura Ring ✅</small>
-                    </div>
-                    {% endif %}
-                    {% if 'Google Fit' in connected_devices %}
-                    <div style="text-align: center; padding: 10px; background: #e8f5e8; border: 2px solid #00b894; border-radius: 8px;">
-                        <div style="font-size: 1.5rem;">📱</div>
-                        <small>Google Fit ✅</small>
-                    </div>
-                    {% endif %}
-                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                        <div style="font-size: 1.5rem;">🍎</div>
-                        <small>Apple Health</small>
-                        <div style="font-size: 0.7rem; color: #666;">Manual Entry</div>
-                    </div>
-                </div>
-                <p style="font-size: 0.9rem; color: #00b894; font-weight: 600;">🔄 Automatic sync enabled! Data updates daily.</p>
-                <p style="font-size: 0.8rem; color: #666;">Last sync: {{ user.get('last_device_sync', 'Never') }}</p>
-                {% else %}
-                <p><strong>Status:</strong> <span style="color: #ff9800; font-weight: bold;">⚠️ No devices connected</span></p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 15px 0;">
-                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                        <div style="font-size: 1.5rem;">⌚</div>
-                        <small>Fitbit</small>
-                    </div>
-                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                        <div style="font-size: 1.5rem;">💍</div>
-                        <small>Oura Ring</small>
-                    </div>
-                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                        <div style="font-size: 1.5rem;">📱</div>
-                        <small>Google Fit</small>
-                    </div>
-                    <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
-                        <div style="font-size: 1.5rem;">🍎</div>
-                        <small>Apple Health</small>
-                    </div>
-                </div>
-                <p style="font-size: 0.9rem; color: #666;">Connect your devices for automatic data sync!</p>
-                {% endif %}
-            </div>
-
-            {{ motivation_content|safe }}
-
-            <!-- Feature Comparison -->
-            <div class="feature-comparison">
-                <h3>🆚 Free vs Premium Features</h3>
-                <div class="feature-grid">
-                    <div class="feature-column free-column">
-                        <h4 style="margin-top: 0; color: #2196f3;">🆓 Free Plan</h4>
-                        <ul style="margin: 0; padding-left: 20px; color: #666;">
-                            <li>Basic daily logging (7 days)</li>
-                            <li>Quick daily score</li>
-                            <li>3 AI questions per week</li>
-                            <li>Basic wearable data entry</li>
-                            <li>7-day data history</li>
-                            <li>Email support</li>
-                        </ul>
-                    </div>
-                    <div class="feature-column premium-column">
-                        <h4 style="margin-top: 0; color: #ff9800;">✨ Premium Plan - £9.97/month</h4>
-                        <ul style="margin: 0; padding-left: 20px; color: #666;">
-                            <li><strong>Unlimited</strong> daily logging & AI chat</li>
-                            <li><strong>Advanced</strong> analytics & trends</li>
-                            <li><strong>Hormone-aware</strong> recommendations</li>
-                            <li><strong>AI meal planning</strong> & suggestions</li>
-                            <li><strong>Unlimited</strong> data history</li>
-                            <li><strong>Auto wearable sync</strong> (coming soon)</li>
-                            <li><strong>Priority</strong> support</li>
-                        </ul>
-                        {% if user.subscription_tier == 'free' %}
-                        <a href="/subscription?email={{ user.email }}" style="background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; display: inline-block; margin-top: 10px; font-weight: 600;">Upgrade Now</a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>💳 Current Subscription</h3>
-                <p><strong>Plan:</strong> {{ user.subscription_tier|title }} 
-                {% if user.subscription_tier == 'free' %}
-                    <span style="color: #ff9800; font-weight: bold;">(Upgrade available!)</span>
-                {% endif %}
-                </p>
-                {% if user.subscription_tier == 'free' %}
-                <p><small>📊 You're using the free plan - upgrade for unlimited access to all features!</small></p>
-                {% else %}
-                <p><small>✨ You have unlimited access to all premium features!</small></p>
-                {% endif %}
-            </div>
-
-            <div style="text-align: center;">
-                <a href="/daily-log?email={{ user.email }}" class="button">📝 Daily Log</a>
-                <a href="/weekly-checkin?email={{ user.email }}" class="button">📅 Weekly Check-in</a>
-                <a href="/ai-chat?email={{ user.email }}" class="button">🤖 Ask AI</a>
-                <a href="/connect-devices?email={{ user.email }}" class="button">🔗 Connect Devices</a>
-                <a href="/subscription?email={{ user.email }}" class="button">💳 Subscription</a>
-                <a href="/" class="button">⚙️ Update Profile</a>
-            </div>
-        </div>
-    </body>
-    </html>
-    """, user=user, contextual_message=contextual_message, streak_days=streak_days, 
+    return render_template("dashboard.html", user=user, contextual_message=contextual_message, streak_days=streak_days, 
          total_logs=total_logs, days_since_signup=days_since_signup, recent_score=None,
          motivation_content=motivation_content)
 
@@ -1860,13 +1167,7 @@ def daily_log():
 
     contextual_message = contextual_messages[streak_days % len(contextual_messages)]
 
-    return open("templates/daily-log.html").read().replace("{{ email }}", email)\
-                                                .replace("{{ today }}", datetime.now().strftime("%Y-%m-%d"))\
-                                                .replace("{{ streak_days or 1 }}", str(streak_days))\
-                                                .replace("{{ predicted_breakfast or \"Oats with berries\" }}", predicted_breakfast)\
-                                                .replace("{{ predicted_workout or \"30min walk\" }}", predicted_workout)\
-                                                .replace("{{ habit_anchor or 'have my morning coffee' }}", habit_anchor)\
-                                                .replace("{{ contextual_message }}", contextual_message)
+    return render_template("daily-log.html", email=email, today=datetime.now().strftime("%Y-%m-%d"), streak_days = str(streak_days), predicted_breakfast = predicted_breakfast, predicted_workout = predicted_workout, habit_anchor = habit_anchor, contextual_message = contextual_message)
 
 @app.route("/save-daily-log", methods=["POST"])
 def save_daily_log():
@@ -1984,83 +1285,7 @@ def save_daily_log():
     selected_insights = insights[:2] if len(insights) > 2 else insights
     insight_text = " ".join(selected_insights) if selected_insights else "Every log helps us understand your patterns better! 🤖"
 
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Daily Log Saved - Instant Insights!</title>
-        <style>
-            body { 
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-                text-align: center; padding: 20px; 
-                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); 
-                min-height: 100vh; display: flex; align-items: center; justify-content: center;
-            }
-            .container { 
-                max-width: 600px; margin: 0 auto; background: white; 
-                padding: 40px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            }
-            .celebration { font-size: 4rem; margin-bottom: 20px; animation: bounce 1s ease-in-out; }
-            @keyframes bounce {
-                0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-                40% { transform: translateY(-30px); }
-                60% { transform: translateY(-15px); }
-            }
-            .score-circle {
-                width: 120px; height: 120px; border-radius: 50%;
-                background: linear-gradient(135deg, #3B7A57, #A8E6CF);
-                display: flex; align-items: center; justify-content: center;
-                margin: 20px auto; color: white; font-size: 2rem; font-weight: 700;
-                box-shadow: 0 10px 30px rgba(59, 122, 87, 0.3);
-            }
-            .insights {
-                background: #e3f9e5; padding: 20px; border-radius: 12px; margin: 20px 0;
-                border-left: 5px solid #7ED3B2; text-align: left;
-            }
-            .insights h3 { margin: 0 0 12px 0; color: #3B7A57; }
-            .insights p { margin: 0; color: #2d5a42; line-height: 1.5; }
-            .button { 
-                background: linear-gradient(135deg, #3B7A57, #2d5a42); color: white; 
-                padding: 15px 30px; text-decoration: none; border-radius: 12px; 
-                font-weight: 600; display: inline-block; margin: 10px;
-                transition: all 0.2s ease;
-            }
-            .button:hover { 
-                transform: translateY(-2px); 
-                box-shadow: 0 8px 25px rgba(59, 122, 87, 0.3);
-            }
-            .streak-badge {
-                background: #fdcb6e; color: #8b7000; padding: 8px 16px;
-                border-radius: 20px; font-size: 14px; font-weight: 600;
-                display: inline-block; margin: 10px 0;
-            }
-            h1 { color: #3B7A57; margin-bottom: 20px; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="celebration">🎉</div>
-            <h1>Daily Log Saved Successfully!</h1>
-
-            <div class="score-circle">{{ "%.1f"|format(final_score) }}/10</div>
-
-            <div class="streak-badge">🔥 Day {{ streak_days }} Streak</div>
-
-            <div class="insights">
-                <h3>🤖 Your Instant Insights</h3>
-                <p>{{ insight_text }}</p>
-            </div>
-
-            <p style="color: #666; margin: 20px 0;">
-                Consistency beats perfection! Every log helps us understand your patterns and provide better guidance.
-            </p>
-
-            <a href="/dashboard?email={{ email }}" class="button">🏠 Back to Dashboard</a>
-            <a href="/daily-log?email={{ email }}" class="button" style="background: linear-gradient(135deg, #74b9ff, #0984e3);">📝 Log Tomorrow</a>
-        </div>
-    </body>
-    </html>
-    """, email=email, final_score=final_score, insight_text=insight_text, streak_days=streak_days)
+    return render_template("save_daily_log.html", email=email, final_score=final_score, insight_text=insight_text, streak_days=streak_days)
 
 @app.route("/subscription")
 def subscription_page():
@@ -2071,138 +1296,7 @@ def subscription_page():
     user = users_data[email]
     current_tier = user.get('subscription_tier', 'free')
 
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html lang="en-GB">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Subscription Plans</title>
-        <script src="https://js.stripe.com/v3/"></script>
-        <style>
-            * { box-sizing: border-box; }
-            body { 
-                font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;
-                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
-            }
-            .container { background: white; padding: 2em; border-radius: 20px; max-width: 900px; margin: 0 auto; }
-            .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin: 30px 0; }
-            .plan-card { 
-                background: white; border-radius: 15px; padding: 30px; text-align: center;
-                border: 3px solid #e0e0e0; transition: all 0.3s ease;
-            }
-            .plan-card.current { border-color: #A8E6CF; background: #f8fffe; }
-            .plan-card.premium { border-color: #7ED3B2; }
-            .plan-card:hover { transform: translateY(-5px); }
-            .price { font-size: 2.5rem; font-weight: bold; color: #2d5a3d; margin: 15px 0; }
-            .features { list-style: none; padding: 0; margin: 20px 0; }
-            .features li { padding: 8px 0; border-bottom: 1px solid #eee; }
-            .features li:before { content: "✅ "; color: #00b894; }
-            .button { 
-                display: inline-block; padding: 15px 30px; 
-                background: linear-gradient(135deg, #A8E6CF, #7ED3B2);
-                color: #2d5a3d; text-decoration: none; border-radius: 12px; 
-                font-weight: 600; cursor: pointer; border: none; font-size: 16px;
-                transition: all 0.3s ease; width: 100%;
-            }
-            .button:hover { transform: translateY(-2px); }
-            .button:disabled { opacity: 0.5; cursor: not-allowed; }
-            .current-badge { 
-                background: #00b894; color: white; padding: 5px 15px; 
-                border-radius: 20px; font-size: 12px; margin-bottom: 10px;
-            }
-            h1 { color: #2d5a3d; text-align: center; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>💳 Choose Your Plan</h1>
-            <p style="text-align: center; color: #666; margin-bottom: 30px;">
-                Unlock the full potential of your fitness journey
-            </p>
-
-            <div class="plans-grid">
-                <div class="plan-card {% if current_tier == 'free' %}current{% endif %}">
-                    {% if current_tier == 'free' %}
-                    <div class="current-badge">Current Plan</div>
-                    {% endif %}
-                    <h2>🆓 Free</h2>
-                    <div class="price">£0<span style="font-size: 1rem;">/month</span></div>
-                    <ul class="features">
-                        <li>Basic daily logging</li>
-                        <li>Limited AI insights (3/week)</li>
-                        <li>7-day data history</li>
-                        <li>1 weekly check-in</li>
-                    </ul>
-                    {% if current_tier != 'free' %}
-                    <form method="POST" action="/downgrade">
-                        <input type="hidden" name="email" value="{{ email }}">
-                        <button type="submit" class="button">Downgrade to Free</button>
-                    </form>
-                    {% else %}
-                    <button class="button" disabled>Current Plan</button>
-                    {% endif %}
-                </div>
-
-                <div class="plan-card premium {% if current_tier == 'premium' %}current{% endif %}">
-                    {% if current_tier == 'premium' %}
-                    <div class="current-badge">Current Plan</div>
-                    {% endif %}
-                    <h2>✨ Premium</h2>
-                    <div class="price">£9.97<span style="font-size: 1rem;">/month</span></div>
-                    <ul class="features">
-                        <li>Unlimited daily logging</li>
-                        <li>Full AI insights & chat</li>
-                        <li>Unlimited data history</li>
-                        <li>Weekly meal plans</li>
-                        <li>Priority support</li>
-                        <li>Advanced analytics</li>
-                    </ul>
-                    {% if current_tier != 'premium' %}
-                    <button onclick="createCheckoutSession('{{ email }}')" class="button">Upgrade to Premium</button>
-                    {% else %}
-                    <button class="button" disabled>Current Plan</button>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
-            </div>
-        </div>
-
-        <script>
-            const stripe = Stripe('{{ stripe_publishable_key }}');
-
-            async function createCheckoutSession(email) {
-                const response = await fetch('/create-checkout-session', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `email=${email}`
-                });
-
-                const session = await response.json();
-
-                if (session.error) {
-                    alert('Error: ' + session.error);
-                    return;
-                }
-
-                // Redirect to Stripe Checkout
-                const result = await stripe.redirectToCheckout({
-                    sessionId: session.id
-                });
-
-                if (result.error) {
-                    alert(result.error.message);
-                }
-            }
-        </script>
-    </body>
-    </html>
-    """, email=email, current_tier=current_tier, stripe_publishable_key=stripe_publishable_key)
+    return render_template("subscription.html", email=email, current_tier=current_tier, stripe_publishable_key=stripe_publishable_key)
 
 @app.route("/create-checkout-session", methods=["POST"])
 def create_checkout_session():
@@ -2271,28 +1365,7 @@ def subscription_success():
                 users_data[email]['subscription_status'] = 'active'
                 users_data[email]['subscription_end_date'] = None  # Will be managed by Stripe
 
-        return render_template_string("""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Subscription Success</title>
-            <style>
-                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); }
-            .container { max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; }
-                .success { color: #00b894; font-size: 24px; margin: 20px 0; }
-            .button { background: #A8E6CF; color: #2d5a3d; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; }
-        </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>🎉 Welcome to Premium!</h1>
-                <div class="success">✅ Subscription activated successfully</div>
-                <p>You now have access to all premium features including unlimited AI insights, meal plans, and advanced analytics.</p>
-                <a href="/dashboard?email={{ email }}" class="button">Go to Dashboard</a>
-            </div>
-        </body>
-        </html>
-        """, email=email)
+        return render_template("subscription_success.html", email=email)
 
     except Exception as e:
         return f"Error: {str(e)}"
@@ -2308,26 +1381,7 @@ def downgrade_subscription():
     users_data[email]['subscription_tier'] = 'free'
     users_data[email]['subscription_status'] = 'active'
 
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Downgraded to Free</title>
-        <style>
-            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); }
-            .container { max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px; }
-            .button { background: #A8E6CF; color: #2d5a3d; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h2>📱 Downgraded to Free Plan</h2>
-            <p>You've been moved to the free plan. You can upgrade anytime!</p>
-            <a href="/dashboard?email={{ email }}" class="button">Go to Dashboard</a>
-        </div>
-    </body>
-    </html>
-    """, email=email)
+    return render_template("downgrade.html", email=email)
 
 def check_subscription_limits(email, action_type):
     """Check if user has reached their subscription limits"""
@@ -2361,94 +1415,7 @@ def weekly_checkin():
     if not email:
         return "Please provide email parameter"
 
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html lang="en-GB">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Weekly Check-in</title>
-        <style>
-            * { box-sizing: border-box; }
-            body { 
-                font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;
-                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
-            }
-            .container { background: white; padding: 2em; border-radius: 20px; max-width: 600px; margin: 0 auto; }
-            input, textarea, select { 
-                width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #A8E6CF; 
-                border-radius: 8px; font-size: 16px;
-            }
-            label { display: block; margin-top: 15px; font-weight: 600; color: #2d5a3d; }
-            .button { 
-                background: linear-gradient(135deg, #A8E6CF, #7ED3B2); color: #2d5a3d; 
-                padding: 15px 30px; border: none; border-radius: 8px; font-size: 16px; 
-                font-weight: 600; cursor: pointer; width: 100%; margin-top: 20px;
-            }
-            h1 { color: #2d5a3d; text-align: center; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>📅 Weekly Check-in</h1>
-            <p style="text-align: center; color: #666;">Reflect on your week and get AI-powered feedback</p>
-
-            <form method="POST" action="/save-weekly-checkin">
-                <input type="hidden" name="email" value="{{ email }}">
-                <input type="hidden" name="week_of" value="{{ today }}">
-
-                <label for="adherence">📊 How well did you follow your plan this week? (1-10):</label>
-                <input type="range" name="adherence" min="1" max="10" value="5" oninput="document.getElementById('adherence-value').textContent = this.value">
-                <span id="adherence-value">5</span>/10
-
-                <label for="energy">⚡ Average energy level this week:</label>
-                <select name="energy">
-                    <option value="very_low">Very Low</option>
-                    <option value="low">Low</option>
-                    <option value="moderate">Moderate</option>
-                    <option value="high">High</option>
-                    <option value="very_high">Very High</option>
-                </select>
-
-                <label for="bloating">🫃 Bloating/digestive issues:</label>
-                <select name="bloating">
-                    <option value="none">None</option>
-                    <option value="mild">Mild</option>
-                    <option value="moderate">Moderate</option>
-                    <option value="severe">Severe</option>
-                </select>
-
-                <label for="hunger">🍽️ Hunger levels:</label>
-                <select name="hunger">
-                    <option value="very_low">Very Low</option>
-                    <option value="low">Low</option>
-                    <option value="normal">Normal</option>
-                    <option value="high">High</option>
-                    <option value="very_high">Very High</option>
-                </select>
-
-                <label for="weight_change">⚖️ Weight difference from last week (optional):</label>
-                <input type="number" name="weight_change" step="0.1" placeholder="e.g., -0.5 or +1.2">
-
-                <label for="challenges">🤔 What were your biggest challenges this week?</label>
-                <textarea name="challenges" placeholder="E.g., busy schedule, stress eating, lack of motivation..." rows="3"></textarea>
-
-                <label for="wins">🎉 What went well this week?</label>
-                <textarea name="wins" placeholder="E.g., consistent workouts, better sleep, healthy meal prep..." rows="3"></textarea>
-
-                <label for="focus_next_week">🎯 What do you want to focus on next week?</label>
-                <textarea name="focus_next_week" placeholder="E.g., increase water intake, try new recipes, prioritize sleep..." rows="2"></textarea>
-
-                <button type="submit" class="button">💾 Submit Check-in & Get AI Feedback</button>
-            </form>
-
-            <div style="text-align: center; margin-top: 20px;">
-                <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
-            </div>
-        </div>
-    </body>
-    </html>
-    """, email=email, today=datetime.now().strftime("%Y-%m-%d"))
+    return render_template("weekly_checkin.html", email=email, today=datetime.now().strftime("%Y-%m-%d"))
 
 @app.route("/save-weekly-checkin", methods=["POST"])
 def save_weekly_checkin():
@@ -2498,33 +1465,7 @@ def save_weekly_checkin():
         except Exception as e:
             ai_feedback = f"AI feedback unavailable: {str(e)}"
 
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Weekly Check-in Complete</title>
-        <style>
-            body { font-family: Arial, sans-serif; padding: 20px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); }
-            .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; }
-            .ai-feedback { background: #e3f9e5; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #7ED3B2; }
-            .button { background: #A8E6CF; color: #2d5a3d; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h2>✅ Weekly Check-in Complete!</h2>
-
-            <div class="ai-feedback">
-                <h3>🤖 Your Personalized AI Feedback</h3>
-                <p>{{ ai_feedback }}</p>
-            </div>
-
-            <p>Keep up the great work! Your consistency and self-reflection are key to long-term success.</p>
-            <a href="/dashboard?email={{ email }}" class="button">← Back to Dashboard</a>
-        </div>
-    </body>
-    </html>
-    """, email=email, ai_feedback=ai_feedback)
+    return render_template("save_weekly_checkin.html", email=email, ai_feedback=ai_feedback)
 
 @app.route("/ai-chat")
 def ai_chat():
@@ -2532,63 +1473,7 @@ def ai_chat():
     if not email:
         return "Please provide email parameter"
 
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html lang="en-GB">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>AI Wellness Assistant</title>
-        <style>
-            * { box-sizing: border-box; }
-            body { 
-                font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;
-                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
-            }
-            .container { background: white; padding: 2em; border-radius: 20px; max-width: 700px; margin: 0 auto; }
-            .chat-input { width: 100%; padding: 15px; border: 2px solid #A8E6CF; border-radius: 10px; font-size: 16px; }
-            .button { 
-                background: linear-gradient(135deg, #A8E6CF, #7ED3B2); color: #2d5a3d; 
-                padding: 15px 30px; border: none; border-radius: 8px; font-size: 16px; 
-                font-weight: 600; cursor: pointer; margin-top: 10px;
-            }
-            .suggested-questions { margin: 20px 0; }
-            .question-btn { 
-                background: #f0f8ff; border: 2px solid #A8E6CF; padding: 10px 15px; 
-                margin: 5px; border-radius: 20px; cursor: pointer; display: inline-block;
-                font-size: 14px; color: #2d5a3d;
-            }
-            .question-btn:hover { background: #A8E6CF; }
-            h1 { color: #2d5a3d; text-align: center; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>🤖 AI Wellness Assistant</h1>
-            <p style="text-align: center; color: #666;">Ask me anything about your fitness journey!</p>
-
-            <form method="POST" action="/ai-response">
-                <input type="hidden" name="email" value="{{ email }}">
-                <textarea name="question" class="chat-input" rows="4" placeholder="E.g., Why didn't I lose weight this week? Why do I feel bloated today? What should I improve?"></textarea>
-                <button type="submit" class="button">💬 Ask AI Assistant</button>
-            </form>
-
-            <div class="suggested-questions">
-                <h3>💡 Suggested Questions:</h3>
-                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Why didn\\'t I lose weight this week?'">Why didn't I lose weight this week?</div>
-                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Why do I feel bloated today?'">Why do I feel bloated today?</div>
-                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'What should I focus on next week?'">What should I focus on next week?</div>
-                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'How can I improve my energy levels?'">How can I improve my energy levels?</div>
-                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Tips for better sleep?'">Tips for better sleep?</div>
-            </div>
-
-            <div style="text-align: center; margin-top: 20px;">
-                <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
-            </div>
-        </div>
-    </body>
-    </html>
-    """, email=email)
+    return render_template("ai_chat.html", email=email)
 
 @app.route("/ai-response", methods=["POST"])
 def ai_response():
@@ -2602,33 +1487,7 @@ def ai_response():
     if not check_subscription_limits(email, 'ai_questions'):
         user = users_data[email]
         tier = user.get('subscription_tier', 'free')
-        return render_template_string("""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Subscription Limit Reached</title>
-            <style>
-                body { font-family: Arial, sans-serif; padding: 20px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); }
-            .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; text-align: center; }
-            .limit-warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 10px; margin: 20px 0; }
-            .button { background: #A8E6CF; color: #2d5a3d; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 5px; }
-            .upgrade-btn { background: linear-gradient(135deg, #7ED3B2, #A8E6CF); }
-        </style>
-        </head>
-        <body>
-            <div class="container">
-                <h2>🔒 AI Question Limit Reached</h2>
-                <div class="limit-warning">
-                    <p>You've reached your {{ tier }} plan limit for AI questions this week.</p>
-                    <p><strong>Free Plan:</strong> 3 AI questions per week</p>
-                    <p><strong>Premium Plan:</strong> Unlimited AI questions</p>
-                </div>
-                <a href="/subscription?email={{ email }}" class="button upgrade-btn">✨ Upgrade to Premium</a>
-                <a href="/dashboard?email={{ email }}" class="button">← Back to Dashboard</a>
-            </div>
-        </body>
-        </html>
-        """, email=email, tier=tier)
+        return render_template("ai_limit_reached.html", email=email, tier=tier)
 
     # Generate AI response if OpenAI key is available```python
     ai_response = "AI assistant temporarily unavailable. Please ensure OpenAI API key is configured in Secrets."
@@ -2675,41 +1534,7 @@ def ai_response():
         except Exception as e:
             ai_response = f"AI assistant error: {str(e)}"
 
-    return render_template_string("""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>AI Response</title>
-        <style>
-            body { font-family: Arial, sans-serif; padding: 20px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); }
-            .container { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; }
-            .question { background: #f0f8ff; padding: 15px; border-radius: 10px; margin: 15px 0; border-left: 5px solid #74b9ff; }
-            .response { background: #e3f9e5; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #7ED3B2; }
-            .button { background: #A8E6CF; color: #2d5a3d; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 5px; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h2>🤖 AI Wellness Assistant Response</h2>
-
-            <div class="question">
-                <strong>Your Question:</strong><br>
-                {{ question }}
-            </div>
-
-            <div class="response">
-                <strong>🤖 AI Response:</strong><br>
-                {{ ai_response }}
-            </div>
-
-            <div style="text-align: center;">
-                <a href="/ai-chat?email={{ email }}" class="button">💬 Ask Another Question</a>
-                <a href="/dashboard?email={{ email }}" class="button">🏠 Back to Dashboard</a>
-            </div>
-        </div>
-    </body>
-    </html>
-    """, email=email, question=question, ai_response=ai_response)
+    return render_template("ai_response.html", email=email, question=question, ai_response=ai_response)
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin_dashboard():
@@ -2754,7 +1579,7 @@ def admin_dashboard():
     # Get detailed user information
     users = get_all_users()
     detailed_users = []
-    
+
     for email, name, tier in users:
         user_data = get_user(email)
         if user_data:
@@ -2762,7 +1587,7 @@ def admin_dashboard():
             daily_logs_count = len(user_data.get('daily_logs', []))
             weekly_checkins_count = len(user_data.get('weekly_checkins', []))
             join_date = user_data.get('created_at', 'Unknown')
-            
+
             # Parse join date for better display
             try:
                 from datetime import datetime
@@ -2776,11 +1601,11 @@ def admin_dashboard():
             except:
                 join_date_display = 'Unknown'
                 days_since_join = 0
-            
+
             # Get goal from profile data
             goal = user_data.get('profile_data', {}).get('goal', 'Not specified')
             motivation = user_data.get('profile_data', {}).get('motivation', '')[:100] + '...' if user_data.get('profile_data', {}).get('motivation', '') else 'Not provided'
-            
+
             detailed_users.append({
                 'email': email,
                 'name': name,
@@ -2794,7 +1619,7 @@ def admin_dashboard():
                 'stripe_customer_id': user_data.get('stripe_customer_id', 'None'),
                 'subscription_status': user_data.get('subscription_status', 'Unknown')
             })
-    
+
     # Sort by join date (newest first)
     detailed_users.sort(key=lambda x: x['days_since_join'])
 
@@ -2921,7 +1746,7 @@ def admin_dashboard():
             function filterUsers(searchTerm) {
                 const rows = document.querySelectorAll('.user-row');
                 const lowerSearch = searchTerm.toLowerCase();
-                
+
                 rows.forEach(row => {
                     const text = row.textContent.toLowerCase();
                     if (text.includes(lowerSearch)) {
@@ -2953,10 +1778,10 @@ def admin_user_details(email):
     daily_logs = user.get('daily_logs', [])
     weekly_checkins = user.get('weekly_checkins', [])
     profile_data = user.get('profile_data', {})
-    
+
     # Get recent activity
     recent_logs = daily_logs[-10:] if daily_logs else []
-    
+
     # Parse join date
     try:
         from datetime import datetime
@@ -3006,7 +1831,7 @@ def admin_user_details(email):
                 <h1>👤 {{ user.name }}</h1>
                 <p style="color: #666; margin: 5px 0;">{{ user.email }}</p>
                 <div class="tier-badge tier-{{ user.subscription_tier }}">{{ user.subscription_tier|title }} Plan</div>
-                
+
                 <div class="action-buttons">
                     {% if user.subscription_tier == 'free' %}
                     <a href="/admin/upgrade-user/{{ user.email }}" class="btn btn-warning">⬆️ Upgrade to Premium</a>
@@ -3128,9 +1953,9 @@ def admin_upgrade_user(email):
         user['subscription_tier'] = 'premium'
         user['subscription_status'] = 'active'
         save_user(user)
-        
+
         data_protection.log_data_access(email, "admin_upgrade", request.remote_addr)
-        
+
         return render_template_string("""
         <!DOCTYPE html>
         <html>
@@ -3172,9 +1997,9 @@ def admin_downgrade_user(email):
         user['subscription_tier'] = 'free'
         user['subscription_status'] = 'active'
         save_user(user)
-        
+
         data_protection.log_data_access(email, "admin_downgrade", request.remote_addr)
-        
+
         return render_template_string("""
         <!DOCTYPE html>
         <html>
@@ -3193,6 +2018,7 @@ def admin_downgrade_user(email):
     <head><title>Downgrade User</title></head>
     <body style="font-family: Arial; padding: 20px; text-align: center;">
         <h2>⬇️ Downgrade User to Free</h2>
+        ```python
         <p>Are you sure you want to downgrade <strong>{{ email }}</strong> to Free?</p>
         <form method="POST" style="margin: 20px 0;">
             <button type="submit" style="background: #f44336; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer;">Yes, Downgrade</button>
@@ -3216,7 +2042,7 @@ def admin_edit_user(email):
         user['name'] = request.form.get('name', user['name'])
         user['subscription_tier'] = request.form.get('subscription_tier', user['subscription_tier'])
         user['subscription_status'] = request.form.get('subscription_status', user['subscription_status'])
-        
+
         # Update profile data if provided
         profile_data = user.get('profile_data', {})
         if request.form.get('goal'):
@@ -3225,12 +2051,12 @@ def admin_edit_user(email):
             profile_data['height'] = request.form.get('height')
         if request.form.get('weight'):
             profile_data['weight'] = request.form.get('weight')
-        
+
         user['profile_data'] = profile_data
         save_user(user)
-        
+
         data_protection.log_data_access(email, "admin_edit", request.remote_addr)
-        
+
         return render_template_string("""
         <!DOCTYPE html>
         <html>
@@ -3244,7 +2070,7 @@ def admin_edit_user(email):
         """, email=email)
 
     profile_data = user.get('profile_data', {})
-    
+
     return render_template_string("""
     <!DOCTYPE html>
     <html>
@@ -3262,13 +2088,13 @@ def admin_edit_user(email):
     </head>
     <body>
         <h1>✏️ Edit User: {{ user.name }}</h1>
-        
+
         <form method="POST">
             <div class="form-group">
                 <label for="name">Name:</label>
                 <input type="text" name="name" id="name" value="{{ user.name }}" required>
             </div>
-            
+
             <div class="form-group">
                 <label for="subscription_tier">Subscription Tier:</label>
                 <select name="subscription_tier" id="subscription_tier">
@@ -3276,7 +2102,7 @@ def admin_edit_user(email):
                     <option value="premium" {% if user.subscription_tier == 'premium' %}selected{% endif %}>Premium</option>
                 </select>
             </div>
-            
+
             <div class="form-group">
                 <label for="subscription_status">Subscription Status:</label>
                 <select name="subscription_status" id="subscription_status">
@@ -3285,7 +2111,7 @@ def admin_edit_user(email):
                     <option value="suspended" {% if user.subscription_status == 'suspended' %}selected{% endif %}>Suspended</option>
                 </select>
             </div>
-            
+
             <div class="form-group">
                 <label for="goal">Goal:</label>
                 <select name="goal" id="goal">
@@ -3295,17 +2121,17 @@ def admin_edit_user(email):
                     <option value="maintenance" {% if profile_data.get('goal') == 'maintenance' %}selected{% endif %}>Maintenance</option>
                 </select>
             </div>
-            
+
             <div class="form-group">
                 <label for="height">Height (cm):</label>
                 <input type="number" name="height" id="height" value="{{ profile_data.get('height', '') }}">
             </div>
-            
+
             <div class="form-group">
                 <label for="weight">Weight (kg):</label>
                 <input type="number" name="weight" id="weight" step="0.1" value="{{ profile_data.get('weight', '') }}">
             </div>
-            
+
             <button type="submit" class="btn btn-primary">💾 Save Changes</button>
             <a href="/admin/user/{{ user.email }}" class="btn btn-secondary">Cancel</a>
         </form>
@@ -3433,12 +2259,12 @@ def api_food_search():
     query = request.args.get('q')
     if not query or len(query) < 2:
         return jsonify([])
-    
+
     try:
         # Initialize food database API
         food_api = FoodDatabaseAPI()
         results = food_api.search_all_databases(query, limit_per_db=3)
-        
+
         # Format results for frontend
         formatted_results = []
         for food in results:
@@ -3451,7 +2277,7 @@ def api_food_search():
                 'carbs_per_100g': food.get('carbs_per_100g', 0),
                 'fat_per_100g': food.get('fat_per_100g', 0)
             })
-        
+
         return jsonify(formatted_results)
     except Exception as e:
         print(f"Food search API error: {e}")
@@ -3470,6 +2296,277 @@ def food_nutrition():
         return jsonify(nutrition)
     else:
         return jsonify({"error": f"Nutrition data not found for {food_name}"}), 404
+
+# Fitness Tracker OAuth Routes
+@app.route("/connect-devices")
+def connect_devices():
+    """Show device connection options"""
+    email = request.args.get('email')
+    if not email:
+        return "Please provide email parameter"
+
+    user = get_user(email)
+    if not user:
+        return "User not found"
+
+    base_url = request.url_root.rstrip('/')
+
+    # Get OAuth URLs for each service
+    fitbit_auth_url = oauth_handler.get_fitbit_auth_url(email, base_url)
+    oura_auth_url = oauth_handler.get_oura_auth_url(email, base_url)
+    google_fit_auth_url = oauth_handler.get_google_fit_auth_url(email, base_url)
+
+    # Check which devices are already connected
+    fitness_tokens = user.get('fitness_tokens', {})
+
+    return render_template('connect_devices.html', 
+                          email=email, 
+                          fitbit_auth_url=fitbit_auth_url, 
+                          oura_auth_url=oura_auth_url,
+                          google_fit_auth_url=google_fit_auth_url, 
+                          fitness_tokens=fitness_tokens)
+
+# OAuth Callback Routes
+@app.route("/oauth/fitbit/callback")
+def fitbit_oauth_callback():
+    """Handle Fitbit OAuth callback"""
+    code = request.args.get('code')
+    state = request.args.get('state')
+    error = request.args.get('error')
+
+    if error:
+        return f"Fitbit authorization failed: {error}"
+
+    if not code or not state:
+        return "Missing authorization code or state"
+
+    # Extract user email from session (stored during auth URL generation)
+    user_email = None
+    for key in session.keys():
+        if key.startswith('fitbit_oauth_state_'):
+            if session[key] == state:
+                user_email = key.replace('fitbit_oauth_state_', '')
+                break
+
+    if not user_email:
+        return "Invalid OAuth state"
+
+    # Exchange code for tokens
+    base_url = request.url_root.rstrip('/')
+    result = oauth_handler.handle_fitbit_callback(code, state, user_email, base_url)
+
+    if result.get('success'):
+        # Store tokens in user profile
+        user = get_user(user_email)
+        if user:
+            if 'fitness_tokens' not in user:
+                user['fitness_tokens'] = {}
+
+            user['fitness_tokens']['fitbit_access_token'] = result['access_token']
+            user['fitness_tokens']['fitbit_refresh_token'] = result['refresh_token']
+            user['fitness_tokens']['fitbit_user_id'] = result['user_id']
+            save_user(user)
+
+            return render_template_string("""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Fitbit Connected!</title></head>
+            <body style="font-family: Arial; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);">
+                <div style="max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px;">
+                    <h2>🎉 Fitbit Connected Successfully!</h2>
+                    <p>Your Fitbit data will now sync automatically each day.</p>
+                    <a href="/connect-devices?email={{ email }}" style="background: #3B7A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px;">← Back to Device Connections</a>
+                </div>
+            </body>
+            </html>
+            """, email=user_email)
+    else:
+        return f"Fitbit connection failed: {result.get('error')}"
+
+@app.route("/oauth/oura/callback")
+def oura_oauth_callback():
+    """Handle Oura OAuth callback"""
+    code = request.args.get('code')
+    state = request.args.get('state')
+    error = request.args.get('error')
+
+    if error:
+        return f"Oura authorization failed: {error}"
+
+    if not code or not state:
+        return "Missing authorization code or state"
+
+    # Extract user email from session
+    user_email = None
+    for key in session.keys():
+        if key.startswith('oura_oauth_state_'):
+            if session[key] == state:
+                user_email = key.replace('oura_oauth_state_', '')
+                break
+
+    if not user_email:
+        return "Invalid OAuth state"
+
+    # Exchange code for tokens
+    base_url = request.url_root.rstrip('/')
+    result = oauth_handler.handle_oura_callback(code, state, user_email, base_url)
+
+    if result.get('success'):
+        # Store tokens in user profile
+        user = get_user(user_email)
+        if user:
+            if 'fitness_tokens' not in user:
+                user['fitness_tokens'] = {}
+
+            user['fitness_tokens']['oura_access_token'] = result['access_token']
+            user['fitness_tokens']['oura_refresh_token'] = result['refresh_token']
+            save_user(user)
+
+            return render_template_string("""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Oura Connected!</title></head>
+            <body style="font-family: Arial; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);">
+                <div style="max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px;">
+                    <h2>🎉 Oura Ring Connected Successfully!</h2>
+                    <p>Your Oura data will now sync automatically each day.</p>
+                    <a href="/connect-devices?email={{ email }}" style="background: #3B7A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px;">← Back to Device Connections</a>
+                </div>
+            </body>
+            </html>
+            """, email=user_email)
+    else:
+        return f"Oura connection failed: {result.get('error')}"
+
+@app.route("/oauth/google/callback")
+def google_fit_oauth_callback():
+    """Handle Google Fit OAuth callback"""
+    code = request.args.get('code')
+    state = request.args.get('state')
+    error = request.args.get('error')
+
+    if error:
+        return f"Google Fit authorization failed: {error}"
+
+    if not code or not state:
+        return "Missing authorization code or state"
+
+    # Extract user email from session
+    user_email = None
+    for key in session.keys():
+        if key.startswith('google_oauth_state_'):
+            if session[key] == state:
+                user_email = key.replace('google_oauth_state_', '')
+                break
+
+    if not user_email:
+        return "Invalid OAuth state"
+
+    # Exchange code for tokens
+    base_url = request.url_root.rstrip('/')
+    result = oauth_handler.handle_google_fit_callback(code, state, user_email, base_url)
+
+    if result.get('success'):
+        # Store tokens in user profile
+        user = get_user(user_email)
+        if user:
+            if 'fitness_tokens' not in user:
+                user['fitness_tokens'] = {}
+
+            user['fitness_tokens']['google_fit_access_token'] = result['access_token']
+            if result.get('refresh_token'):
+                user['fitness_tokens']['google_fit_refresh_token'] = result['refresh_token']
+            save_user(user)
+
+            return render_template_string("""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Google Fit Connected!</title></head>
+            <body style="font-family: Arial; text-align: center; padding: 50px; background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);">
+                <div style="max-width: 500px; margin: 0 auto; background: white; padding: 40px; border-radius: 15px;">
+                    <h2>🎉 Google Fit Connected Successfully!</h2>
+                    <p>Your Google Fit data will now sync automatically each day.</p>
+                    <a href="/connect-devices?email={{ email }}" style="background: #3B7A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px;">← Back to Device Connections</a>
+                </div>
+            </body>
+            </html>
+            """, email=user_email)
+    else:
+        return f"Google Fit connection failed: {result.get('error')}"
+
+# API Routes for device sync
+@app.route("/api/sync-devices", methods=["POST"])
+def api_sync_devices():
+    """API endpoint to sync all connected devices"""
+    email = request.args.get('email')
+    if not email:
+        return jsonify({"error": "Email required"}), 400
+
+    user = get_user(email)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    fitness_tokens = user.get('fitness_tokens', {})
+    if not fitness_tokens:
+        return jsonify({"error": "No devices connected"}), 400
+
+    try:
+        # Sync data from all connected devices
+        sync_results = fitness_tracker_api.sync_all_connected_devices(fitness_tokens)
+
+        # Store synced data in user's daily logs (if it's for today)
+        today = datetime.now().strftime('%Y-%m-%d')
+        consolidated_data = {
+            'date': today,
+            'timestamp': datetime.now().isoformat(),
+            'auto_synced': True,
+            'device_data': sync_results
+        }
+
+        # Add to daily logs
+        add_daily_log(email, consolidated_data)
+
+        # Also store in user profile for quick access
+        user['last_device_sync'] = datetime.now().isoformat()
+        user['latest_device_data'] = sync_results
+        save_user(user)
+
+        return jsonify({
+            "success": True,
+            "synced_devices": len([r for r in sync_results if not r.get('error')]),
+            "data": sync_results
+        })
+
+    except Exception as e:
+        return jsonify({"error": f"Sync failed: {str(e)}"}), 500
+
+@app.route("/api/device-status")
+def api_device_status():
+    """Get status of connected devices"""
+    email = request.args.get('email')
+    if not email:
+        return jsonify({"error": "Email required"}), 400
+
+    user = get_user(email)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    fitness_tokens = user.get('fitness_tokens', {})
+    last_sync = user.get('last_device_sync', 'Never')
+
+    connected_devices = []
+    if fitness_tokens.get('fitbit_access_token'):
+        connected_devices.append('Fitbit')
+    if fitness_tokens.get('oura_access_token'):
+        connected_devices.append('Oura Ring')
+    if fitness_tokens.get('google_fit_access_token'):
+        connected_devices.append('Google Fit')
+
+    return jsonify({
+        "connected_devices": connected_devices,
+        "last_sync": last_sync,
+        "auto_sync_enabled": len(connected_devices) > 0
+    })
 
 if __name__ == "__main__":
     # Start security monitoring

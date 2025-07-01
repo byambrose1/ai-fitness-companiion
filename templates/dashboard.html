@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Wellness Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🌟 Welcome back, {{ user.name|title }}!</h1>
+
+        <div class="reminder">
+            <p>💚 <strong>Daily Motivation:</strong> {{ contextual_message }}</p>
+        </div>
+
+        <!-- Streak and Progress Section -->
+        <div class="card" style="background: linear-gradient(135deg, #A8E6CF, #D1F2EB); text-align: center; margin-bottom: 20px;">
+            <h3 style="color: #1a1a1a;">🔥 Your Progress</h3>
+            <div style="display: flex; justify-content: space-around; align-items: center;">
+                <div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #3B7A57;">{{ streak_days }}</div>
+                    <div style="font-size: 0.9rem; color: #2d5a42;">Day Streak</div>
+                </div>
+                <div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #3B7A57;">{{ total_logs }}</div>
+                    <div style="font-size: 0.9rem; color: #2d5a42;">Total Logs</div>
+                </div>
+                <div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: #3B7A57;">{{ days_since_signup + 1 }}</div>
+                    <div style="font-size: 0.9rem; color: #2d5a42;">Days Active</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>📊 Quick Score</h3>
+                {% if recent_score %}
+                    <div class="score">{{ recent_score }}/10</div>
+                    <p>Based on your latest entries</p>
+                {% else %}
+                    <div class="score">Ready!</div>
+                    <p>Complete your daily log to see your score</p>
+                {% endif %}
+            </div>
+
+            <div class="card">
+                <h3>🎯 Your Goal</h3>
+                <p><strong>{{ user.profile_data.goal|replace('_', ' ')|title }}</strong></p>
+                <p>{{ user.profile_data.motivation[:100] }}...</p>
+            </div>
+
+            <div class="card">
+                <h3>💭 Quick Stats</h3>
+                <p><strong>Motivation:</strong> {{ user.profile_data.motivationLevel }}/10</p>
+                <p><strong>Stress:</strong> {{ user.profile_data.stressLevel }}/10</p>
+                <p><strong>Sleep:</strong> {{ user.profile_data.sleepHours }} hours</p>
+            </div>
+
+            {% if user.profile_data.menstrualCycle %}
+            <div class="card">
+                <h3>🌙 Cycle Status</h3>
+                <p>{{ user.profile_data.menstrualCycle|replace('_', ' ')|title }}</p>
+                <p><small>Adjusting recommendations based on your cycle phase</small></p>
+            </div>
+            {% endif %}
+        </div>
+
+        <h2>🚀 Quick Actions</h2>
+        <!-- Automatic Device Sync Status -->
+        <div class="wearable-integration">
+            <h3>📱 Automatic Device Sync</h3>
+            {% set fitness_tokens = user.get('fitness_tokens', {}) %}
+            {% set connected_devices = [] %}
+            {% if fitness_tokens.get('fitbit_access_token') %}{% set _ = connected_devices.append('Fitbit') %}{% endif %}
+            {% if fitness_tokens.get('oura_access_token') %}{% set _ = connected_devices.append('Oura Ring') %}{% endif %}
+            {% if fitness_tokens.get('google_fit_access_token') %}{% set _ = connected_devices.append('Google Fit') %}{% endif %}
+            
+            {% if connected_devices %}
+            <p><strong>Status:</strong> <span style="color: #00b894; font-weight: bold;">✅ {{ connected_devices|length }} device(s) connected</span></p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 15px 0;">
+                {% if 'Fitbit' in connected_devices %}
+                <div style="text-align: center; padding: 10px; background: #e8f5e8; border: 2px solid #00b894; border-radius: 8px;">
+                    <div style="font-size: 1.5rem;">⌚</div>
+                    <small>Fitbit ✅</small>
+                </div>
+                {% endif %}
+                {% if 'Oura Ring' in connected_devices %}
+                <div style="text-align: center; padding: 10px; background: #e8f5e8; border: 2px solid #00b894; border-radius: 8px;">
+                    <div style="font-size: 1.5rem;">💍</div>
+                    <small>Oura Ring ✅</small>
+                </div>
+                {% endif %}
+                {% if 'Google Fit' in connected_devices %}
+                <div style="text-align: center; padding: 10px; background: #e8f5e8; border: 2px solid #00b894; border-radius: 8px;">
+                    <div style="font-size: 1.5rem;">📱</div>
+                    <small>Google Fit ✅</small>
+                </div>
+                {% endif %}
+                <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                    <div style="font-size: 1.5rem;">🍎</div>
+                    <small>Apple Health</small>
+                    <div style="font-size: 0.7rem; color: #666;">Manual Entry</div>
+                </div>
+            </div>
+            <p style="font-size: 0.9rem; color: #00b894; font-weight: 600;">🔄 Automatic sync enabled! Data updates daily.</p>
+            <p style="font-size: 0.8rem; color: #666;">Last sync: {{ user.get('last_device_sync', 'Never') }}</p>
+            {% else %}
+            <p><strong>Status:</strong> <span style="color: #ff9800; font-weight: bold;">⚠️ No devices connected</span></p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 15px 0;">
+                <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                    <div style="font-size: 1.5rem;">⌚</div>
+                    <small>Fitbit</small>
+                </div>
+                <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                    <div style="font-size: 1.5rem;">💍</div>
+                    <small>Oura Ring</small>
+                </div>
+                <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                    <div style="font-size: 1.5rem;">📱</div>
+                    <small>Google Fit</small>
+                </div>
+                <div style="text-align: center; padding: 10px; background: white; border-radius: 8px;">
+                    <div style="font-size: 1.5rem;">🍎</div>
+                    <small>Apple Health</small>
+                </div>
+            </div>
+            <p style="font-size: 0.9rem; color: #666;">Connect your devices for automatic data sync!</p>
+            {% endif %}
+        </div>
+
+        {{ motivation_content|safe }}
+
+        <!-- Feature Comparison -->
+        <div class="feature-comparison">
+            <h3>🆚 Free vs Premium Features</h3>
+            <div class="feature-grid">
+                <div class="feature-column free-column">
+                    <h4 style="margin-top: 0; color: #2196f3;">🆓 Free Plan</h4>
+                    <ul style="margin: 0; padding-left: 20px; color: #666;">
+                        <li>Basic daily logging (7 days)</li>
+                        <li>Quick daily score</li>
+                        <li>3 AI questions per week</li>
+                        <li>Basic wearable data entry</li>
+                        <li>7-day data history</li>
+                        <li>Email support</li>
+                    </ul>
+                </div>
+                <div class="feature-column premium-column">
+                    <h4 style="margin-top: 0; color: #ff9800;">✨ Premium Plan - £9.97/month</h4>
+                    <ul style="margin: 0; padding-left: 20px; color: #666;">
+                        <li><strong>Unlimited</strong> daily logging & AI chat</li>
+                        <li><strong>Advanced</strong> analytics & trends</li>
+                        <li><strong>Hormone-aware</strong> recommendations</li>
+                        <li><strong>AI meal planning</strong> & suggestions</li>
+                        <li><strong>Unlimited</strong> data history</li>
+                        <li><strong>Auto wearable sync</strong> (coming soon)</li>
+                        <li><strong>Priority</strong> support</li>
+                    </ul>
+                    {% if user.subscription_tier == 'free' %}
+                    <a href="/subscription?email={{ user.email }}" style="background: #ff9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; display: inline-block; margin-top: 10px; font-weight: 600;">Upgrade Now</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>💳 Current Subscription</h3>
+            <p><strong>Plan:</strong> {{ user.subscription_tier|title }} 
+            {% if user.subscription_tier == 'free' %}
+                <span style="color: #ff9800; font-weight: bold;">(Upgrade available!)</span>
+            {% endif %}
+            </p>
+            {% if user.subscription_tier == 'free' %}
+            <p><small>📊 You're using the free plan - upgrade for unlimited access to all features!</small></p>
+            {% else %}
+            <p><small>✨ You have unlimited access to all premium features!</small></p>
+            {% endif %}
+        </div>
+
+        <div style="text-align: center;">
+            <a href="/daily-log?email={{ user.email }}" class="button">📝 Daily Log</a>
+            <a href="/weekly-checkin?email={{ user.email }}" class="button">📅 Weekly Check-in</a>
+            <a href="/ai-chat?email={{ user.email }}" class="button">🤖 Ask AI</a>
+            <a href="/connect-devices?email={{ user.email }}" class="button">🔗 Connect Devices</a>
+            <a href="/subscription?email={{ user.email }}" class="button">💳 Subscription</a>
+            <a href="/" class="button">⚙️ Update Profile</a>
+        </div>
+    </div>
+</body>
+</html>

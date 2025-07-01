@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Your Fitness Devices</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 Connect Your Fitness Devices</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Automatically sync your fitness data for better AI insights!
+        </p>
+
+        <div class="auto-sync-info">
+            <h3 style="color: #3B7A57; margin-top: 0;">✨ Automatic Sync Benefits</h3>
+            <ul style="text-align: left; color: #2d5a42;">
+                <li><strong>No Manual Entry:</strong> Your device data syncs automatically every day</li>
+                <li><strong>Better AI Insights:</strong> More data = more accurate and personalized recommendations</li>
+                <li><strong>Trend Analysis:</strong> Track patterns in sleep, activity, and recovery over time</li>
+                <li><strong>Hormone-Aware Coaching:</strong> Adjust recommendations based on your cycle and stress</li>
+            </ul>
+        </div>
+
+        <div class="device-grid">
+            <div class="device-card {% if fitness_tokens.get('fitbit_access_token') %}connected{% endif %}">
+                <div class="device-icon">⌚</div>
+                <h3>Fitbit</h3>
+                <p>Steps, sleep score, heart rate, active minutes</p>
+                {% if fitness_tokens.get('fitbit_access_token') %}
+                    <div class="connected-badge">✅ Connected</div>
+                    <p style="font-size: 0.9rem; color: #666;">Syncing automatically</p>
+                {% else %}
+                    {% if fitbit_auth_url %}
+                    <a href="{{ fitbit_auth_url }}" class="connect-btn">Connect Fitbit</a>
+                    {% else %}
+                    <button class="connect-btn" disabled>API Not Configured</button>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="device-card {% if fitness_tokens.get('oura_access_token') %}connected{% endif %}">
+                <div class="device-icon">💍</div>
+                <h3>Oura Ring</h3>
+                <p>Readiness score, sleep stages, HRV, temperature</p>
+                {% if fitness_tokens.get('oura_access_token') %}
+                    <div class="connected-badge">✅ Connected</div>
+                    <p style="font-size: 0.9rem; color: #666;">Syncing automatically</p>
+                {% else %}
+                    {% if oura_auth_url %}
+                    <a href="{{ oura_auth_url }}" class="connect-btn">Connect Oura</a>
+                    {% else %}
+                    <button class="connect-btn" disabled>API Not Configured</button>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="device-card {% if fitness_tokens.get('google_fit_access_token') %}connected{% endif %}">
+                <div class="device-icon">📱</div>
+                <h3>Google Fit</h3>
+                <p>Steps, activities, heart rate (Android devices)</p>
+                {% if fitness_tokens.get('google_fit_access_token') %}
+                    <div class="connected-badge">✅ Connected</div>
+                    <p style="font-size: 0.9rem; color: #666;">Syncing automatically</p>
+                {% else %}
+                    {% if google_fit_auth_url %}
+                    <a href="{{ google_fit_auth_url }}" class="connect-btn">Connect Google Fit</a>
+                    {% else %}
+                    <button class="connect-btn" disabled>API Not Configured</button>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            <div class="device-card">
+                <div class="device-icon">🍎</div>
+                <h3>Apple Health</h3>
+                <p>Steps, workouts, sleep, heart rate (iPhone/Apple Watch)</p>
+                <p style="font-size: 0.9rem; color: #666; margin: 15px 0;">
+                    Apple HealthKit requires an iOS app. For now, copy your Health app summary into the daily log.
+                </p>
+                <a href="/wearables-guide?email={{ email }}" class="connect-btn" style="background: #74b9ff;">View Guide</a>
+            </div>
+
+            <div class="device-card">
+                <div class="device-icon">🏃</div>
+                <h3>Garmin</h3>
+                <p>VO2 max, body battery, training load, recovery</p>
+                <p style="font-size: 0.9rem; color: #666; margin: 15px 0;">
+                    Garmin Connect API integration coming soon. Copy data from Garmin Connect app for now.
+                </p>
+                <a href="/wearables-guide?email={{ email }}" class="connect-btn" style="background: #74b9ff;">View Guide</a>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button onclick="syncAllDevices()" class="sync-btn">🔄 Sync All Connected Devices Now</button>
+            <p style="font-size: 0.9rem; color: #666;">Last sync: <span id="lastSync">Never</span></p>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/dashboard?email={{ email }}" style="color: #3B7A57; text-decoration: none; font-weight: 600;">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <script>
+        async function syncAllDevices() {
+            const syncBtn = document.querySelector('.sync-btn');
+            const originalText = syncBtn.textContent;
+            syncBtn.textContent = '🔄 Syncing...';
+            syncBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/sync-devices?email={{ email }}', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('lastSync').textContent = new Date().toLocaleString();
+                    alert('✅ Devices synced successfully!');
+                } else {
+                    alert('❌ Sync failed: ' + result.error);
+                }
+            } catch (error) {
+                alert('❌ Sync failed: ' + error.message);
+            } finally {
+                syncBtn.textContent = originalText;
+                syncBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
