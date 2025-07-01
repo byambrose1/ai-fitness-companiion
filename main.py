@@ -1033,7 +1033,6 @@ def connect_devices():
             body { 
                 font-family: 'Inter', sans-serif; 
                 margin: 0; 
-                padding: 20px;
                 background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); 
                 min-height: 100vh;
             }
@@ -1042,6 +1041,11 @@ def connect_devices():
             .device-card { 
                 background: #f8fffe; padding: 25px; border-radius: 15px; 
                 border-left: 5px solid #A8E6CF; text-align: center;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .device-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+            .device-card.connected { border-left-color: #00b894; background: #e8f5e8; }
+        </style>
                 transition: transform 0.2s ease, box-shadow 0.2s ease;
             }
             .device-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
