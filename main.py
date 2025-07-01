@@ -692,7 +692,10 @@ def questionnaire_complete():
 
                 <form method="POST" action="/complete-signup">
                     <label for="password">Create Your Password:</label>
-                    <input type="password" name="password" id="password" placeholder="Minimum 6 characters" required>
+                    <input type="password" name="password" id="password" placeholder="12+ characters with uppercase, lowercase, number & symbol" required>
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 4px;">
+                        Must contain: 12+ characters, uppercase, lowercase, number, special character
+                    </div>
 
                     <label for="confirmPassword">Confirm Password:</label>
                     <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Re-enter your password" required>
@@ -710,8 +713,13 @@ def complete_signup():
     password = request.form.get('password')
     confirm_password = request.form.get('confirmPassword')
 
-    if not password or len(password) < 6:
-        return "Password must be at least 6 characters", 400
+    if not password or len(password) < 12:
+        return "Password must be at least 12 characters", 400
+
+    # Validate password requirements
+    import re
+    if not re.match(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])', password):
+        return "Password must contain uppercase, lowercase, number, and special character", 400
 
     if password != confirm_password:
         return "Passwords do not match", 400
