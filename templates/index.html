@@ -1105,12 +1105,12 @@
               <label for="menstrualCycle">Where are you in your cycle today?</label>
               <select name="menstrualCycle" id="menstrualCycle">
                 <option value="">-- Please select --</option>
-                <option value="just_started">Period just started (days 1-3)</option>
-                <option value="follicular">Period just finished (days 4-6)</option>
+                <option value="just_started">First half of period (days 1-3)</option>
+                <option value="follicular">Second half of period (days 4-6)</option>
                 <option value="ovulation">Around ovulation (days 7-14)</option>
-                <option value="luteal">Between ovulation and period (days 15-21)</option>
-                <option value="end_of_cycle">End of cycle (days 22-28)</option>
-                <option value="about_to_start">About to start my period (PMS phase)</option>
+                <option value="luteal">Second half of cycle - after ovulation (days 15-18)</option>
+                <option value="late_cycle">Late in cycle - expecting period soon (days 19-25)</option>
+                <option value="about_to_start">About to start my period - PMS symptoms (days 26-28)</option>
                 <option value="not_sure">Not sure</option>
               </select>
             </div>
@@ -1417,7 +1417,7 @@
           document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
           updateProgress();
           updateButtons();
-          
+
           // Smooth scroll to top of modal content
           document.querySelector('.modal-body').scrollTo({
             top: 0,
@@ -1434,7 +1434,7 @@
         document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
         updateProgress();
         updateButtons();
-        
+
         // Smooth scroll to top of modal content
         document.querySelector('.modal-body').scrollTo({
           top: 0,
