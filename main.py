@@ -1033,7 +1033,7 @@ def connect_devices():
             body { 
                 font-family: 'Inter', sans-serif; 
                 margin: 0; 
-                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); 
+                "background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%);" 
                 min-height: 100vh;
             }
             .container { background: white; padding: 2em; border-radius: 20px; max-width: 800px; margin: 0 auto; }
