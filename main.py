@@ -1039,7 +1039,6 @@ def connect_devices():
             }
             .container { background: white; padding: 2em; border-radius: 20px; max-width: 800px; margin: 0 auto; }
             .device-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0; }
-        </style>
             .device-card { 
                 background: #f8fffe; padding: 25px; border-radius: 15px; 
                 border-left: 5px solid #A8E6CF; text-align: center;
