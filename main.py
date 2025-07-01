@@ -1031,8 +1031,11 @@ def connect_devices():
         <style>
             * { box-sizing: border-box; }
             body { 
-                font-family: 'Inter', sans-serif; margin: 0; padding: 20px;
-                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); min-height: 100vh;
+                font-family: 'Inter', sans-serif; 
+                margin: 0; 
+                padding: 20px;
+                background: linear-gradient(135deg, #A8E6CF 0%, #88D8A3 100%); 
+                min-height: 100vh;
             }
             .container { background: white; padding: 2em; border-radius: 20px; max-width: 800px; margin: 0 auto; }
             .device-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0; }
