@@ -1045,11 +1045,6 @@ def connect_devices():
             }
             .device-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
             .device-card.connected { border-left-color: #00b894; background: #e8f5e8; }
-        </style>
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-            }
-            .device-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-            .device-card.connected { border-left-color: #00b894; background: #e8f5e8; }
             .device-icon { font-size: 3rem; margin-bottom: 15px; }
             .connect-btn { 
                 background: linear-gradient(135deg, #A8E6CF, #7ED3B2); color: #2d5a3d; 
@@ -1073,6 +1068,7 @@ def connect_devices():
                 padding: 15px 30px; border: none; border-radius: 12px; font-weight: 600;
                 cursor: pointer; margin: 10px; font-size: 16px;
             }
+        </style>
         </style>
     </head>
     <body>
