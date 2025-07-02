@@ -204,6 +204,12 @@ class NutritionCalculator:
             'serving_size': f"{serving_size_grams}g"
         }
 
+# Main search function for the Flask app
+def search_food_database(query: str) -> List[Dict]:
+    """Main search function called by Flask app"""
+    food_db = FoodDatabaseService()
+    return food_db.search_all_databases(query)
+
 # Example usage function
 def search_food_with_nutrition(query: str, serving_size: float = 100) -> Dict:
     """Search for food and return with nutrition info"""
@@ -516,8 +522,8 @@ class FoodDatabaseService:
         """Get UK restaurant and delivery foods"""
         restaurant_foods = [
             # McDonalds UK
-            {'name': 'McDonalds Big Mac', 'source': 'UK Restaurant', 'nutrients': {'calories': '503 kcal', 'protein': '25g', 'carbs': '44g', 'fat': '26g'}, 'serving_size': '1 burger', 'brand': 'McDonalds'},
-            {'name': 'Big Mac', 'source': 'UK Restaurant', 'nutrients': {'calories': '503 kcal', 'protein': '25g', 'carbs': '44g', 'fat': '26g'}, 'serving_size': '1 burger', 'brand': 'McDonalds'},
+            {'name': 'McDonalds Big Mac', 'source': 'UK Restaurant', 'calories_per_100g': 257, 'nutrients': {'calories': '503 kcal', 'protein': '25g', 'carbs': '44g', 'fat': '26g'}, 'serving_size': '1 burger', 'brand': 'McDonalds'},
+            {'name': 'Big Mac', 'source': 'UK Restaurant', 'calories_per_100g': 257, 'nutrients': {'calories': '503 kcal', 'protein': '25g', 'carbs': '44g', 'fat': '26g'}, 'serving_size': '1 burger', 'brand': 'McDonalds'},
             {'name': 'McDonalds Chicken McNuggets (6)', 'source': 'UK Restaurant', 'nutrients': {'calories': '259 kcal', 'protein': '15g', 'carbs': '16g', 'fat': '15g'}, 'serving_size': '6 nuggets', 'brand': 'McDonalds'},
             {'name': 'McDonalds Fries (Medium)', 'source': 'UK Restaurant', 'nutrients': {'calories': '337 kcal', 'protein': '3.4g', 'carbs': '41g', 'fat': '17g'}, 'serving_size': '1 portion', 'brand': 'McDonalds'},
             {'name': 'McDonalds Quarter Pounder with Cheese', 'source': 'UK Restaurant', 'nutrients': {'calories': '529 kcal', 'protein': '30g', 'carbs': '41g', 'fat': '31g'}, 'serving_size': '1 burger', 'brand': 'McDonalds'},
@@ -574,9 +580,55 @@ class FoodDatabaseService:
             {'name': 'Spring Rolls (Takeaway)', 'source': 'UK Takeaway', 'nutrients': {'calories': '200 kcal', 'protein': '3g', 'carbs': '20g', 'fat': '10g'}, 'serving_size': '1 piece', 'brand': 'Local Chinese'},
 
             # Local Fish and Chips Shop - Generic
-            {'name': 'Fish and Chips (Takeaway)', 'source': 'UK Takeaway', 'nutrients': {'calories': '800 kcal', 'protein': '30g', 'carbs': '70g', 'fat': '50g'}, 'serving_size': '1 portion', 'brand': 'Local Chippy'},
-            {'name': 'Sausage and Chips (Takeaway)', 'source': 'UK Takeaway', 'nutrients': {'calories': '700 kcal', 'protein': '25g', 'carbs': '60g', 'fat': '40g'}, 'serving_size': '1 portion', 'brand': 'Local Chippy'},
-            {'name': 'Battered Sausage (Takeaway)', 'source': 'UK Takeaway', 'nutrients': {'calories': '400 kcal', 'protein': '15g', 'carbs': '30g', 'fat': '25g'}, 'serving_size': '1 piece', 'brand': 'Local Chippy'},
+            {'name': 'Fish and Chips (Takeaway)', 'source': 'UK Takeaway', 'calories_per_100g': 200, 'nutrients': {'calories': '800 kcal', 'protein': '30g', 'carbs': '70g', 'fat': '50g'}, 'serving_size': '1 portion', 'brand': 'Local Chippy'},
+            {'name': 'Sausage and Chips (Takeaway)', 'source': 'UK Takeaway', 'calories_per_100g': 175, 'nutrients': {'calories': '700 kcal', 'protein': '25g', 'carbs': '60g', 'fat': '40g'}, 'serving_size': '1 portion', 'brand': 'Local Chippy'},
+            {'name': 'Battered Sausage (Takeaway)', 'source': 'UK Takeaway', 'calories_per_100g': 267, 'nutrients': {'calories': '400 kcal', 'protein': '15g', 'carbs': '30g', 'fat': '25g'}, 'serving_size': '1 piece', 'brand': 'Local Chippy'},
+
+            # More Popular Branded Foods
+            # Coca-Cola Products
+            {'name': 'Coca Cola', 'source': 'UK Retail', 'calories_per_100g': 42, 'nutrients': {'calories': '42 kcal', 'protein': '0g', 'carbs': '10.6g', 'fat': '0g'}, 'serving_size': '100ml', 'brand': 'Coca-Cola'},
+            {'name': 'Diet Coke', 'source': 'UK Retail', 'calories_per_100g': 0, 'nutrients': {'calories': '0 kcal', 'protein': '0g', 'carbs': '0g', 'fat': '0g'}, 'serving_size': '100ml', 'brand': 'Coca-Cola'},
+            {'name': 'Sprite', 'source': 'UK Retail', 'calories_per_100g': 37, 'nutrients': {'calories': '37 kcal', 'protein': '0g', 'carbs': '9g', 'fat': '0g'}, 'serving_size': '100ml', 'brand': 'Coca-Cola'},
+
+            # Nestle Products
+            {'name': 'Kit Kat', 'source': 'UK Retail', 'calories_per_100g': 518, 'nutrients': {'calories': '518 kcal', 'protein': '8g', 'carbs': '57g', 'fat': '28g'}, 'serving_size': '100g', 'brand': 'Nestle'},
+            {'name': 'Smarties', 'source': 'UK Retail', 'calories_per_100g': 468, 'nutrients': {'calories': '468 kcal', 'protein': '4.5g', 'carbs': '73g', 'fat': '17g'}, 'serving_size': '100g', 'brand': 'Nestle'},
+            {'name': 'Aero Chocolate', 'source': 'UK Retail', 'calories_per_100g': 535, 'nutrients': {'calories': '535 kcal', 'protein': '6.9g', 'carbs': '56g', 'fat': '32g'}, 'serving_size': '100g', 'brand': 'Nestle'},
+
+            # Unilever Products
+            {'name': 'Ben & Jerrys Cookie Dough', 'source': 'UK Retail', 'calories_per_100g': 270, 'nutrients': {'calories': '270 kcal', 'protein': '4g', 'carbs': '28g', 'fat': '16g'}, 'serving_size': '100g', 'brand': 'Ben & Jerrys'},
+            {'name': 'Magnum Classic', 'source': 'UK Retail', 'calories_per_100g': 310, 'nutrients': {'calories': '310 kcal', 'protein': '4.3g', 'carbs': '26g', 'fat': '21g'}, 'serving_size': '100g', 'brand': 'Magnum'},
+
+            # Mars Products
+            {'name': 'Mars Bar', 'source': 'UK Retail', 'calories_per_100g': 449, 'nutrients': {'calories': '449 kcal', 'protein': '4.6g', 'carbs': '68g', 'fat': '17g'}, 'serving_size': '100g', 'brand': 'Mars'},
+            {'name': 'Snickers', 'source': 'UK Retail', 'calories_per_100g': 488, 'nutrients': {'calories': '488 kcal', 'protein': '8.2g', 'carbs': '56g', 'fat': '25g'}, 'serving_size': '100g', 'brand': 'Mars'},
+            {'name': 'Twix', 'source': 'UK Retail', 'calories_per_100g': 502, 'nutrients': {'calories': '502 kcal', 'protein': '5.2g', 'carbs': '62g', 'fat': '25g'}, 'serving_size': '100g', 'brand': 'Mars'},
+
+            # Kelloggs Products
+            {'name': 'Kelloggs Special K', 'source': 'UK Retail', 'calories_per_100g': 378, 'nutrients': {'calories': '378 kcal', 'protein': '17g', 'carbs': '67g', 'fat': '1.5g'}, 'serving_size': '100g', 'brand': 'Kelloggs'},
+            {'name': 'Kelloggs Crunchy Nut', 'source': 'UK Retail', 'calories_per_100g': 407, 'nutrients': {'calories': '407 kcal', 'protein': '7g', 'carbs': '77g', 'fat': '8g'}, 'serving_size': '100g', 'brand': 'Kelloggs'},
+            {'name': 'Kelloggs Frosties', 'source': 'UK Retail', 'calories_per_100g': 375, 'nutrients': {'calories': '375 kcal', 'protein': '4.5g', 'carbs': '87g', 'fat': '0.6g'}, 'serving_size': '100g', 'brand': 'Kelloggs'},
+
+            # Pepsico Products
+            {'name': 'Pepsi Cola', 'source': 'UK Retail', 'calories_per_100g': 43, 'nutrients': {'calories': '43 kcal', 'protein': '0g', 'carbs': '11g', 'fat': '0g'}, 'serving_size': '100ml', 'brand': 'Pepsi'},
+            {'name': 'Walkers Cheese & Onion', 'source': 'UK Retail', 'calories_per_100g': 534, 'nutrients': {'calories': '534 kcal', 'protein': '6g', 'carbs': '49g', 'fat': '35g'}, 'serving_size': '100g', 'brand': 'Walkers'},
+            {'name': 'Doritos Tangy Cheese', 'source': 'UK Retail', 'calories_per_100g': 498, 'nutrients': {'calories': '498 kcal', 'protein': '7g', 'carbs': '58g', 'fat': '26g'}, 'serving_size': '100g', 'brand': 'Doritos'},
+
+            # Heinz Products
+            {'name': 'Heinz Baked Beans', 'source': 'UK Retail', 'calories_per_100g': 81, 'nutrients': {'calories': '81 kcal', 'protein': '5g', 'carbs': '15g', 'fat': '0.6g'}, 'serving_size': '100g', 'brand': 'Heinz'},
+            {'name': 'Heinz Tomato Ketchup', 'source': 'UK Retail', 'calories_per_100g': 101, 'nutrients': {'calories': '101 kcal', 'protein': '1.1g', 'carbs': '24g', 'fat': '0.1g'}, 'serving_size': '100g', 'brand': 'Heinz'},
+
+            # Mondelez Products
+            {'name': 'Oreo Cookies', 'source': 'UK Retail', 'calories_per_100g': 480, 'nutrients': {'calories': '480 kcal', 'protein': '5g', 'carbs': '70g', 'fat': '20g'}, 'serving_size': '100g', 'brand': 'Oreo'},
+            {'name': 'Toblerone', 'source': 'UK Retail', 'calories_per_100g': 534, 'nutrients': {'calories': '534 kcal', 'protein': '8.8g', 'carbs': '62g', 'fat': '28g'}, 'serving_size': '100g', 'brand': 'Toblerone'},
+
+            # General Mills
+            {'name': 'Haagen Dazs Vanilla', 'source': 'UK Retail', 'calories_per_100g': 244, 'nutrients': {'calories': '244 kcal', 'protein': '4.5g', 'carbs': '21g', 'fat': '16g'}, 'serving_size': '100g', 'brand': 'Haagen-Dazs'},
+
+            # UK Specific Brands
+            {'name': 'Yorkshire Tea', 'source': 'UK Retail', 'calories_per_100g': 1, 'nutrients': {'calories': '1 kcal', 'protein': '0g', 'carbs': '0.3g', 'fat': '0g'}, 'serving_size': '100ml', 'brand': 'Yorkshire Tea'},
+            {'name': 'Hovis Wholemeal Bread', 'source': 'UK Retail', 'calories_per_100g': 219, 'nutrients': {'calories': '219 kcal', 'protein': '9g', 'carbs': '36g', 'fat': '3g'}, 'serving_size': '100g', 'brand': 'Hovis'},
+            {'name': 'Bisto Gravy', 'source': 'UK Retail', 'calories_per_100g': 363, 'nutrients': {'calories': '363 kcal', 'protein': '2.5g', 'carbs': '79g', 'fat': '5.5g'}, 'serving_size': '100g', 'brand': 'Bisto'},
         ]
 
         # Filter based on query

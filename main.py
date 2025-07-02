@@ -1194,6 +1194,9 @@ def api_food_search():
                         calories_match = re.search(r'(\d+)', calories_str)
                         if calories_match:
                             formatted_food['calories_per_100g'] = int(calories_match.group(1))
+                else:
+                    # Handle direct calorie values
+                    formatted_food['calories_per_100g'] = food.get('calories_per_100g', 0)
 
                 results.append(formatted_food)
 
