@@ -5,6 +5,7 @@ import openai
 from datetime import datetime
 import json
 import sqlite3
+import re
 from database import get_user, save_user, add_daily_log, get_user_logs, add_weekly_checkin, get_user_checkins
 from email_service import email_service
 from security_monitoring import SecurityMonitor
@@ -25,6 +26,22 @@ security_monitor = SecurityMonitor()
 
 # Track number of signups - in a real app, this would be in a database
 signup_count = 0
+
+def validate_email(email):
+    """Validate email format and check if it's a real email domain"""
+    # Basic email regex
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(email_pattern, email):
+        return False
+    
+    # Check for common fake email domains
+    fake_domains = ['fake.com', 'example.com', 'test.com', 'invalid.com', 'temp.com']
+    domain = email.split('@')[1].lower()
+    if domain in fake_domains:
+        return False
+    
+    # Additional validation could include DNS lookup for domain
+    return True
 
 def get_current_pricing():
     """
@@ -94,6 +111,11 @@ def register():
     email = request.form.get('email', '').lower().strip()
     password = request.form.get('password', '')
     name = request.form.get('name', '').strip()
+
+    # Validate email format
+    if not validate_email(email):
+        flash('Please enter a valid email address.')
+        return redirect(url_for('landing_page'))
 
     if get_user(email):
         flash('Account already exists. Please log in.')
@@ -454,6 +476,30 @@ def subscription_success():
 
     return redirect(url_for('dashboard'))
 
+@app.route('/questionnaire', methods=['GET', 'POST'])
+def questionnaire():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+    
+    if request.method == 'POST':
+        user = get_user(session['user_email'])
+        if user:
+            # Save questionnaire data to user profile
+            profile_data = {
+                'goal': request.form.get('goal'),
+                'activity_level': request.form.get('activity_level'),
+                'dietary_preferences': request.form.get('dietary_preferences'),
+                'health_conditions': request.form.get('health_conditions'),
+                'questionnaire_completed': True
+            }
+            user['profile_data'].update(profile_data)
+            save_user(user)
+            
+            flash('Profile updated successfully!')
+            return redirect(url_for('dashboard'))
+    
+    return render_template('questionnaire.html')
+
 @app.route('/downgrade', methods=['POST'])
 def downgrade():
     if 'user_email' not in session:
@@ -470,6 +516,47 @@ def downgrade():
 
     flash('Subscription downgraded to Free plan')
     return redirect(url_for('subscription'))
+
+@app.route('/cancel-subscription', methods=['POST'])
+def cancel_subscription():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+
+    # Cancel subscription
+    user['subscription_tier'] = 'free'
+    user['subscription_status'] = 'cancelled'
+    save_user(user)
+
+    flash('Your subscription has been cancelled. You can still use the free features.')
+    return redirect(url_for('dashboard'))
+
+@app.route('/delete-account', methods=['POST'])
+def delete_account():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    email = session['user_email']
+    
+    # Delete user data
+    conn = sqlite3.connect('fitness_app.db')
+    cursor = conn.cursor()
+    
+    cursor.execute('DELETE FROM daily_logs WHERE user_email = ?', (email,))
+    cursor.execute('DELETE FROM weekly_checkins WHERE user_email = ?', (email,))
+    cursor.execute('DELETE FROM users WHERE email = ?', (email,))
+    
+    conn.commit()
+    conn.close()
+    
+    # Clear session
+    session.clear()
+    
+    flash('Your account has been permanently deleted.')
+    return redirect(url_for('landing_page'))
 
 @app.route('/api/food-search')
 def api_food_search():

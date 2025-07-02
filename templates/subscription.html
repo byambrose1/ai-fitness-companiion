@@ -47,6 +47,16 @@ def downgrade():
     # Add logic to handle downgrading the user's subscription
     return f"Downgraded {email} to free plan"
 
+@app.route('/cancel-subscription', methods=['POST'])
+def cancel_subscription():
+    # Add logic to handle cancelling the user's subscription
+    return "Subscription cancelled"
+
+@app.route('/delete-account', methods=['POST'])
+def delete_account():
+    # Add logic to handle deleting the user's account
+    return "Account deleted"
+
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
     email = request.form['email']
@@ -144,9 +154,23 @@ if __name__ == '__main__':
                 {% if current_tier == "free" %}
                     <button class="btn btn-secondary" disabled>Current Plan</button>
                 {% else %}
-                    <form action="/downgrade" method="post">
+                    <form method="POST" action="/downgrade" style="margin-bottom: 10px;">
                         <input type="hidden" name="email" value="{{ email }}">
-                        <button class="btn btn-warning" type="submit">Downgrade</button>
+                        <button type="submit" class="btn btn-cancel" onclick="return confirm('Are you sure you want to downgrade to Free?')">
+                            Downgrade to Free
+                        </button>
+                    </form>
+
+                    <form method="POST" action="/cancel-subscription" style="margin-bottom: 10px;">
+                        <button type="submit" class="btn btn-warning" onclick="return confirm('Are you sure you want to cancel your subscription?')">
+                            Cancel Subscription
+                        </button>
+                    </form>
+
+                    <form method="POST" action="/delete-account">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('WARNING: This will permanently delete your account and all data. This cannot be undone. Are you sure?')">
+                            Delete Account
+                        </button>
                     </form>
                 {% endif %}
             </div>
@@ -221,87 +245,3 @@ if __name__ == '__main__':
     </script>
 </body>
 </html>
-```
-
-```
-Line-by-line analysis: The code was modified to dynamically display the price based on the number of members and display discount text. Also, a function was added to calculate pricing, and HTML was added to display pricing information dynamically and a user count message.
-```
-
-```replit_final_file
-from flask import Flask, render_template, request, redirect, url_for, jsonify
-import stripe
-import os
-
-app = Flask(__name__)
-
-# Replace with your actual Stripe secret key
-stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
-stripe_publishable_key = os.environ.get("STRIPE_PUBLISHABLE_KEY")
-
-# Dummy data for demonstration
-email = "test@example.com"
-current_tier = "free"  # Or "premium"
-member_count = 50 # initial member count
-PRICE_AFTER_MEMBERS = 100
-
-def calculate_pricing(member_count):
-    is_founding_member = member_count < PRICE_AFTER_MEMBERS
-    original_price = "£9.97"
-    discount_text = "🚀 FOUNDING MEMBERS: 50% OFF FOREVER"
-    if is_founding_member:
-        display_price = "£4.97"
-    else:
-        display_price = "£9.97"
-
-    return {
-        "is_founding_member": is_founding_member,
-        "original_price": original_price,
-        "display_price": display_price,
-        "discount_text": discount_text,
-    }
-
-@app.route('/')
-def index():
-    pricing = calculate_pricing(member_count)
-    users_until_price_change = max(0, PRICE_AFTER_MEMBERS - member_count)
-    return render_template('plans.html', stripe_publishable_key=stripe_publishable_key, email=email, current_tier=current_tier, pricing=pricing, users_until_price_change=users_until_price_change)
-
-@app.route('/dashboard')
-def dashboard():
-    email = request.args.get('email')
-    return f"Dashboard for {email}"
-
-@app.route('/downgrade', methods=['POST'])
-def downgrade():
-    email = request.form['email']
-    # Add logic to handle downgrading the user's subscription
-    return f"Downgraded {email} to free plan"
-
-@app.route('/create-checkout-session', methods=['POST'])
-def create_checkout_session():
-    email = request.form['email']
-    try:
-        # Create a new Checkout Session for the subscription
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[{
-                'price_data': {
-                    'currency': 'gbp',
-                    'product_data': {
-                        'name': 'AI Fitness Companion - Premium (Founding Member)',
-                        'description': 'Unlimited AI insights, meal plans, and advanced analytics - 50% off forever!'
-                    },
-                    'unit_amount': 497,  # £4.97
-                },
-                'quantity': 1,
-            }],
-            mode='subscription',
-            success_url=url_for('dashboard', email=email, _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url=url_for('index', _external=True),
-        )
-        return jsonify({'id': session.id})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
-
-if __name__ == '__main__':
-    app.run(debug=True)
