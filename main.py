@@ -1,3 +1,27 @@
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
+import os
+import bcrypt
+import openai
+from datetime import datetime
+import json
+from database import get_user, save_user, add_daily_log, get_user_logs, add_weekly_checkin, get_user_checkins
+from email_service import send_welcome_email
+from security_monitoring import SecurityMonitor
+import stripe
+
+# Initialize Flask app
+app = Flask(__name__)
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'dev-key-change-in-production')
+
+# OpenAI setup
+openai.api_key = os.getenv('OPENAI_API_KEY', '')
+
+# Stripe setup
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY', '')
+
+# Initialize security monitoring
+security_monitor = SecurityMonitor()
+
 @app.route('/food-search')
 def food_search():
     if 'user_email' not in session:
