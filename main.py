@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
 import os
 import bcrypt
@@ -22,6 +23,22 @@ stripe.api_key = os.getenv('STRIPE_SECRET_KEY', '')
 # Initialize security monitoring
 security_monitor = SecurityMonitor()
 
+@app.route('/')
+def landing_page():
+    return render_template('index.html')
+
+@app.route('/dashboard')
+def dashboard():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+    
+    user = get_user(session['user_email'])
+    if not user:
+        session.pop('user_email', None)
+        return redirect(url_for('landing_page'))
+    
+    return render_template('dashboard.html', user=user)
+
 @app.route('/food-search')
 def food_search():
     if 'user_email' not in session:
@@ -32,6 +49,7 @@ def food_search():
 
     if query:
         try:
+            from food_database import search_food_database
             results = search_food_database(query)
         except Exception as e:
             flash(f'Food search error: {str(e)}')
@@ -83,3 +101,10 @@ def api_food_search():
             print(f'API Food search error: {str(e)}')
 
     return jsonify(results)
+
+if __name__ == "__main__":
+    # Start security monitoring
+    security_monitor.start_monitoring()
+    
+    # Run the Flask app
+    app.run(host='0.0.0.0', port=5000, debug=True)
