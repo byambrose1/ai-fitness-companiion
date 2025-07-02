@@ -342,6 +342,111 @@ def admin_stats():
     
     return jsonify(stats)
 
+@app.route('/subscription')
+def subscription():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+    
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+    
+    return render_template('subscription.html', 
+                         current_tier=user.get('subscription_tier', 'free'),
+                         email=user['email'],
+                         stripe_publishable_key=os.getenv('STRIPE_PUBLISHABLE_KEY', ''))
+
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    if 'user_email' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
+    
+    try:
+        user = get_user(session['user_email'])
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        # Create Stripe checkout session
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'gbp',
+                    'product_data': {
+                        'name': 'AI Fitness Companion - Premium',
+                        'description': 'Unlimited AI insights, meal plans, and advanced analytics'
+                    },
+                    'unit_amount': 997,  # £9.97
+                    'recurring': {
+                        'interval': 'month'
+                    }
+                },
+                'quantity': 1,
+            }],
+            mode='subscription',
+            customer_email=user['email'],
+            success_url=url_for('subscription_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('subscription', _external=True),
+            metadata={
+                'user_email': user['email']
+            }
+        )
+        
+        return jsonify({'id': checkout_session.id})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/subscription-success')
+def subscription_success():
+    session_id = request.args.get('session_id')
+    
+    if not session_id:
+        flash('Invalid session')
+        return redirect(url_for('subscription'))
+    
+    try:
+        # Retrieve the session
+        checkout_session = stripe.checkout.Session.retrieve(session_id)
+        
+        # Update user subscription
+        user_email = checkout_session.metadata.get('user_email')
+        if user_email:
+            user = get_user(user_email)
+            if user:
+                user['subscription_tier'] = 'premium'
+                user['subscription_status'] = 'active'
+                user['stripe_customer_id'] = checkout_session.customer
+                save_user(user)
+                
+                flash('Welcome to Premium! Your subscription is now active.')
+            else:
+                flash('User not found')
+        else:
+            flash('Invalid session data')
+            
+    except Exception as e:
+        flash(f'Error processing subscription: {str(e)}')
+    
+    return redirect(url_for('dashboard'))
+
+@app.route('/downgrade', methods=['POST'])
+def downgrade():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+    
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+    
+    # Update subscription to free
+    user['subscription_tier'] = 'free'
+    user['subscription_status'] = 'active'
+    save_user(user)
+    
+    flash('Subscription downgraded to Free plan')
+    return redirect(url_for('subscription'))
+
 @app.route('/api/food-search')
 def api_food_search():
     """API endpoint for food search including restaurants and delivery"""

@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -99,7 +98,7 @@
                         </span>
                     </div>
                 </div>
-                
+
                 <div class="user-stats">
                     <div class="stat-item">
                         <div style="font-weight: bold;">{{ user.daily_logs|length if user.daily_logs else 0 }}</div>
@@ -170,78 +169,80 @@
     </div>
 
     <script>
-        function changeSubscription(email, newTier) {
-            if (!confirm(`Change ${email} to ${newTier} plan?`)) return;
-            
+        async function changeSubscription(email, newTier) {
+            if (!newTier) return;
+
             const formData = new FormData();
             formData.append('email', email);
             formData.append('tier', newTier);
-            
-            fetch('/admin/user/' + encodeURIComponent(email) + '/change-subscription', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
+
+            try {
+                const response = await fetch(`/admin/user/${email}/change-subscription`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
                     location.reload();
                 } else {
-                    alert('Error: ' + data.error);
+                    alert('Error: ' + result.error);
                 }
-            })
-            .catch(error => {
-                alert('Error: ' + error.message);
-            });
+            } catch (error) {
+                alert('Error changing subscription: ' + error.message);
+            }
         }
 
-        function cancelUser(email) {
-            if (!confirm(`Cancel subscription for ${email}?`)) return;
-            
+        async function cancelUser(email) {
+            if (!confirm('Cancel this user\'s subscription?')) return;
+
             const formData = new FormData();
             formData.append('email', email);
-            
-            fetch('/admin/user/' + encodeURIComponent(email) + '/cancel', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
+
+            try {
+                const response = await fetch(`/admin/user/${email}/cancel`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
                     location.reload();
                 } else {
-                    alert('Error: ' + data.error);
+                    alert('Error: ' + result.error);
                 }
-            })
-            .catch(error => {
-                alert('Error: ' + error.message);
-            });
+            } catch (error) {
+                alert('Error cancelling user: ' + error.message);
+            }
         }
 
-        function deleteUser(email) {
-            if (!confirm(`DELETE ${email}? This cannot be undone!`)) return;
-            if (!confirm(`Are you absolutely sure? This will permanently delete all user data for ${email}`)) return;
-            
+        async function deleteUser(email) {
+            if (!confirm('Are you sure you want to permanently delete this user? This cannot be undone.')) return;
+
             const formData = new FormData();
             formData.append('email', email);
-            
-            fetch('/admin/user/' + encodeURIComponent(email) + '/delete', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
+
+            try {
+                const response = await fetch(`/admin/user/${email}/delete`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
                     location.reload();
                 } else {
-                    alert('Error: ' + data.error);
+                    alert('Error: ' + result.error);
                 }
-            })
-            .catch(error => {
-                alert('Error: ' + error.message);
-            });
+            } catch (error) {
+                alert('Error deleting user: ' + error.message);
+            }
         }
     </script>
 </body>
