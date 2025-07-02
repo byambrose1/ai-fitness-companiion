@@ -1156,10 +1156,29 @@ def ai_response():
         flash('Please enter a question')
         return redirect(url_for('ai_chat'))
 
-    # Simple AI response for now
-    ai_response = f"Thanks for asking: '{question}'. Based on your profile, here's my advice: Stay consistent with your logging and focus on gradual improvements. (Full AI integration coming soon!)"
+    # Personalized AI response based on user's profile
+    profile_data = user.get('profile_data', {})
+    goal = profile_data.get('goal', 'general_fitness')
     
-    flash(f"AI Response: {ai_response}")
+    # Create personalized response based on goal
+    if goal == 'weight_loss':
+        if 'food' in question.lower() or 'eat' in question.lower():
+            ai_response = f"For weight loss, focus on creating a moderate calorie deficit of 300-500 calories daily. Prioritise protein (aim for 1.6-2.2g per kg body weight), include plenty of vegetables, and choose whole foods over processed ones. Regarding '{question}' - remember that sustainable weight loss is about consistency, not perfection."
+        elif 'exercise' in question.lower() or 'workout' in question.lower():
+            ai_response = f"Combine cardio and strength training for best weight loss results. Aim for 150 minutes moderate cardio weekly plus 2-3 strength sessions. About '{question}' - consistency beats intensity. Start where you are and gradually increase."
+        else:
+            ai_response = f"For your weight loss goal, remember that 80% of results come from nutrition and 20% from exercise. Focus on sustainable habits rather than quick fixes. Regarding '{question}' - small consistent changes lead to lasting results."
+    elif goal == 'muscle_gain':
+        if 'protein' in question.lower() or 'food' in question.lower():
+            ai_response = f"For muscle gain, aim for 1.6-2.2g protein per kg body weight daily. Include protein at every meal - eggs, chicken, fish, legumes, dairy. About '{question}' - timing matters less than total daily intake, but post-workout protein helps recovery."
+        elif 'workout' in question.lower() or 'strength' in question.lower():
+            ai_response = f"Focus on progressive overload - gradually increase weight, reps, or sets each week. Compound movements (squats, deadlifts, bench press) give the best results. Regarding '{question}' - consistency and progressive challenge are key to muscle growth."
+        else:
+            ai_response = f"Building muscle requires patience - visible changes typically take 8-12 weeks. Focus on consistent training, adequate protein, and proper recovery. About '{question}' - trust the process and stay consistent."
+    else:
+        ai_response = f"Great question: '{question}'. For your fitness goals, focus on building sustainable habits. Start with small changes, be consistent, and gradually increase intensity. Remember, progress isn't always linear - celebrate small wins along the way."
+    
+    flash(f"AI Coach: {ai_response}")
     return redirect(url_for('ai_chat'))
 
 @app.route('/ai-chat-message', methods=['POST'])

@@ -346,20 +346,32 @@
             <label for="weight">⚖️ Weight (kg) - Optional:</label>
             <input type="number" name="weight" step="0.1" min="30" max="300" placeholder="Leave blank if not weighing today">
 
-            <!-- Device Selection -->
-            <div style="margin: 20px 0;">
-                <label style="font-weight: bold; margin-bottom: 10px; display: block;">📱 Select Your Device:</label>
-                <div class="device-selector" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
-                    <button type="button" class="device-btn" data-device="apple_health">🍎 Apple Health</button>
-                    <button type="button" class="device-btn" data-device="fitbit">⌚ Fitbit</button>
-                    <button type="button" class="device-btn" data-device="garmin">🏃 Garmin</button>
-                    <button type="button" class="device-btn" data-device="oura">💍 Oura Ring</button>
-                    <button type="button" class="device-btn" data-device="samsung">📱 Samsung</button>
-                    <button type="button" class="device-btn" data-device="polar">❄️ Polar</button>
-                    <button type="button" class="device-btn" data-device="suunto">⭕ Suunto</button>
-                    <button type="button" class="device-btn" data-device="manual">📝 Manual</button>
-                </div>
+            <!-- Device Selection - Remember User Choice -->
+        {% if user.profile_data.get('preferred_device') %}
+        <div class="form-section device-reminder">
+            <div class="device-status">
+                <span class="device-icon">📱</span>
+                <span class="device-text">Tracking with: <strong>{{ user.profile_data.get('preferred_device').replace('_', ' ').title() }}</strong></span>
+                <a href="/connect-devices?email={{ user.email }}" class="change-device">Change</a>
             </div>
+            <input type="hidden" name="tracking_devices" value="{{ user.profile_data.get('preferred_device') }}">
+        </div>
+        {% else %}
+        <div class="form-section">
+            <label for="tracking_devices">How are you tracking your data today?</label>
+            <select name="tracking_devices" id="tracking_devices" onchange="toggleDeviceFields()">
+                <option value="">Select tracking method...</option>
+                <option value="manual">Manual entry</option>
+                <option value="fitbit">Fitbit</option>
+                <option value="apple_health">Apple Health</option>
+                <option value="garmin">Garmin</option>
+                <option value="oura">Oura Ring</option>
+                <option value="samsung">Samsung Health</option>
+                <option value="polar">Polar</option>
+                <option value="suunto">Suunto</option>
+            </select>
+        </div>
+        {% endif %}
 
             <!-- Device-Specific Data Entry Sections -->
             <div id="device-data-sections" style="display: none;">

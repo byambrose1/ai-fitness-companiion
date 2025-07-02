@@ -8,10 +8,53 @@
 </head>
 <body>
     <div class="container">
-        <!-- Welcome Header -->
+        <!-- Personalized Welcome Header -->
         <div class="welcome-header">
-            <h1>🌟 Welcome back, {{ user.name|title }}!</h1>
-            <p class="daily-motivation">💚 <strong>Today's Focus:</strong> {{ contextual_message }}</p>
+            <h1>Welcome back, {{ user.name|title }}! 🌟</h1>
+            {% if user.profile_data.get('goal') %}
+                <p class="daily-motivation">
+                    <strong>Your {{ user.profile_data.get('goal').replace('_', ' ').title() }} Journey:</strong> 
+                    {% if user.profile_data.get('goal') == 'weight_loss' %}
+                        {{ contextual_message }} Every healthy choice is an investment in your future self.
+                    {% elif user.profile_data.get('goal') == 'muscle_gain' %}
+                        {{ contextual_message }} Strong bodies are built one day at a time.
+                    {% elif user.profile_data.get('goal') == 'endurance' %}
+                        {{ contextual_message }} Your stamina grows with every session.
+                    {% elif user.profile_data.get('goal') == 'strength' %}
+                        {{ contextual_message }} Progressive improvement builds lasting strength.
+                    {% else %}
+                        {{ contextual_message }} Consistency creates transformation.
+                    {% endif %}
+                </p>
+            {% else %}
+                <p class="daily-motivation">{{ contextual_message }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Primary Action Section - Start Your Journey -->
+        <div class="primary-actions-section">
+            <h2>🚀 Start Your Day</h2>
+            <div class="primary-action-grid">
+                <a href="/daily-log?email={{ user.email }}" class="primary-action-card">
+                    <div class="action-icon">📝</div>
+                    <div class="action-content">
+                        <h3>Log Your Day</h3>
+                        <p>Track your progress - takes just 2 minutes</p>
+                        <div class="action-cta">Start Logging →</div>
+                    </div>
+                </a>
+
+                {% if total_logs >= 7 %}
+                <a href="/weekly-checkin?email={{ user.email }}" class="primary-action-card">
+                    <div class="action-icon">📊</div>
+                    <div class="action-content">
+                        <h3>Weekly Review</h3>
+                        <p>Reflect on your progress and plan ahead</p>
+                        <div class="action-cta">Review Week →</div>
+                    </div>
+                </a>
+                {% endif %}
+            </div>
         </div>
 
         <!-- Progress Stats Row -->
@@ -33,411 +76,240 @@
             </div>
         </div>
 
-        <!-- Main Dashboard Grid -->
-        <div class="main-dashboard-grid">
-            <!-- Quick Score Card -->
-            <div class="dashboard-card score-card">
-                <div class="card-header">
-                    <h3>📊 Your Daily Score</h3>
-                </div>
-                <div class="card-content">
-                    <!-- Recent Score Display with Personalised Insights -->
-            <div class="metric-section" style="margin-bottom: 20px;">
-                <h3 style="margin-bottom: 15px; color: #1a1a1a;">📊 Your Latest Daily Score</h3>
-                <div class="score-display" style="background: linear-gradient(135deg, #A8E6CF, #D1F2EB); padding: 20px; border-radius: 12px;">
-                    {% if recent_score %}
-                        <div style="text-align: center; margin-bottom: 15px;">
-                            <div style="font-size: 2.5rem; font-weight: 700; color: #1a1a1a; margin-bottom: 8px;">
-                                {{ "%.1f"|format(recent_score) }}/10
-                            </div>
-                            <div style="color: #2d5a42; font-weight: 500;">
-                                {% if recent_score >= 8 %}
-                                    Excellent day! 🌟
-                                {% elif recent_score >= 6 %}
-                                    Good progress! 👍
-                                {% elif recent_score >= 4 %}
-                                    Building momentum! 💪
-                                {% else %}
-                                    Every day counts! 🌱
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Display personalised insights if available -->
-                        {% if daily_logs and daily_logs[-1].get('personalised_insights') %}
-                            <div style="background: rgba(255,255,255,0.7); padding: 12px; border-radius: 8px; text-align: left;">
-                                <h4 style="margin: 0 0 8px 0; color: #2d5a42; font-size: 0.95rem;">💡 Your Personalised Insights:</h4>
-                                {% for insight in daily_logs[-1]['personalised_insights'][:2] %}
-                                    <p style="margin: 6px 0; font-size: 0.9rem; color: #2d5a42; line-height: 1.4;">{{ insight }}</p>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-
-                        <!-- Goal-specific motivation -->
-                        <div style="background: rgba(255,255,255,0.5); padding: 10px; border-radius: 6px; margin-top: 10px; text-align: center;">
-                            <small style="color: #2d5a42; font-weight: 500;">
-                                {% if user.profile_data.get('goal') == 'weight_loss' %}
-                                    🎯 Weight Loss Goal: Every healthy choice counts!
-                                {% elif user.profile_data.get('goal') == 'muscle_gain' %}
-                                    💪 Muscle Building Goal: Consistency builds strength!
-                                {% elif user.profile_data.get('goal') == 'endurance' %}
-                                    🏃‍♀️ Endurance Goal: Building stamina daily!
-                                {% elif user.profile_data.get('goal') == 'strength' %}
-                                    🏋️‍♀️ Strength Goal: Progressive overload works!
-                                {% else %}
-                                    🌟 Fitness Goal: Every step forward matters!
-                                {% endif %}
-                            </small>
-                        </div>
-                    {% else %}
-                        <div style="text-align: center;">
-                            <div style="font-size: 1.5rem; color: #2d5a42; margin-bottom: 8px;">
-                                Ready to start? 🌟
-                            </div>
-                            <div style="color: #2d5a42; font-weight: 500; margin-bottom: 10px;">
-                                Log your first day to get personalised insights based on your goals!
-                            </div>
-                            <div style="background: rgba(255,255,255,0.7); padding: 10px; border-radius: 6px; font-size: 0.9rem; color: #2d5a42;">
-                                Your score will be tailored to your 
-                                {% if user.profile_data.get('goal') %}
-                                    <strong>{{ user.profile_data.get('goal').replace('_', ' ').title() }}</strong> goal
-                                {% else %}
-                                    personal fitness goals
-                                {% endif %}
-                                and activity level!
-                            </div>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-                </div>
-            </div>
-
-            <!-- Cycle Status Card -->
-            {% if user.profile_data.menstrualCycle %}
-            <div class="dashboard-card cycle-card">
-                <div class="card-header">
-                    <h3>🌸 Your Cycle Today</h3>
-                </div>
-                <div class="card-content">
-                    <div class="cycle-status">
-                        <div class="cycle-phase">{{ user.profile_data.menstrualCycle|replace('_', ' ')|title }}</div>
-                        <div class="cycle-tip">
-                            {% if 'first_half' in user.profile_data.menstrualCycle %}
-                                💧 Stay hydrated and be gentle with yourself during this time
-                            {% elif 'second_half' in user.profile_data.menstrualCycle %}
-                                🌿 Light movement and rest can help ease any discomfort
-                            {% elif 'ovulation' in user.profile_data.menstrualCycle %}
-                                ⚡ You might have more energy - perfect for trying new activities!
-                            {% elif 'early_luteal' in user.profile_data.menstrualCycle %}
-                                🧘 Great time to focus on strength training and protein
-                            {% elif 'late_luteal' in user.profile_data.menstrualCycle %}
-                                🍃 Consider gentle yoga and magnesium-rich foods
+        <!-- Daily Score with Context and Insights -->
+        <div class="score-insights-section">
+            <h2>📊 Your Daily Score Explained</h2>
+            <div class="score-card-detailed">
+                {% if recent_score %}
+                    <div class="score-main">
+                        <div class="score-number">{{ "%.1f"|format(recent_score) }}/10</div>
+                        <div class="score-status">
+                            {% if recent_score >= 8 %}
+                                Excellent progress! 🌟
+                            {% elif recent_score >= 6 %}
+                                Good momentum! 👍
+                            {% elif recent_score >= 4 %}
+                                Building habits! 💪
                             {% else %}
-                                💪 Listen to your body and adjust your routine as needed
+                                Every step counts! 🌱
                             {% endif %}
                         </div>
                     </div>
-                </div>
-            </div>
-            {% endif %}
 
-            <!-- Your Goal Card -->
-            <div class="dashboard-card goal-card">
-                <div class="card-header">
-                    <h3>🎯 Your Goal</h3>
-                </div>
-                <div class="card-content">
-                    <div class="goal-title">{{ user.profile_data.goal|replace('_', ' ')|title }}</div>
-                    <p class="goal-description">{{ user.profile_data.get('motivation', 'Complete your profile to set your motivation and goals!')[:100] }}...</p>
-                </div>
-            </div>
+                    <div class="score-breakdown">
+                        <h4>How Your Score Works:</h4>
+                        <div class="score-factors">
+                            {% if user.profile_data.get('goal') == 'weight_loss' %}
+                                <div class="factor">
+                                    <span class="factor-icon">🥗</span>
+                                    <span class="factor-text"><strong>Nutrition (40%):</strong> Whole foods and portion control are prioritised for weight loss</span>
+                                </div>
+                                <div class="factor">
+                                    <span class="factor-icon">🏃‍♀️</span>
+                                    <span class="factor-text"><strong>Activity (30%):</strong> Cardio and movement help create the calorie deficit you need</span>
+                                </div>
+                                <div class="factor">
+                                    <span class="factor-icon">😴</span>
+                                    <span class="factor-text"><strong>Sleep (20%):</strong> 7-9 hours regulates hunger hormones crucial for weight loss</span>
+                                </div>
+                                <div class="factor">
+                                    <span class="factor-icon">💧</span>
+                                    <span class="factor-text"><strong>Hydration (10%):</strong> Supports metabolism and helps control appetite</span>
+                                </div>
+                            {% elif user.profile_data.get('goal') == 'muscle_gain' %}
+                                <div class="factor">
+                                    <span class="factor-icon">🏋️‍♀️</span>
+                                    <span class="factor-text"><strong>Strength Training (40%):</strong> Progressive overload builds muscle</span>
+                                </div>
+                                <div class="factor">
+                                    <span class="factor-icon">🥩</span>
+                                    <span class="factor-text"><strong>Protein Intake (30%):</strong> Essential for muscle repair and growth</span>
+                                </div>
+                                <div class="factor">
+                                    <span class="factor-icon">😴</span>
+                                    <span class="factor-text"><strong>Recovery (25%):</strong> Muscles grow during rest, not during workouts</span>
+                                </div>
+                                <div class="factor">
+                                    <span class="factor-icon">💧</span>
+                                    <span class="factor-text"><strong>Hydration (5%):</strong> Supports muscle function and recovery</span>
+                                </div>
+                            {% else %}
+                                <div class="factor">
+                                    <span class="factor-icon">😊</span>
+                                    <span class="factor-text"><strong>Mood & Energy (25%):</strong> Positive mindset supports all health goals</span>
+                                </div>
+                                <div class="factor">
+                                    <span class="factor-icon">🏃‍♀️</span>
+                                    <span class="factor-text"><strong>Movement (25%):</strong> Any activity counts towards better health</span>
+                                </div>
+                                <div class="factor">
+                                    <span class="factor-icon">😴</span>
+                                    <span class="factor-text"><strong>Sleep Quality (25%):</strong> Foundation of good health and energy</span>
+                                </div>
+                                <div class="factor">
+                                    <span class="factor-icon">🥗</span>
+                                    <span class="factor-text"><strong>Nutrition (25%):</strong> Balanced eating supports overall wellbeing</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
 
-            <!-- Key Metrics Card -->
-            <div class="dashboard-card metrics-card">
-                <div class="card-header">
-                    <h3>💭 Today's Snapshot</h3>
-                </div>
-                <div class="card-content">
-                    <div class="metric-row">
-                        <div class="metric-label">Motivation</div>
-                        <div class="metric-value">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: {{ (user.profile_data.get('motivationLevel', 5) * 10) }}%"></div>
-                            </div>
-                            <span class="metric-number">{{ user.profile_data.get('motivationLevel', 5) }}/10</span>
+                    <!-- Personalised Insights from Latest Log -->
+                    {% if daily_logs and daily_logs[-1].get('personalised_insights') %}
+                        <div class="insights-section">
+                            <h4>💡 Your Personalised Insights:</h4>
+                            {% for insight in daily_logs[-1]['personalised_insights'][:3] %}
+                                <div class="insight-item">{{ insight }}</div>
+                            {% endfor %}
                         </div>
+                    {% endif %}
+
+                    <!-- Goal-Specific Today's Focus -->
+                    <div class="todays-focus">
+                        <h4>🎯 Today's Focus:</h4>
+                        {% if user.profile_data.get('goal') == 'weight_loss' %}
+                            <p>Focus on creating a sustainable calorie deficit through nutritious foods and movement. Remember, 1-2 pounds per week is healthy and sustainable weight loss.</p>
+                        {% elif user.profile_data.get('goal') == 'muscle_gain' %}
+                            <p>Prioritise protein at each meal and progressive overload in your workouts. Muscle building takes time - consistency over months creates visible results.</p>
+                        {% elif user.profile_data.get('goal') == 'endurance' %}
+                            <p>Build your cardiovascular fitness gradually. Mix steady-state cardio with interval training for the best endurance gains.</p>
+                        {% elif user.profile_data.get('goal') == 'strength' %}
+                            <p>Focus on compound movements and gradually increasing weights. Strength gains come from progressive overload and proper recovery.</p>
+                        {% else %}
+                            <p>Balance all aspects of health - movement, nutrition, sleep, and mental wellbeing. Small consistent improvements create lasting change.</p>
+                        {% endif %}
                     </div>
-                    <div class="metric-row">
-                        <div class="metric-label">Stress Level</div>
-                        <div class="metric-value">
-                            <div class="progress-bar">
-                                <div class="progress-fill stress-bar" style="width: {{ (user.profile_data.get('stressLevel', 3) * 10) }}%"></div>
-                            </div>
-                            <span class="metric-number">{{ user.profile_data.get('stressLevel', 3) }}/10</span>
-                        </div>
+                {% else %}
+                    <div class="score-placeholder">
+                        <div class="score-number">?/10</div>
+                        <div class="score-status">Ready to start! 🌟</div>
+                        <p>Complete your first daily log to get your personalised score and insights tailored to your {{ user.profile_data.get('goal', 'fitness').replace('_', ' ') }} goals.</p>
+                        <a href="/daily-log?email={{ user.email }}" class="start-logging-btn">Start Logging Today</a>
                     </div>
-                    <div class="metric-row">
-                        <div class="metric-label">Sleep Hours</div>
-                        <div class="metric-value">
-                            <div class="sleep-display">
-                                <span class="sleep-icon">😴</span>
-                                <span class="metric-number">{{ user.profile_data.get('sleepHours', 7) }}h</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {% endif %}
             </div>
         </div>
 
-        <!-- Device Tracking Section -->
-        <div class="tracking-philosophy">
-            <h3>📱 Your Tracking Journey</h3>
+        <!-- Your Personal Coaching Section -->
+        <div class="coaching-section">
+            <h2>🏃‍♀️ Your Personal Coach</h2>
+            <div class="coaching-cards">
+                {% if user.profile_data.get('goal') == 'weight_loss' %}
+                    <div class="coaching-card">
+                        <div class="coaching-icon">🍽️</div>
+                        <h4>Today's Nutrition Tip</h4>
+                        <p>Try eating protein with every meal to stay fuller for longer and support your metabolism. Aim for lean sources like chicken, fish, eggs, or legumes.</p>
+                    </div>
+                {% elif user.profile_data.get('goal') == 'muscle_gain' %}
+                    <div class="coaching-card">
+                        <div class="coaching-icon">💪</div>
+                        <h4>Today's Training Tip</h4>
+                        <p>Focus on progressive overload - gradually increase weight, reps, or sets each week. Your muscles adapt to challenges, so keep progressing!</p>
+                    </div>
+                {% else %}
+                    <div class="coaching-card">
+                        <div class="coaching-icon">⚡</div>
+                        <h4>Today's Wellness Tip</h4>
+                        <p>Movement doesn't have to be intense to be beneficial. A 10-minute walk, some stretching, or dancing to your favourite songs all count!</p>
+                    </div>
+                {% endif %}
+
+                {% if user.profile_data.get('health_conditions') and 'stress' in user.profile_data.get('health_conditions', '').lower() %}
+                    <div class="coaching-card">
+                        <div class="coaching-icon">🧘‍♀️</div>
+                        <h4>Stress Management</h4>
+                        <p>Since you mentioned stress, try 5 minutes of deep breathing today. Inhale for 4 counts, hold for 4, exhale for 6. This activates your calm response.</p>
+                    </div>
+                {% elif user.profile_data.get('activity_level') == 'sedentary' %}
+                    <div class="coaching-card">
+                        <div class="coaching-icon">🚶‍♀️</div>
+                        <h4>Movement Reminder</h4>
+                        <p>Start small! Set a timer to stand and stretch every hour. Even 2-minute movement breaks can boost energy and improve your day.</p>
+                    </div>
+                {% else %}
+                    <div class="coaching-card">
+                        <div class="coaching-icon">💧</div>
+                        <h4>Hydration Check</h4>
+                        <p>Aim for clear or pale yellow urine as a hydration guide. Start your day with a glass of water and keep a bottle nearby as a reminder.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Device Tracking Section - Remember User Choice -->
+        <div class="tracking-section">
+            <h2>📱 Your Tracking Setup</h2>
             {% set fitness_tokens = user.get('fitness_tokens', {}) %}
             {% set connected_devices = [] %}
             {% if fitness_tokens.get('fitbit_access_token') %}{% set _ = connected_devices.append('Fitbit') %}{% endif %}
             {% if fitness_tokens.get('oura_access_token') %}{% set _ = connected_devices.append('Oura Ring') %}{% endif %}
             {% if fitness_tokens.get('google_fit_access_token') %}{% set _ = connected_devices.append('Google Fit') %}{% endif %}
 
-            <div class="tracking-insight">
-                <p class="tracking-message">Your device can track steps and sleep, but only you can track how you feel. Manual logging builds powerful habits, with or without a device. 💪</p>
-            </div>
+            {% if user.profile_data.get('preferred_device') %}
+                <div class="device-selected">
+                    <div class="device-status">
+                        <span class="device-name">{{ user.profile_data.get('preferred_device').replace('_', ' ').title() }}</span>
+                        {% if user.profile_data.get('preferred_device') in ['fitbit', 'oura', 'google_fit'] and connected_devices %}
+                            <span class="status-badge connected">✅ Connected</span>
+                        {% else %}
+                            <span class="status-badge manual">📝 Manual Entry</span>
+                        {% endif %}
+                    </div>
+                    <p class="tracking-philosophy">Remember: Your device tracks numbers, but only you can track how you feel. This combination of data gives the complete picture of your health journey.</p>
 
-            {% if connected_devices %}
-            <div class="device-status connected">
-                <div class="device-header">
-                    <span class="status-badge connected">✅ {{ connected_devices|length }} device(s) syncing</span>
-                    <span class="sync-info">🔄 Auto-sync enabled</span>
-                </div>
-                <div class="device-grid-mini">
-                    {% if 'Fitbit' in connected_devices %}
-                    <div class="mini-device-card connected">
-                        <div class="device-icon">⌚</div>
-                        <small>Fitbit</small>
-                    </div>
-                    {% endif %}
-                    {% if 'Oura Ring' in connected_devices %}
-                    <div class="mini-device-card connected">
-                        <div class="device-icon">💍</div>
-                        <small>Oura Ring</small>
-                    </div>
-                    {% endif %}
-                    {% if 'Google Fit' in connected_devices %}
-                    <div class="mini-device-card connected">
-                        <div class="device-icon">📱</div>
-                        <small>Google Fit</small>
-                    </div>
+                    {% if user.profile_data.get('preferred_device') == 'manual' or user.profile_data.get('preferred_device') not in connected_devices %}
+                        <div class="manual-encouragement">
+                            <p>✨ <strong>Manual tracking builds powerful habits!</strong> You're developing mindful awareness of your body and choices - this self-knowledge is incredibly valuable for long-term success.</p>
+                        </div>
                     {% endif %}
                 </div>
-                <p class="sync-note">Last sync: {{ user.get('last_device_sync', 'Never') }}</p>
-            </div>
             {% else %}
-            <div class="device-status not-connected">
-                <div class="device-header">
-                    <span class="status-badge manual">📝 Manual Check-in — Track your data manually here. Works perfectly without connected devices.</span>
+                <div class="device-selection">
+                    <p>Choose how you'd like to track your fitness data:</p>
+                    <a href="/connect-devices?email={{ user.email }}" class="connect-devices-btn">Set Up Tracking</a>
                 </div>
-                <p class="manual-tracking-encouragement">You're building mindful habits by consciously checking in with yourself. This self-awareness is incredibly valuable for long-term success! 🌟</p>
-                <div class="device-grid-mini">
-                    <div class="mini-device-card available">
-                        <div class="device-icon">⌚</div>
-                        <small>Fitbit</small>
-                    </div>
-                    <div class="mini-device-card available">
-                        <div class="device-icon">💍</div>
-                        <small>Oura Ring</small>
-                    </div>
-                    <div class="mini-device-card available">
-                        <div class="device-icon">📱</div>
-                        <small>Google Fit</small>
-                    </div>
-                    <div class="mini-device-card available">
-                        <div class="device-icon">🍎</div>
-                        <small>Apple Health</small>
-                    </div>
-                </div>
-            </div>
             {% endif %}
         </div>
 
-        <!-- Achievement Tracker -->
-        <div class="achievement-section">
-            <h2>🏆 Your Achievements</h2>
-            <div class="achievements-grid">
-                {% set logs_count = user.get('daily_logs', [])|length %}
-                <div class="achievement-card {{ 'unlocked' if logs_count >= 1 else 'locked' }}">
-                    <div class="achievement-icon">📝</div>
-                    <div class="achievement-title">First Entry</div>
-                    <div class="achievement-description">Complete your first daily log</div>
-                    <div class="achievement-progress">{{ '✅ Unlocked!' if logs_count >= 1 else '🔒 Locked' }}</div>
-                </div>
+        <!-- Quick Actions -->
+        <div class="quick-actions-grid">
+            <a href="/ai-chat?email={{ user.email }}" class="action-card ai-card">
+                <div class="card-icon">🤖</div>
+                <h3>Ask Your AI Coach</h3>
+                <p>Get personalised advice and support</p>
+            </a>
 
-                <div class="achievement-card {{ 'unlocked' if logs_count >= 7 else 'locked' }}">
-                    <div class="achievement-icon">🔥</div>
-                    <div class="achievement-title">Week Warrior</div>
-                    <div class="achievement-description">Log data for 7 days</div>
-                    <div class="achievement-progress">
-                        {% if logs_count >= 7 %}
-                            ✅ Unlocked!
-                        {% else %}
-                            {{ logs_count }}/7 days
-                        {% endif %}
-                    </div>
-                </div>
+            <a href="/connect-devices?email={{ user.email }}" class="action-card devices-card">
+                <div class="card-icon">📱</div>
+                <h3>Device Settings</h3>
+                <p>Connect or change your fitness tracker</p>
+            </a>
 
-                <div class="achievement-card {{ 'unlocked' if streak_days >= 3 else 'locked' }}">
-                    <div class="achievement-icon">⚡</div>
-                    <div class="achievement-title">Consistency King</div>
-                    <div class="achievement-description">Maintain a 3-day streak</div>
-                    <div class="achievement-progress">
-                        {% if streak_days >= 3 %}
-                            ✅ Unlocked!
-                        {% else %}
-                            {{ streak_days }}/3 days
-                        {% endif %}
-                    </div>
-                </div>
+            <a href="/questionnaire?email={{ user.email }}" class="action-card profile-card">
+                <div class="card-icon">⚙️</div>
+                <h3>Update Profile</h3>
+                <p>Modify your goals and preferences</p>
+            </a>
 
-                {% if goal == 'weight_loss' %}
-                <div class="achievement-card locked">
-                    <div class="achievement-icon">🎯</div>
-                    <div class="achievement-title">Goal Crusher</div>
-                    <div class="achievement-description">Reach your weight loss milestone</div>
-                    <div class="achievement-progress">Track weight to unlock</div>
-                </div>
-                {% endif %}
-            </div>
+            {% if user.subscription_tier == 'free' %}
+            <a href="/subscription?email={{ user.email }}" class="action-card premium-card">
+                <div class="card-icon">✨</div>
+                <h3>Upgrade to Premium</h3>
+                <p>Unlock unlimited AI insights</p>
+            </a>
+            {% endif %}
         </div>
-
-        <!-- Next Steps Based on Profile -->
-        <div class="next-steps-section">
-            <h2>🎯 Recommended Next Steps</h2>
-            <div class="next-steps-content">
-                {% if logs_count == 0 %}
-                    <div class="step-card priority">
-                        <div class="step-icon">🚀</div>
-                        <div class="step-content">
-                            <h3>Start Your Journey!</h3>
-                            <p>Complete your first daily log to begin tracking your progress. It takes just 2 minutes!</p>
-                            <a href="/daily-log?email={{ user.email }}" class="step-action">Log Your Day</a>
-                        </div>
-                    </div>
-                {% elif logs_count < 3 %}
-                    <div class="step-card priority">
-                        <div class="step-icon">📈</div>
-                        <div class="step-content">
-                            <h3>Build Your Habit</h3>
-                            <p>You're off to a great start! Log {{ 3 - logs_count }} more day{{ 's' if 3 - logs_count != 1 else '' }} to establish your routine.</p>
-                            <a href="/daily-log?email={{ user.email }}" class="step-action">Continue Logging</a>
-                        </div>
-                    </div>
-                {% else %}
-                    {% if goal == 'weight_loss' %}
-                        <div class="step-card">
-                            <div class="step-icon">🥗</div>
-                            <div class="step-content">
-                                <h3>Focus on Nutrition</h3>
-                                <p>Track your meals more consistently to identify patterns that support your weight loss goals.</p>
-                                <a href="/daily-log?email={{ user.email }}" class="step-action">Log Meals</a>
-                            </div>
-                        </div>
-                    {% elif goal == 'muscle_gain' %}
-                        <div class="step-card">
-                            <div class="step-icon">💪</div>
-                            <div class="step-content">
-                                <h3>Optimize Recovery</h3>
-                                <p>Track sleep and stress levels to maximize your muscle-building potential.</p>
-                                <a href="/weekly-checkin?email={{ user.email }}" class="step-action">Weekly Check-in</a>
-                            </div>
-                        </div>
-                    {% endif %}
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Quick Actions Section -->
-        <div class="quick-actions-section">
-            <h2>🚀 Quick Actions</h2>
-            <div class="action-buttons">
-                <a href="/daily-log?email={{ user.email }}" class="action-btn primary">
-                    <span class="btn-icon">📝</span>
-                    <span class="btn-text">Daily Log</span>
-                    <span class="btn-subtitle">2 min</span>
-                </a>
-                <a href="/weekly-checkin?email={{ user.email }}" class="action-btn secondary">
-                    <span class="btn-icon">📅</span>
-                    <span class="btn-text">Weekly Check-in</span>
-                    <span class="btn-subtitle">5 min</span>
-                </a>
-                <a href="/ai-chat?email={{ user.email }}" class="action-btn accent">
-                    <span class="btn-icon">🤖</span>
-                    <span class="btn-text">Ask AI</span>
-                    <span class="btn-subtitle">Get insights</span>
-                </a>
-                <a href="/connect-devices?email={{ user.email }}" class="action-btn secondary">
-                    <span class="btn-icon">🔗</span>
-                    <span class="btn-text">Connect Devices</span>
-                    <span class="btn-subtitle">Auto-sync</span>
-                </a>
-                <a href="/?email={{ user.email }}" class="action-btn tertiary">
-                    <span class="btn-icon">⚙️</span>
-                    <span class="btn-text">Update Profile</span>
-                    <span class="btn-subtitle">Personalize</span>
-                </a>
-            </div>
-        </div>
-
-        {{ motivation_content|safe }}
 
         <!-- Subscription Status -->
-        <div class="subscription-section">
-            <div class="subscription-card">
-                <h3>💳 Your Plan</h3>
-                <div class="plan-info">
-                    <span class="plan-name">{{ user.subscription_tier|title }} Plan</span>
-                    {% if user.subscription_tier == 'free' %}
-                        <span class="plan-status upgrade-available">Upgrade Available!</span>
-                    {% else %}
-                        <span class="plan-status premium">Premium Active ✨</span>
-                    {% endif %}
-                </div>
-                {% if user.subscription_tier == 'free' %}
-                <p class="plan-description">You're using the free plan. Upgrade for unlimited AI insights and advanced features!</p>
-                <a href="/subscription?email={{ user.email }}" class="upgrade-btn">Upgrade to Premium</a>
-                {% else %}
-                <p class="plan-description">You have unlimited access to all premium features! Thank you for your support. 🙏</p>
-                {% endif %}
+        {% if user.subscription_tier == 'free' %}
+        <div class="subscription-prompt">
+            <div class="prompt-content">
+                <h3>🚀 Ready for More Personalised Support?</h3>
+                <p>Upgrade to Premium for unlimited AI coaching, meal planning, and advanced insights tailored to your goals.</p>
+                <a href="/subscription?email={{ user.email }}" class="upgrade-button">Upgrade to Premium - £9.97/month</a>
             </div>
         </div>
-
-        <!-- Feature Comparison (moved down) -->
-        <div class="feature-comparison">
-            <h3>🆚 Free vs Premium Features</h3>
-            <div class="feature-grid">
-                <div class="feature-column free-column">
-                    <h4 style="margin-top: 0; color: #2196f3;">🆓 Free Plan</h4>
-                    <ul style="margin: 0; padding-left: 20px; color: #666;">
-                        <li>Basic daily logging (7 days)</li>
-                        <li>Quick daily score</li>
-                        <li>3 AI questions per week</li>
-                        <li>Basic wearable data entry</li>
-                        <li>7-day data history</li>
-                        <li>Email support</li>
-                    </ul>
-                </div>
-                <div class="feature-column premium-column">
-                    <h4 style="margin-top: 0; color: #ff9800;">✨ Premium Plan - £9.97/month</h4>
-                    <ul style="margin: 0; padding-left: 20px; color: #666;">
-                        <li><strong>Unlimited</strong> daily logging & AI chat</li>
-                        <li><strong>Advanced</strong> analytics & trends</li>
-                        <li><strong>Hormone-aware</strong> recommendations</li>
-                        <li><strong>AI meal planning</strong> & suggestions</li>
-                        <li><strong>Unlimited</strong> data history</li>
-                        <li><strong>Auto wearable sync</strong> (coming soon)</li>
-                        <li><strong>Priority</strong> support</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+        {% endif %}
     </div>
 </body>
 </html>

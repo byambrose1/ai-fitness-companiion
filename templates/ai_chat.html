@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
@@ -12,19 +11,32 @@
         <h1>🤖 AI Wellness Assistant</h1>
         <p style="text-align: center; color: #666;">Ask me anything about your fitness journey!</p>
 
-        <form method="POST" action="/ai-response">
-            <input type="hidden" name="email" value="{{ user.email }}">
-            <textarea name="question" class="chat-input" rows="4" placeholder="E.g., Why didn't I lose weight this week? Why do I feel bloated today? What should I improve?"></textarea>
-            <button type="submit" class="button">💬 Ask AI Assistant</button>
-        </form>
+        <div class="chat-container">
+            <h2>🤖 Your Personal AI Coach</h2>
+            <p class="coach-intro">Get personalised advice based on your {{ user.profile_data.get('goal', 'fitness').replace('_', ' ') }} goals and profile.</p>
 
-        <div class="suggested-questions">
-            <h3>💡 Suggested Questions:</h3>
-            <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Why didn\\'t I lose weight this week?'">Why didn't I lose weight this week?</div>
-            <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Why do I feel bloated today?'">Why do I feel bloated today?</div>
-            <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'What should I focus on next week?'">What should I focus on next week?</div>
-            <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'How can I improve my energy levels?'">How can I improve my energy levels?</div>
-            <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Tips for better sleep?'">Tips for better sleep?</div>
+            <form method="POST" action="/ai-response" class="chat-form">
+                <label for="question">Ask your AI coach anything about fitness, nutrition, or wellness:</label>
+                <textarea name="question" id="question" rows="4" placeholder="e.g., What should I eat to support my {{ user.profile_data.get('goal', 'fitness').replace('_', ' ') }} goals? How can I improve my sleep? What's the best approach for my fitness level?" required></textarea>
+                <button type="submit" class="button">Get Personalised Advice</button>
+            </form>
+
+            <div class="suggested-questions">
+                <h3>💡 Popular Questions:</h3>
+                {% if user.profile_data.get('goal') == 'weight_loss' %}
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'What foods should I eat for sustainable weight loss?'">What foods should I eat for sustainable weight loss?</div>
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'How can I overcome sugar cravings?'">How can I overcome sugar cravings?</div>
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'What exercise is best for fat loss?'">What exercise is best for fat loss?</div>
+                {% elif user.profile_data.get('goal') == 'muscle_gain' %}
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'How much protein do I need for muscle growth?'">How much protein do I need for muscle growth?</div>
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'What are the best muscle-building exercises?'">What are the best muscle-building exercises?</div>
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'How important is rest for muscle growth?'">How important is rest for muscle growth?</div>
+                {% else %}
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'How can I build healthy habits that stick?'">How can I build healthy habits that stick?</div>
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'What exercise should I start with as a beginner?'">What exercise should I start with as a beginner?</div>
+                <div class="question-btn" onclick="document.querySelector('[name=question]').value = 'Tips for better sleep quality?'">Tips for better sleep quality?</div>
+                {% endif %}
+            </div>
         </div>
 
         <div style="text-align: center; margin-top: 20px;">
