@@ -1,0 +1,54 @@
+My dashboard and daily log need to be completely redesigned for a better user journey. 
+
+---
+
+1️⃣ Personalisation
+- Make the entire dashboard language and content personalised to the user's questionnaire responses. 
+- Remove generic slogans like "Consistency King" or any American-style phrases. Replace with thoughtful language that makes sense for British English and is sensitive to women users.
+
+---
+
+2️⃣ Better user journey flow
+- Move "Start your journey" and "Fill in your daily log" much higher on the page so it’s immediately visible after the welcome header.
+- The user journey should flow clearly:
+  Welcome → Daily Log → Tracking / coaching → Achievements → Other tools (like AI coach or device info).
+
+---
+
+3️⃣ Tracking journey section
+- Redesign this section to be like having a coach in the app. Provide daily or weekly practical tips: 
+  "Try doing X today", "Watch out for Y", "Stay hydrated because your questionnaire says you struggle with sleep."
+- If the user has clicked a device, highlight it. If it's manual, show only the metrics they need (steps, sleep etc) — **do not ask them to select their device again inside the daily log**.
+
+---
+
+4️⃣ Daily log improvements
+- Fix food tracking so it recognises common foods like “Big Mac” or brand names.  
+- The “Had a takeaway today?” question should not be a separate section above food tracking. 
+- Instead, integrate it into the food tracking — maybe a simple checkbox or note. Keep it all in one place.
+
+---
+
+5️⃣ Device selection
+- Once a user picks a device on the dashboard, remember it.  
+- Do not ever ask them to select it again on daily logs.  
+- If they picked manual, just show inputs for steps, sleep etc without any "select device" dropdown.
+
+---
+
+6️⃣ Fix broken features
+- Fix the "Ask AI Coach" button so it works.  
+- Fix "Update Profile" so it goes to a real form that saves and updates user data.
+
+---
+
+7️⃣ Language & clarity
+- Ensure all language is in British English. Avoid Americanisms.  
+- Use supportive, friendly, direct language that fits women’s wellness.
+
+---
+
+8️⃣ Final confirmation
+- Once complete, show me a summary of exactly what was changed, and prove it by logging in, filling in the daily log, seeing the dashboard update, and showing there are no 404 or undefined errors.
+
+Do not skip or generalise — I need this 100% fixed to be user-ready. Thank you.
