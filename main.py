@@ -60,6 +60,11 @@ def get_current_pricing():
 
 @app.route('/')
 def landing_page():
+    # If user is logged in and comes to landing page with email param, redirect to questionnaire
+    email = request.args.get('email')
+    if email and 'user_email' in session and session['user_email'] == email:
+        return redirect(url_for('questionnaire'))
+    
     return render_template('index.html')
 
 @app.route('/dashboard')
@@ -579,9 +584,15 @@ def subscription():
     if not user:
         return redirect(url_for('landing_page'))
 
+    # Get pricing information
+    pricing = get_current_pricing()
+    users_until_price_change = max(0, 100 - signup_count)
+
     return render_template('subscription.html', 
                          current_tier=user.get('subscription_tier', 'free'),
                          email=user['email'],
+                         pricing=pricing,
+                         users_until_price_change=users_until_price_change,
                          stripe_publishable_key=os.getenv('STRIPE_PUBLISHABLE_KEY', ''))
 
 @app.route('/create-checkout-session', methods=['POST'])
@@ -691,6 +702,225 @@ def questionnaire():
             print('QUESTIONNAIRE ERROR: User not found in database')
             flash('User not found. Please log in again.')
             return redirect(url_for('landing_page'))
+
+
+@app.route('/daily-log')
+def daily_log():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+
+    return render_template('daily-log.html', user=user)
+
+@app.route('/submit-daily-log', methods=['POST'])
+def submit_daily_log():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+
+    # Collect form data
+    log_data = {
+        'date': datetime.now().isoformat(),
+        'mood': request.form.get('mood'),
+        'energy_level': request.form.get('energy_level'),
+        'stress_level': request.form.get('stress_level'),
+        'sleep_hours': request.form.get('sleep_hours'),
+        'sleep_quality': request.form.get('sleep_quality'),
+        'workout': request.form.get('workout'),
+        'workout_intensity': request.form.get('workout_intensity'),
+        'food_log': request.form.get('food_log'),
+        'water_intake': request.form.get('water_intake'),
+        'weight': request.form.get('weight'),
+        'notes': request.form.get('notes')
+    }
+
+    # Calculate overall score (simplified)
+    score = 5  # Base score
+    if log_data['mood'] and int(log_data['mood']) >= 7:
+        score += 1
+    if log_data['energy_level'] and int(log_data['energy_level']) >= 7:
+        score += 1
+    if log_data['sleep_hours'] and 7 <= float(log_data['sleep_hours']) <= 9:
+        score += 1.5
+    if log_data['workout'] and log_data['workout'] != 'rest':
+        score += 1.5
+
+    log_data['overallScore'] = min(10, score)
+
+
+@app.route('/weekly-checkin')
+def weekly_checkin():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+
+    return render_template('weekly_checkin.html', user=user)
+
+@app.route('/submit-weekly-checkin', methods=['POST'])
+def submit_weekly_checkin():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+
+    # Collect form data
+    checkin_data = {
+        'date': datetime.now().isoformat(),
+        'weight_change': request.form.get('weight_change'),
+        'energy_level': request.form.get('energy_level'),
+        'motivation_level': request.form.get('motivation_level'),
+        'biggest_challenge': request.form.get('biggest_challenge'),
+        'biggest_win': request.form.get('biggest_win'),
+        'goals_next_week': request.form.get('goals_next_week'),
+        'sleep_pattern': request.form.get('sleep_pattern'),
+        'stress_level': request.form.get('stress_level'),
+        'notes': request.form.get('notes')
+    }
+
+    # Save to database
+    add_weekly_checkin(session['user_email'], checkin_data)
+
+    flash('Weekly check-in saved successfully!')
+
+
+@app.route('/ai-chat')
+def ai_chat():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+
+    return render_template('ai_chat.html', user=user)
+
+@app.route('/ai-chat-message', methods=['POST'])
+def ai_chat_message():
+    if 'user_email' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
+
+    user = get_user(session['user_email'])
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    message = request.json.get('message', '')
+    if not message:
+        return jsonify({'error': 'No message provided'}), 400
+
+    # Check subscription tier for AI limits
+    if user.get('subscription_tier') == 'free':
+        # Implement usage limits for free tier
+        pass
+
+    try:
+        # Simple AI response (you can enhance this with OpenAI)
+        response = f"Thanks for your message: '{message}'. I'm here to help with your fitness journey! (AI integration coming soon)"
+        
+        return jsonify({'response': response})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+
+
+@app.route('/connect-devices')
+def connect_devices():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+
+    return render_template('connect_devices.html', user=user)
+
+@app.route('/select-device', methods=['POST'])
+def select_device():
+    if 'user_email' not in session:
+        return jsonify({'error': 'Not logged in'}), 401
+
+    user = get_user(session['user_email'])
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    device = request.json.get('device')
+    if not device:
+        return jsonify({'error': 'No device specified'}), 400
+
+    # Update user's preferred tracking device
+    if 'profile_data' not in user:
+        user['profile_data'] = {}
+    
+    user['profile_data']['preferred_device'] = device
+    save_user(user)
+
+    # Return device-specific manual entry instructions
+    device_instructions = {
+        'oura': {
+            'name': 'Oura Ring',
+            'status': 'Connection coming soon',
+            'manual_fields': ['Sleep Score (0-100)', 'Readiness Score (0-100)', 'HRV (ms)', 'Resting Heart Rate (bpm)', 'Body Temperature (°C)'],
+            'description': 'Enter your data manually in the same format as your Oura app.'
+        },
+        'fitbit': {
+            'name': 'Fitbit',
+            'status': 'Connected (manual entry)',
+            'manual_fields': ['Steps', 'Active Minutes', 'Heart Rate (bpm)', 'Sleep Hours', 'Calories Burned'],
+            'description': 'Enter your Fitbit data manually until auto-sync is available.'
+        },
+        'garmin': {
+            'name': 'Garmin',
+            'status': 'Connection coming soon',
+            'manual_fields': ['Steps', 'Active Minutes', 'Stress Score', 'Body Battery', 'VO2 Max'],
+            'description': 'Device connection coming soon. Please enter your data manually.'
+        },
+        'apple_health': {
+            'name': 'Apple Health',
+            'status': 'Connection coming soon (requires native app)',
+            'manual_fields': ['Steps', 'Heart Rate (bpm)', 'Sleep Hours', 'Active Energy (kcal)', 'Mindful Minutes'],
+            'description': 'Apple Health connection requires a native app. Enter data manually for now.'
+        },
+        'google_fit': {
+            'name': 'Google Fit',
+            'status': 'Connection coming soon (requires native app)',
+            'manual_fields': ['Steps', 'Active Minutes', 'Heart Rate (bpm)', 'Distance (km)', 'Calories'],
+            'description': 'Google Fit connection requires a native app. Enter data manually for now.'
+        }
+    }
+
+    return jsonify({
+        'success': True,
+        'device_info': device_instructions.get(device, {
+            'name': device,
+            'status': 'Unknown device',
+            'manual_fields': [],
+            'description': 'Please select a supported device.'
+        })
+    })
+
+
+    return redirect(url_for('dashboard'))
+
+
+
+    # Save to database
+    add_daily_log(session['user_email'], log_data)
+
+    flash('Daily log saved successfully!')
+    return redirect(url_for('dashboard'))
+
+
 
     print('QUESTIONNAIRE GET: Rendering questionnaire page')
     return render_template('questionnaire.html')

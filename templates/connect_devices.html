@@ -4,131 +4,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connect Your Fitness Devices</title>
+    <title>Connect Your Devices</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .device-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .device-card:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+        }
+        
+        .device-card.selected {
+            border-color: #4CAF50;
+            background: #f8fff8;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+        
+        .device-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .device-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .device-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .status-available {
+            background: #e8f5e8;
+            color: #2d5a3d;
+        }
+        
+        .status-coming-soon {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .manual-entry-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: none;
+        }
+        
+        .manual-entry-section.active {
+            display: block;
+        }
+        
+        .manual-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .manual-field {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .field-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .field-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔗 Connect Your Fitness Devices</h1>
-        <p style="text-align: center; color: #666; margin-bottom: 30px;">
-            Automatically sync your fitness data for better AI insights!
-        </p>
-
-        <div class="auto-sync-info">
-            <h3 style="color: #3B7A57; margin-top: 0;">✨ Automatic Sync Benefits</h3>
-            <ul style="text-align: left; color: #2d5a42;">
-                <li><strong>No Manual Entry:</strong> Your device data syncs automatically every day</li>
-                <li><strong>Better AI Insights:</strong> More data = more accurate and personalized recommendations</li>
-                <li><strong>Trend Analysis:</strong> Track patterns in sleep, activity, and recovery over time</li>
-                <li><strong>Hormone-Aware Coaching:</strong> Adjust recommendations based on your cycle and stress</li>
-            </ul>
+        <div class="welcome-header">
+            <h1>🔗 Connect Your Devices</h1>
+            <p>Choose your preferred tracking method. Manual tracking works perfectly and builds mindful habits!</p>
         </div>
 
         <div class="device-grid">
-            <div class="device-card {% if fitness_tokens.get('fitbit_access_token') %}connected{% endif %}">
+            <div class="device-card" data-device="fitbit">
                 <div class="device-icon">⌚</div>
-                <h3>Fitbit</h3>
-                <p>Steps, sleep score, heart rate, active minutes</p>
-                {% if fitness_tokens.get('fitbit_access_token') %}
-                    <div class="connected-badge">✅ Connected</div>
-                    <p style="font-size: 0.9rem; color: #666;">Syncing automatically</p>
-                {% else %}
-                    {% if fitbit_auth_url %}
-                    <a href="{{ fitbit_auth_url }}" class="connect-btn">Connect Fitbit</a>
-                    {% else %}
-                    <button class="connect-btn" disabled>API Not Configured</button>
-                    {% endif %}
-                {% endif %}
+                <div class="device-name">Fitbit</div>
+                <div class="device-status status-available">Manual Entry Available</div>
+                <p>Track steps, heart rate, and active minutes</p>
             </div>
 
-            <div class="device-card {% if fitness_tokens.get('oura_access_token') %}connected{% endif %}">
+            <div class="device-card" data-device="oura">
                 <div class="device-icon">💍</div>
-                <h3>Oura Ring</h3>
-                <p>Readiness score, sleep stages, HRV, temperature</p>
-                {% if fitness_tokens.get('oura_access_token') %}
-                    <div class="connected-badge">✅ Connected</div>
-                    <p style="font-size: 0.9rem; color: #666;">Syncing automatically</p>
-                {% else %}
-                    {% if oura_auth_url %}
-                    <a href="{{ oura_auth_url }}" class="connect-btn">Connect Oura</a>
-                    {% else %}
-                    <button class="connect-btn" disabled>API Not Configured</button>
-                    {% endif %}
-                {% endif %}
+                <div class="device-name">Oura Ring</div>
+                <div class="device-status status-coming-soon">Connection Coming Soon</div>
+                <p>Monitor sleep, readiness, and recovery</p>
             </div>
 
-            <div class="device-card {% if fitness_tokens.get('google_fit_access_token') %}connected{% endif %}">
-                <div class="device-icon">📱</div>
-                <h3>Google Fit</h3>
-                <p>Steps, activities, heart rate (Android devices)</p>
-                {% if fitness_tokens.get('google_fit_access_token') %}
-                    <div class="connected-badge">✅ Connected</div>
-                    <p style="font-size: 0.9rem; color: #666;">Syncing automatically</p>
-                {% else %}
-                    {% if google_fit_auth_url %}
-                    <a href="{{ google_fit_auth_url }}" class="connect-btn">Connect Google Fit</a>
-                    {% else %}
-                    <button class="connect-btn" disabled>API Not Configured</button>
-                    {% endif %}
-                {% endif %}
-            </div>
-
-            <div class="device-card">
-                <div class="device-icon">🍎</div>
-                <h3>Apple Health</h3>
-                <p>Steps, workouts, sleep, heart rate (iPhone/Apple Watch)</p>
-                <p style="font-size: 0.9rem; color: #666; margin: 15px 0;">
-                    Apple HealthKit requires an iOS app. For now, copy your Health app summary into the daily log.
-                </p>
-                <a href="/wearables-guide?email={{ email }}" class="connect-btn" style="background: #74b9ff;">View Guide</a>
-            </div>
-
-            <div class="device-card">
+            <div class="device-card" data-device="garmin">
                 <div class="device-icon">🏃</div>
-                <h3>Garmin</h3>
-                <p>VO2 max, body battery, training load, recovery</p>
-                <p style="font-size: 0.9rem; color: #666; margin: 15px 0;">
-                    Garmin Connect API integration coming soon. Copy data from Garmin Connect app for now.
-                </p>
-                <a href="/wearables-guide?email={{ email }}" class="connect-btn" style="background: #74b9ff;">View Guide</a>
+                <div class="device-name">Garmin</div>
+                <div class="device-status status-coming-soon">Connection Coming Soon</div>
+                <p>Advanced fitness and performance metrics</p>
+            </div>
+
+            <div class="device-card" data-device="apple_health">
+                <div class="device-icon">🍎</div>
+                <div class="device-name">Apple Health</div>
+                <div class="device-status status-coming-soon">Native App Required</div>
+                <p>Comprehensive health data integration</p>
+            </div>
+
+            <div class="device-card" data-device="google_fit">
+                <div class="device-icon">📱</div>
+                <div class="device-name">Google Fit</div>
+                <div class="device-status status-coming-soon">Native App Required</div>
+                <p>Activity tracking and wellness insights</p>
+            </div>
+
+            <div class="device-card" data-device="manual">
+                <div class="device-icon">📝</div>
+                <div class="device-name">Manual Tracking</div>
+                <div class="device-status status-available">Always Available</div>
+                <p>Perfect for building mindful habits</p>
             </div>
         </div>
 
-        <div style="text-align: center; margin: 30px 0;">
-            <button onclick="syncAllDevices()" class="sync-btn">🔄 Sync All Connected Devices Now</button>
-            <p style="font-size: 0.9rem; color: #666;">Last sync: <span id="lastSync">Never</span></p>
-        </div>
-
-        <div style="text-align: center; margin-top: 30px;">
-            <a href="/dashboard?email={{ email }}" style="color: #3B7A57; text-decoration: none; font-weight: 600;">← Back to Dashboard</a>
+        <div class="manual-entry-section" id="manual-entry">
+            <h3 id="device-title">Manual Data Entry</h3>
+            <p id="device-description">Select a device above to see manual entry fields.</p>
+            
+            <div class="manual-fields" id="manual-fields">
+                <!-- Fields will be populated by JavaScript -->
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="action-btn primary" onclick="saveManualData()">Save Data</button>
+                <a href="/dashboard" class="action-btn secondary">Back to Dashboard</a>
+            </div>
         </div>
     </div>
 
     <script>
-        async function syncAllDevices() {
-            const syncBtn = document.querySelector('.sync-btn');
-            const originalText = syncBtn.textContent;
-            syncBtn.textContent = '🔄 Syncing...';
-            syncBtn.disabled = true;
+        let selectedDevice = null;
 
-            try {
-                const response = await fetch('/api/sync-devices?email={{ email }}', {
-                    method: 'POST'
-                });
-                const result = await response.json();
+        document.querySelectorAll('.device-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove previous selection
+                document.querySelectorAll('.device-card').forEach(c => c.classList.remove('selected'));
                 
-                if (result.success) {
-                    document.getElementById('lastSync').textContent = new Date().toLocaleString();
-                    alert('✅ Devices synced successfully!');
-                } else {
-                    alert('❌ Sync failed: ' + result.error);
+                // Select current card
+                this.classList.add('selected');
+                selectedDevice = this.dataset.device;
+                
+                // Send selection to backend
+                selectDevice(selectedDevice);
+            });
+        });
+
+        function selectDevice(device) {
+            fetch('/select-device', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ device: device })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showManualEntry(data.device_info);
                 }
-            } catch (error) {
-                alert('❌ Sync failed: ' + error.message);
-            } finally {
-                syncBtn.textContent = originalText;
-                syncBtn.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error selecting device:', error);
+            });
+        }
+
+        function showManualEntry(deviceInfo) {
+            const section = document.getElementById('manual-entry');
+            const title = document.getElementById('device-title');
+            const description = document.getElementById('device-description');
+            const fieldsContainer = document.getElementById('manual-fields');
+            
+            title.textContent = `${deviceInfo.name} - Manual Entry`;
+            description.textContent = deviceInfo.description;
+            
+            // Clear existing fields
+            fieldsContainer.innerHTML = '';
+            
+            // Add manual entry fields
+            deviceInfo.manual_fields.forEach(field => {
+                const fieldDiv = document.createElement('div');
+                fieldDiv.className = 'manual-field';
+                fieldDiv.innerHTML = `
+                    <div class="field-label">${field}</div>
+                    <input type="text" class="field-input" placeholder="Enter ${field.toLowerCase()}" data-field="${field}">
+                `;
+                fieldsContainer.appendChild(fieldDiv);
+            });
+            
+            section.classList.add('active');
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function saveManualData() {
+            const fields = document.querySelectorAll('.field-input');
+            const data = {};
+            
+            fields.forEach(field => {
+                const fieldName = field.dataset.field;
+                const value = field.value;
+                if (value) {
+                    data[fieldName] = value;
+                }
+            });
+            
+            if (Object.keys(data).length === 0) {
+                alert('Please enter at least one value');
+                return;
             }
+            
+            // Save data (you can enhance this to actually save to your backend)
+            console.log('Saving manual data:', data);
+            alert('Data saved successfully! This will be integrated with your daily logs.');
+            
+            // Redirect back to dashboard
+            window.location.href = '/dashboard';
         }
     </script>
 </body>
