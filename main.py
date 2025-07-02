@@ -721,7 +721,7 @@ def daily_log():
     if not user:
         return redirect(url_for('landing_page'))
 
-    return render_template('daily-log.html', user=user)
+    return render_template('daily-log.html', user=user, datetime=datetime)
 
 @app.route('/save-daily-log', methods=['POST'])
 def save_daily_log():
@@ -944,7 +944,7 @@ def weekly_checkin():
     if not user:
         return redirect(url_for('landing_page'))
 
-    return render_template('weekly_checkin.html', user=user)
+    return render_template('weekly_checkin.html', user=user, email=user['email'], today=datetime.now().strftime('%Y-%m-%d'))
 
 @app.route('/submit-weekly-checkin', methods=['POST'])
 def submit_weekly_checkin():
@@ -973,6 +973,7 @@ def submit_weekly_checkin():
     add_weekly_checkin(session['user_email'], checkin_data)
 
     flash('Weekly check-in saved successfully!')
+    return redirect(url_for('dashboard'))
 
 
 @app.route('/ai-chat')
@@ -985,6 +986,26 @@ def ai_chat():
         return redirect(url_for('landing_page'))
 
     return render_template('ai_chat.html', user=user)
+
+@app.route('/ai-response', methods=['POST'])
+def ai_response():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+
+    question = request.form.get('question', '')
+    if not question:
+        flash('Please enter a question')
+        return redirect(url_for('ai_chat'))
+
+    # Simple AI response for now
+    ai_response = f"Thanks for asking: '{question}'. Based on your profile, here's my advice: Stay consistent with your logging and focus on gradual improvements. (Full AI integration coming soon!)"
+    
+    flash(f"AI Response: {ai_response}")
+    return redirect(url_for('ai_chat'))
 
 @app.route('/ai-chat-message', methods=['POST'])
 def ai_chat_message():

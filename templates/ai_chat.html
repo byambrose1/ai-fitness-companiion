@@ -13,7 +13,7 @@
         <p style="text-align: center; color: #666;">Ask me anything about your fitness journey!</p>
 
         <form method="POST" action="/ai-response">
-            <input type="hidden" name="email" value="{{ email }}">
+            <input type="hidden" name="email" value="{{ user.email }}">
             <textarea name="question" class="chat-input" rows="4" placeholder="E.g., Why didn't I lose weight this week? Why do I feel bloated today? What should I improve?"></textarea>
             <button type="submit" class="button">💬 Ask AI Assistant</button>
         </form>
@@ -28,7 +28,7 @@
         </div>
 
         <div style="text-align: center; margin-top: 20px;">
-            <a href="/dashboard?email={{ email }}" style="color: #2d5a3d;">← Back to Dashboard</a>
+            <a href="/dashboard" style="color: #2d5a3d;">← Back to Dashboard</a>
         </div>
     </div>
 </body>

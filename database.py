@@ -157,10 +157,14 @@ def add_weekly_checkin(email, checkin_data):
     conn = sqlite3.connect('fitness_app.db')
     cursor = conn.cursor()
 
+    # Ensure we have required fields
+    week_of = checkin_data.get('date', datetime.now().isoformat())
+    timestamp = datetime.now().isoformat()
+
     cursor.execute('''
         INSERT INTO weekly_checkins (user_email, week_of, timestamp, data)
         VALUES (?, ?, ?, ?)
-    ''', (email, checkin_data['week_of'], checkin_data['timestamp'], json.dumps(checkin_data)))
+    ''', (email, week_of, timestamp, json.dumps(checkin_data)))
 
     conn.commit()
     conn.close()
