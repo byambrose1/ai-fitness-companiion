@@ -373,10 +373,10 @@ def create_checkout_session():
                 'price_data': {
                     'currency': 'gbp',
                     'product_data': {
-                        'name': 'AI Fitness Companion - Premium',
-                        'description': 'Unlimited AI insights, meal plans, and advanced analytics'
+                        'name': 'AI Fitness Companion - Premium (Founding Member)',
+                        'description': 'Unlimited AI insights, meal plans, and advanced analytics - 50% off forever!'
                     },
-                    'unit_amount': 997,  # £9.97
+                    'unit_amount': 497,  # £4.97
                     'recurring': {
                         'interval': 'month'
                     }
