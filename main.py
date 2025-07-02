@@ -1181,7 +1181,7 @@ def api_food_search():
                     'brand': food.get('brand', ''),
                     'source': food.get('source', ''),
                     'calories_per_100g': 0,
-                    'serving_size': food.get('serving_size', '100g')ze', '100g')
+                    'serving_size': food.get('serving_size', '100g')
                 }
 
                 # Extract calories from nutrients dict if present
