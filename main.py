@@ -218,9 +218,9 @@ def register():
         existing_user = get_user(email)
         if existing_user:
             print(f'Registration failed: User {email} already exists')
-            error_msg = 'Account already exists. Please log in.'
+            error_msg = 'Account already exists with this email. Please try logging in instead.'
             if is_ajax:
-                return jsonify({'success': False, 'message': error_msg})
+                return jsonify({'success': False, 'message': error_msg, 'existing_user': True})
             flash(error_msg)
             return redirect(url_for('landing_page'))
     except Exception as e:
