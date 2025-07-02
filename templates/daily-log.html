@@ -298,14 +298,30 @@
                 <input type="hidden" name="workout" id="workoutInput">
             </div>
 
-            <!-- Batch Logging Section -->
-            <label for="food_log">🍽️ What did you eat today? (Just the main stuff!)</label>
-            <div class="food-search-container">
-                <input type="text" id="food_search" placeholder="Search foods (e.g., 'chicken breast', 'apple')..." oninput="searchFoods(this.value)">
-                <div id="food_results" class="food-results"></div>
-                <button type="button" onclick="addCustomFood()" class="custom-food-btn">+ Add custom food</button>
+            <!-- Food Logging Section -->
+            <div style="background: #f8fffe; border: 2px solid #A8E6CF; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+                <h3 style="color: #3B7A57; margin: 0 0 12px 0;">🍽️ Food Tracking</h3>
+                
+                <label for="food_search" style="font-size: 0.95rem; color: #2d5a42; font-weight: 600;">
+                    🔍 Search Database (UK/US foods, restaurants, brands)
+                </label>
+                <div style="background: #e3f9e5; padding: 8px; border-radius: 6px; margin: 4px 0 8px 0; font-size: 0.8rem; color: #2d5a42;">
+                    <strong>Search examples:</strong> "Big Mac", "Tesco Chicken Breast", "Nando's Chicken", "Cadbury Chocolate"
+                </div>
+                <div class="food-search-container">
+                    <input type="text" id="food_search" placeholder="Try: Big Mac, KFC Chicken, Tesco Salmon, or any food..." oninput="searchFoods(this.value)">
+                    <div id="food_results" class="food-results"></div>
+                    <button type="button" onclick="addCustomFood()" class="custom-food-btn">+ Add custom food item</button>
+                </div>
+
+                <label for="food_log" style="font-size: 0.95rem; color: #2d5a42; font-weight: 600; margin-top: 16px;">
+                    📝 Your Complete Food Log (search results appear here automatically)
+                </label>
+                <div style="background: #e3f9e5; padding: 8px; border-radius: 6px; margin: 4px 0 8px 0; font-size: 0.8rem; color: #2d5a42;">
+                    <strong>Manual entry examples:</strong> "2 eggs with toast", "chicken tikka masala from local Indian", "homemade smoothie"
+                </div>
+                <textarea name="food_log" id="food_log" placeholder="Foods will appear here from search above, or type manually: e.g., oats with berries for breakfast, chicken salad for lunch..." rows="3"></textarea>
             </div>
-            <textarea name="food_log" id="food_log" placeholder="E.g., oats with berries for breakfast, chicken salad for lunch..." rows="2"></textarea>
 
             <div id="nutrition_summary" class="nutrition-summary" style="display: none;">
                 <h4>Today's Nutrition:</h4>

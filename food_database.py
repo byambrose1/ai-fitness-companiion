@@ -464,7 +464,7 @@ class FoodDatabaseService:
             {'name': 'Waitrose Greek Style Yogurt', 'source': 'UK Retail', 'nutrients': {'calories': '133 kcal', 'protein': '10g', 'carbs': '4g', 'fat': '10g'}, 'serving_size': '100g', 'brand': 'Waitrose'},
 
             # Co-op Foods
-            {'name': 'Co-op British Chicken Breast', 'source': 'UK Retail', 'nutrients': {'calories': '165 kcal', 'protein': '31g', 'carbs': '0g', 'fat': '3.6g'},serving_size': '100g', 'brand': 'Co-op'},
+            {'name': 'Co-op British Chicken Breast', 'source': 'UK Retail', 'nutrients': {'calories': '165 kcal', 'protein': '31g', 'carbs': '0g', 'fat': '3.6g'}, 'serving_size': '100g', 'brand': 'Co-op'},
             {'name': 'Co-op Seeded Wholemeal Bread', 'source': 'UK Retail', 'nutrients': {'calories': '260 kcal', 'protein': '10g', 'carbs': '42g', 'fat': '6g'}, 'serving_size': '100g', 'brand': 'Co-op'},
             {'name': 'Co-op Scottish Salmon Fillet', 'source': 'UK Retail', 'nutrients': {'calories': '208 kcal', 'protein': '25g', 'carbs': '0g', 'fat': '12g'}, 'serving_size': '100g', 'brand': 'Co-op'},
 
@@ -517,6 +517,7 @@ class FoodDatabaseService:
         restaurant_foods = [
             # McDonalds UK
             {'name': 'McDonalds Big Mac', 'source': 'UK Restaurant', 'nutrients': {'calories': '503 kcal', 'protein': '25g', 'carbs': '44g', 'fat': '26g'}, 'serving_size': '1 burger', 'brand': 'McDonalds'},
+            {'name': 'Big Mac', 'source': 'UK Restaurant', 'nutrients': {'calories': '503 kcal', 'protein': '25g', 'carbs': '44g', 'fat': '26g'}, 'serving_size': '1 burger', 'brand': 'McDonalds'},
             {'name': 'McDonalds Chicken McNuggets (6)', 'source': 'UK Restaurant', 'nutrients': {'calories': '259 kcal', 'protein': '15g', 'carbs': '16g', 'fat': '15g'}, 'serving_size': '6 nuggets', 'brand': 'McDonalds'},
             {'name': 'McDonalds Fries (Medium)', 'source': 'UK Restaurant', 'nutrients': {'calories': '337 kcal', 'protein': '3.4g', 'carbs': '41g', 'fat': '17g'}, 'serving_size': '1 portion', 'brand': 'McDonalds'},
             {'name': 'McDonalds Quarter Pounder with Cheese', 'source': 'UK Restaurant', 'nutrients': {'calories': '529 kcal', 'protein': '30g', 'carbs': '41g', 'fat': '31g'}, 'serving_size': '1 burger', 'brand': 'McDonalds'},
