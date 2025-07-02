@@ -813,6 +813,379 @@ input:focus, textarea:focus, select:focus {
     border-left: 4px solid #ff9800;
 }
 
+/* Guidance Banner */
+.guidance-banner {
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0f9ff 100%);
+    padding: 25px;
+    border-radius: 16px;
+    margin-bottom: 25px;
+    border: 1px solid #d4edda;
+}
+
+.guidance-content h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #2d5a42;
+    font-size: 1.2rem;
+}
+
+.guidance-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    padding: 12px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    border: 1px solid #e8f5e8;
+}
+
+.step-icon {
+    font-size: 1.2rem;
+    width: 30px;
+    text-align: center;
+}
+
+/* Enhanced Score Display */
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+    stroke: #3B7A57;
+    stroke-width: 8;
+    fill: transparent;
+    stroke-dasharray: 0 326.7;
+    stroke-linecap: round;
+    transition: stroke-dasharray 0.5s ease-in-out;
+}
+
+.score-circle {
+    position: relative;
+    display: inline-block;
+}
+
+.score-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    fill: #3B7A57;
+    transform: rotate(90deg);
+}
+
+.score-breakdown {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.score-status {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.score-status.excellent {
+    background: #e8f5e8;
+    color: #00b894;
+}
+
+.score-status.good {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.score-status.okay {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+.score-status.needs-work {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.ready-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.ready-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #3B7A57;
+}
+
+/* Weekly Progress Chart */
+.weekly-chart {
+    display: flex;
+    align-items: end;
+    gap: 8px;
+    height: 100px;
+    margin: 15px 0;
+    padding: 0 10px;
+}
+
+.day-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.bar-fill {
+    width: 100%;
+    background: linear-gradient(180deg, #3B7A57 0%, #A8E6CF 100%);
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+    transition: height 0.5s ease;
+    position: relative;
+}
+
+.bar-fill[data-score="0"] {
+    background: #f0f0f0;
+}
+
+.day-label {
+    font-size: 0.8rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.progress-insights {
+    background: #f8fffe;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 3px solid #A8E6CF;
+}
+
+.insight {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #2d5a42;
+    font-weight: 500;
+}
+
+/* Enhanced Metrics */
+.metric-row.enhanced {
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.metric-row.enhanced:last-child {
+    border-bottom: none;
+}
+
+.metric-icon {
+    font-size: 1.1rem;
+    margin-right: 8px;
+}
+
+.circular-progress {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: conic-gradient(#3B7A57 calc(var(--value) * 36deg), #f0f0f0 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.circular-progress::before {
+    content: '';
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: white;
+    position: absolute;
+}
+
+.circular-progress .metric-number {
+    position: relative;
+    z-index: 1;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.circular-progress.stress {
+    background: conic-gradient(#ff6b6b calc(var(--value) * 36deg), #f0f0f0 0);
+}
+
+.sleep-quality {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sleep-visual {
+    display: flex;
+    gap: 2px;
+}
+
+.sleep-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    transition: background 0.3s ease;
+}
+
+.sleep-dot.filled {
+    background: #3B7A57;
+}
+
+/* Achievement Section */
+.achievement-section {
+    margin-bottom: 30px;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.achievement-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid #f0f0f0;
+}
+
+.achievement-card.unlocked {
+    border-color: #00b894;
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0f9ff 100%);
+    transform: scale(1.02);
+}
+
+.achievement-card.locked {
+    opacity: 0.6;
+}
+
+.achievement-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.achievement-title {
+    font-weight: 600;
+    color: #3B7A57;
+    margin-bottom: 5px;
+}
+
+.achievement-description {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.achievement-progress {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 12px;
+    background: #f8f9fa;
+    color: #666;
+}
+
+.achievement-card.unlocked .achievement-progress {
+    background: #00b894;
+    color: white;
+}
+
+/* Next Steps Section */
+.next-steps-section {
+    margin-bottom: 30px;
+}
+
+.next-steps-content {
+    margin-top: 20px;
+}
+
+.step-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 15px;
+    border: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.step-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.step-card.priority {
+    border-color: #ff9800;
+    background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%);
+}
+
+.step-icon {
+    font-size: 2.5rem;
+    min-width: 60px;
+    text-align: center;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-content h3 {
+    margin: 0 0 8px 0;
+    color: #3B7A57;
+    font-size: 1.1rem;
+}
+
+.step-content p {
+    margin: 0 0 12px 0;
+    color: #666;
+    text-align: left;
+}
+
+.step-action {
+    background: #3B7A57;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background 0.3s ease;
+}
+
+.step-action:hover {
+    background: #2d5a42;
+}
+
+/* Enhanced Action Buttons */
+.action-btn {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+}
+
+.btn-subtitle {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    font-weight: 400;
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
     .auth-container, .success-container {
@@ -894,6 +1267,54 @@ input:focus, textarea:focus, select:focus {
         flex-direction: column;
         align-items: flex-start;
         gap: 8px;
+    }
+
+    .guidance-steps {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .step-item {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    .weekly-chart {
+        height: 80px;
+        gap: 4px;
+    }
+
+    .day-label {
+        font-size: 0.7rem;
+    }
+
+    .achievements-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .step-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .step-content {
+        text-align: center;
+    }
+
+    .circular-progress {
+        width: 35px;
+        height: 35px;
+    }
+
+    .circular-progress::before {
+        width: 25px;
+        height: 25px;
+    }
+
+    .action-btn .btn-subtitle {
+        font-size: 0.7rem;
     }
 }
 
