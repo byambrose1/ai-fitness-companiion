@@ -72,7 +72,69 @@ def dashboard():
         session.pop('user_email', None)
         return redirect(url_for('landing_page'))
 
-    return render_template('dashboard.html', user=user)
+    # Calculate dashboard data
+    from datetime import datetime, timedelta
+    
+    # Calculate days since signup
+    created_at = datetime.fromisoformat(user['created_at'])
+    days_since_signup = (datetime.now() - created_at).days
+    
+    # Get user logs for stats
+    daily_logs = user.get('daily_logs', [])
+    total_logs = len(daily_logs)
+    
+    # Calculate streak (simplified - consecutive days with logs)
+    streak_days = min(total_logs, 7)  # Cap at 7 for new users
+    
+    # Get recent score from latest log
+    recent_score = None
+    if daily_logs:
+        recent_score = daily_logs[-1].get('overallScore', 8)
+    
+    # Contextual message based on user data
+    profile_data = user.get('profile_data', {})
+    goal = profile_data.get('goal', 'general_fitness')
+    
+    contextual_messages = {
+        'weight_loss': 'Focus on creating a sustainable calorie deficit today 💪',
+        'muscle_gain': 'Fuel your muscles with protein and progressive overload 🏋️',
+        'general_fitness': 'Every small step counts towards your wellness journey 🌟',
+        'endurance': 'Build your stamina one workout at a time 🏃',
+        'strength': 'Strength comes from consistency, not perfection 💪'
+    }
+    contextual_message = contextual_messages.get(goal, 'You\'re doing great - keep up the momentum! 🌟')
+    
+    # Motivation content based on progress
+    if total_logs == 0:
+        motivation_content = '''
+        <div class="motivation-section first-time">
+            <h3>🌟 Welcome to Your Journey!</h3>
+            <p>Ready to start tracking your progress? Your first daily log is just a click away!</p>
+        </div>
+        '''
+    elif total_logs < 7:
+        motivation_content = '''
+        <div class="motivation-section building-habit">
+            <h3>🔥 Building Your Habit!</h3>
+            <p>You're off to a great start! Consistency is key - keep logging daily to build momentum.</p>
+        </div>
+        '''
+    else:
+        motivation_content = '''
+        <div class="motivation-section established">
+            <h3>💪 You're Crushing It!</h3>
+            <p>Your consistency is impressive! Keep up this amazing progress.</p>
+        </div>
+        '''
+
+    return render_template('dashboard.html', 
+                         user=user,
+                         days_since_signup=days_since_signup,
+                         total_logs=total_logs,
+                         streak_days=streak_days,
+                         recent_score=recent_score,
+                         contextual_message=contextual_message,
+                         motivation_content=motivation_content)
 
 @app.route('/food-search')
 def food_search():
@@ -101,60 +163,89 @@ def login():
         email = request.form.get('email', '').lower().strip()
         password = request.form.get('password', '')
 
+        if not email or not password:
+            if request.headers.get('Content-Type') == 'application/json' or request.is_json:
+                return jsonify({'success': False, 'message': 'Email and password are required'})
+            flash('Email and password are required')
+            return render_template('index.html')
+
         user = get_user(email)
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             session['user_email'] = email
+            if request.headers.get('Content-Type') == 'application/json' or request.is_json:
+                return jsonify({'success': True, 'redirect': url_for('dashboard')})
             return redirect(url_for('dashboard'))
         else:
+            if request.headers.get('Content-Type') == 'application/json' or request.is_json:
+                return jsonify({'success': False, 'message': 'Invalid email or password'})
             flash('Invalid email or password')
 
     return render_template('index.html')
 
 @app.route('/register', methods=['POST'])
 def register():
-    global signup_count
+    try:
+        global signup_count
 
-    email = request.form.get('email', '').lower().strip()
-    password = request.form.get('password', '')
-    name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').lower().strip()
+        password = request.form.get('password', '')
+        name = request.form.get('name', '').strip()
 
-    # Validate email format
-    if not validate_email(email):
-        flash('Please enter a valid email address.')
+        # Validate required fields
+        if not email or not password or not name:
+            flash('All fields are required.')
+            return redirect(url_for('landing_page'))
+
+        # Validate email format
+        if not validate_email(email):
+            flash('Please enter a valid email address.')
+            return redirect(url_for('landing_page'))
+
+        # Check if user already exists
+        if get_user(email):
+            flash('Account already exists. Please log in.')
+            return redirect(url_for('landing_page'))
+
+        # Hash password
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+        # Save user
+        user_data = {
+            'email': email,
+            'name': name,
+            'password': hashed_password,
+            'created_at': datetime.now().isoformat(),
+            'subscription_tier': 'free',
+            'subscription_status': 'active',
+            'profile_data': {}
+        }
+        save_user(user_data)
+
+        # Increment signup count (thread-safe)
+        with signup_lock:
+            signup_count += 1
+
+        # Try to send welcome email (don't fail registration if email fails)
+        try:
+            email_service.send_welcome_email(email, name)
+        except Exception as e:
+            print(f'Welcome email failed: {e}')
+
+        # Try to add to Mailchimp (don't fail registration if this fails)
+        try:
+            email_service.add_to_mailchimp(email, name, user_data)
+        except Exception as e:
+            print(f'Mailchimp add failed: {e}')
+
+        # Set session and redirect
+        session['user_email'] = email
+        flash('Account created successfully! Welcome to your fitness journey!')
+        return redirect(url_for('dashboard'))
+
+    except Exception as e:
+        print(f'Registration error: {e}')
+        flash('Account creation failed. Please try again.')
         return redirect(url_for('landing_page'))
-
-    if get_user(email):
-        flash('Account already exists. Please log in.')
-        return redirect(url_for('landing_page'))
-
-    # Hash password
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
-    # Save user
-    user_data = {
-        'email': email,
-        'name': name,
-        'password': hashed_password,
-        'created_at': datetime.now().isoformat(),
-        'subscription_tier': 'free',
-        'subscription_status': 'active',
-        'profile_data': {}
-    }
-    save_user(user_data)
-
-    # Increment signup count (thread-safe)
-    global signup_count
-    with signup_lock:
-        signup_count += 1
-
-    # Send welcome email
-    email_service.send_welcome_email(email, name)
-
-    # Add to Mailchimp
-    email_service.add_to_mailchimp(email, name, user_data)
-
-    session['user_email'] = email
-    return redirect(url_for('dashboard'))
 
 @app.route('/forgot-password')
 def forgot_password():
