@@ -33,13 +33,13 @@ def validate_email(email):
     email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     if not re.match(email_pattern, email):
         return False
-    
+
     # Check for common fake email domains
     fake_domains = ['fake.com', 'example.com', 'test.com', 'invalid.com', 'temp.com']
     domain = email.split('@')[1].lower()
     if domain in fake_domains:
         return False
-    
+
     # Additional validation could include DNS lookup for domain
     return True
 
@@ -480,7 +480,7 @@ def subscription_success():
 def questionnaire():
     if 'user_email' not in session:
         return redirect(url_for('landing_page'))
-    
+
     if request.method == 'POST':
         user = get_user(session['user_email'])
         if user:
@@ -494,10 +494,10 @@ def questionnaire():
             }
             user['profile_data'].update(profile_data)
             save_user(user)
-            
+
             flash('Profile updated successfully!')
             return redirect(url_for('dashboard'))
-    
+
     return render_template('questionnaire.html')
 
 @app.route('/downgrade', methods=['POST'])
@@ -540,21 +540,21 @@ def delete_account():
         return redirect(url_for('landing_page'))
 
     email = session['user_email']
-    
+
     # Delete user data
     conn = sqlite3.connect('fitness_app.db')
     cursor = conn.cursor()
-    
+
     cursor.execute('DELETE FROM daily_logs WHERE user_email = ?', (email,))
     cursor.execute('DELETE FROM weekly_checkins WHERE user_email = ?', (email,))
     cursor.execute('DELETE FROM users WHERE email = ?', (email,))
-    
+
     conn.commit()
     conn.close()
-    
+
     # Clear session
     session.clear()
-    
+
     flash('Your account has been permanently deleted.')
     return redirect(url_for('landing_page'))
 
