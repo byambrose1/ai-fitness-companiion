@@ -935,3 +935,39 @@ input:focus, textarea:focus, select:focus {
 .btn-danger:hover {
     background: #c82333;
 }
+
+/* Device Selection Styles */
+.device-btn {
+    padding: 8px 12px;
+    border: 2px solid #ddd;
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.device-btn:hover {
+    border-color: #007bff;
+    background: #f8f9ff;
+}
+
+.device-btn.active {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.device-section {
+    border-left: 4px solid #007bff;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* PWA Styles */
+.pwa-install-banner {

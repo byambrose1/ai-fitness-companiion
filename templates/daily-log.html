@@ -301,7 +301,7 @@
             <!-- Food Logging Section -->
             <div style="background: #f8fffe; border: 2px solid #A8E6CF; padding: 16px; border-radius: 12px; margin-bottom: 20px;">
                 <h3 style="color: #3B7A57; margin: 0 0 12px 0;">🍽️ Food Tracking</h3>
-                
+
                 <label for="food_search" style="font-size: 0.95rem; color: #2d5a42; font-weight: 600;">
                     🔍 Search Database (UK/US foods, restaurants, brands)
                 </label>
@@ -346,17 +346,155 @@
             <label for="weight">⚖️ Weight (kg) - Optional:</label>
             <input type="number" name="weight" step="0.1" min="30" max="300" placeholder="Leave blank if not weighing today">
 
-            <label for="tracking_devices">📱 Wearable Device Data (Optional):</label>
-            <div style="background: #f0f8ff; padding: 12px; border-radius: 8px; margin: 8px 0; font-size: 0.85rem; color: #2d3748;">
-                <strong>💡 Supported Devices & Data:</strong><br>
-                • <strong>Apple Watch/Health:</strong> Steps, heart rate, active calories, sleep stages<br>
-                • <strong>Fitbit:</strong> Steps, sleep score, resting HR, zone minutes<br>
-                • <strong>Garmin:</strong> Steps, stress score, body battery, sleep quality<br>
-                • <strong>Oura Ring:</strong> Readiness score, sleep stages, HRV<br>
-                • <strong>Samsung Health:</strong> Steps, sleep, stress levels<br>
-                <small style="color: #ff9800;"><strong>Note:</strong> Premium users will get automatic sync soon!</small>
+            <!-- Device Selection -->
+            <div style="margin: 20px 0;">
+                <label style="font-weight: bold; margin-bottom: 10px; display: block;">📱 Select Your Device:</label>
+                <div class="device-selector" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                    <button type="button" class="device-btn" data-device="apple_health">🍎 Apple Health</button>
+                    <button type="button" class="device-btn" data-device="fitbit">⌚ Fitbit</button>
+                    <button type="button" class="device-btn" data-device="garmin">🏃 Garmin</button>
+                    <button type="button" class="device-btn" data-device="oura">💍 Oura Ring</button>
+                    <button type="button" class="device-btn" data-device="samsung">📱 Samsung</button>
+                    <button type="button" class="device-btn" data-device="polar">❄️ Polar</button>
+                    <button type="button" class="device-btn" data-device="suunto">⭕ Suunto</button>
+                    <button type="button" class="device-btn" data-device="manual">📝 Manual</button>
+                </div>
             </div>
-            <textarea name="tracking_devices" placeholder="E.g., Fitbit: 8,234 steps, Sleep Score 85, RHR 65bpm | Apple Watch: 540 active cal, 12 stand hours | Oura: Readiness 78, Sleep 85..." rows="2"></textarea>
+
+            <!-- Device-Specific Data Entry Sections -->
+            <div id="device-data-sections" style="display: none;">
+
+                <!-- Apple Health Section -->
+                <div id="apple-health-section" class="device-section" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <h4 style="color: #007AFF; margin-bottom: 10px;">🍎 Apple Health Data</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        <input type="number" name="apple_steps" placeholder="Steps" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="apple_active_calories" placeholder="Active Calories" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="apple_exercise_time" placeholder="Exercise Minutes" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="apple_stand_hours" placeholder="Stand Hours" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="apple_heart_rate" placeholder="Avg Heart Rate" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="apple_sleep" placeholder="Sleep Hours" step="0.1" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <!-- Fitbit Section -->
+                <div id="fitbit-section" class="device-section" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <h4 style="color: #00B0B9; margin-bottom: 10px;">⌚ Fitbit Data</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        <input type="number" name="fitbit_steps" placeholder="Steps" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="fitbit_zone_minutes" placeholder="Active Zone Minutes" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="fitbit_sleep_score" placeholder="Sleep Score (0-100)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="fitbit_resting_hr" placeholder="Resting Heart Rate" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="fitbit_floors" placeholder="Floors Climbed" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="fitbit_calories" placeholder="Calories Burned" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <!-- Garmin Section -->
+                <div id="garmin-section" class="device-section" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <h4 style="color: #007CC3; margin-bottom: 10px;">🏃 Garmin Data</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        <input type="number" name="garmin_steps" placeholder="Steps" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="garmin_body_battery" placeholder="Body Battery (0-100)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="garmin_stress" placeholder="Stress Score (0-100)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="garmin_vo2_max" placeholder="VO2 Max" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="garmin_intensity_minutes" placeholder="Intensity Minutes" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="garmin_sleep_score" placeholder="Sleep Score (0-100)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <!-- Oura Section -->
+                <div id="oura-section" class="device-section" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <h4 style="color: #FF6B35; margin-bottom: 10px;">💍 Oura Ring Data</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        <input type="number" name="oura_readiness" placeholder="Readiness Score (0-100)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="oura_sleep_score" placeholder="Sleep Score (0-100)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="oura_activity" placeholder="Activity Score (0-100)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="oura_hrv" placeholder="HRV (ms)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="oura_resting_hr" placeholder="Resting Heart Rate" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="oura_temperature" placeholder="Temperature Deviation (°C)" step="0.1" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <!-- Samsung Section -->
+                <div id="samsung-section" class="device-section" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <h4 style="color: #1428A0; margin-bottom: 10px;">📱 Samsung Health Data</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        <input type="number" name="samsung_steps" placeholder="Steps" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="samsung_active_time" placeholder="Active Time (minutes)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="samsung_sleep" placeholder="Sleep Hours" step="0.1" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="samsung_heart_rate" placeholder="Avg Heart Rate" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="samsung_stress" placeholder="Stress Level (0-100)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="samsung_calories" placeholder="Calories Burned" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <!-- Polar Section -->
+                <div id="polar-section" class="device-section" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <h4 style="color: #E74C3C; margin-bottom: 10px;">❄️ Polar Data</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        <input type="number" name="polar_steps" placeholder="Steps" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="polar_training_load" placeholder="Training Load" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="polar_recovery" placeholder="Recovery Status (0-100)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="polar_sleep_score" placeholder="Sleep Score (0-100)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="polar_rhr" placeholder="Resting Heart Rate" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="polar_active_calories" placeholder="Active Calories" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <!-- Suunto Section -->
+                <div id="suunto-section" class="device-section" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <h4 style="color: #2E8B57; margin-bottom: 10px;">⭕ Suunto Data</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        <input type="number" name="suunto_steps" placeholder="Steps" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="suunto_recovery_time" placeholder="Recovery Time (hours)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="suunto_training_stress" placeholder="Training Stress" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="suunto_sleep" placeholder="Sleep Hours" step="0.1" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="suunto_resources" placeholder="Resources (0-100)" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <input type="number" name="suunto_calories" placeholder="Calories Burned" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+
+                <!-- Manual Section -->
+                <div id="manual-section" class="device-section" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <h4 style="color: #6C757D; margin-bottom: 10px;">📝 Manual Tracking</h4>
+                    <textarea name="tracking_devices" placeholder="Enter your tracking data manually (e.g., Steps: 8,234 | Sleep: 7h 23m | Heart Rate: 65bpm)" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; min-height: 100px;"></textarea>
+                </div>
+
+            </div>
+
+            <script>
+                // Device button functionality
+                document.querySelectorAll('.device-btn').forEach(btn => {
+                    btn.style.cssText = 'padding: 8px 12px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; transition: all 0.3s ease;';
+
+                    btn.addEventListener('click', function() {
+                        // Remove active state from all buttons
+                        document.querySelectorAll('.device-btn').forEach(b => {
+                            b.style.background = 'white';
+                            b.style.borderColor = '#ddd';
+                        });
+
+                        // Hide all device sections
+                        document.querySelectorAll('.device-section').forEach(section => {
+                            section.style.display = 'none';
+                        });
+
+                        // Activate selected button
+                        this.style.background = '#007bff';
+                        this.style.borderColor = '#007bff';
+                        this.style.color = 'white';
+
+                        // Show corresponding device section
+                        const device = this.dataset.device;
+                        const section = document.getElementById(device.replace('_', '-') + '-section');
+                        if (section) {
+                            section.style.display = 'block';
+                            document.getElementById('device-data-sections').style.display = 'block';
+                        }
+                    });
+                });
+            </script>
 
             <label for="notes">💭 Personal Notes (Optional - AI Analyzed):</label>
             <div style="background: #e3f9e5; padding: 12px; border-radius: 8px; margin: 8px 0; font-size: 0.85rem; color: #2d5a42;">
@@ -669,7 +807,7 @@
             const takeawayText = `${restaurant} takeaway`;
             const newText = currentText + (currentText ? ', ' : '') + takeawayText;
             foodLog.value = newText;
-            
+
             // Visual feedback
             event.target.style.background = '#FFE8E8';
             event.target.style.borderColor = '#FF6B6B';
@@ -677,13 +815,13 @@
                 event.target.style.background = '';
                 event.target.style.borderColor = '';
             }, 1000);
-            
+
             // Auto-search for specific items from that restaurant
             setTimeout(() => {
                 document.getElementById('food_search').value = restaurant;
                 searchFoods(restaurant);
             }, 500);
-            
+
             updateNutritionSummary();
         }
 
@@ -693,7 +831,7 @@
             const serviceText = `${service} order`;
             const newText = currentText + (currentText ? ', ' : '') + serviceText;
             foodLog.value = newText;
-            
+
             // Visual feedback
             event.target.style.background = '#E8F4FF';
             event.target.style.borderColor = '#4A90E2';
@@ -701,7 +839,7 @@
                 event.target.style.background = '';
                 event.target.style.borderColor = '';
             }, 1000);
-            
+
             // Show message encouraging details
             setTimeout(() => {
                 const message = document.createElement('div');
@@ -714,7 +852,7 @@
                 document.querySelector('.food-search-container').appendChild(message);
                 setTimeout(() => message.remove(), 4000);
             }, 100);
-            
+
             updateNutritionSummary();
         }
 

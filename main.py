@@ -595,6 +595,14 @@ def subscription():
                          users_until_price_change=users_until_price_change,
                          stripe_publishable_key=os.getenv('STRIPE_PUBLISHABLE_KEY', ''))
 
+@app.route('/premium')
+def premium():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+    
+    # Redirect to subscription page
+    return redirect(url_for('subscription'))
+
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
     if 'user_email' not in session:
