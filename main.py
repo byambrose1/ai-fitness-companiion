@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
 import os
 import bcrypt
@@ -24,6 +23,22 @@ stripe.api_key = os.getenv('STRIPE_SECRET_KEY', '')
 # Initialize security monitoring
 security_monitor = SecurityMonitor()
 
+# Track number of signups - in a real app, this would be in a database
+signup_count = 0
+
+def get_current_pricing():
+    """
+    Determines the current pricing based on the number of signups.
+    In a real application, this data would be fetched from a database.
+    """
+    global signup_count
+    is_founding_member = signup_count < 100
+    amount = 497 if is_founding_member else 997
+    return {
+        'is_founding_member': is_founding_member,
+        'amount': amount  # Price in pence
+    }
+
 @app.route('/')
 def landing_page():
     return render_template('index.html')
@@ -32,12 +47,12 @@ def landing_page():
 def dashboard():
     if 'user_email' not in session:
         return redirect(url_for('landing_page'))
-    
+
     user = get_user(session['user_email'])
     if not user:
         session.pop('user_email', None)
         return redirect(url_for('landing_page'))
-    
+
     return render_template('dashboard.html', user=user)
 
 @app.route('/food-search')
@@ -62,29 +77,31 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email', '').lower().strip()
         password = request.form.get('password', '')
-        
+
         user = get_user(email)
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
             session['user_email'] = email
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid email or password')
-    
+
     return render_template('index.html')
 
 @app.route('/register', methods=['POST'])
 def register():
+    global signup_count
+
     email = request.form.get('email', '').lower().strip()
     password = request.form.get('password', '')
     name = request.form.get('name', '').strip()
-    
+
     if get_user(email):
         flash('Account already exists. Please log in.')
         return redirect(url_for('landing_page'))
-    
+
     # Hash password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-    
+
     # Save user
     user_data = {
         'email': email,
@@ -96,13 +113,16 @@ def register():
         'profile_data': {}
     }
     save_user(user_data)
-    
+
+    # Increment signup count
+    signup_count += 1
+
     # Send welcome email
     email_service.send_welcome_email(email, name)
-    
+
     # Add to Mailchimp
     email_service.add_to_mailchimp(email, name, user_data)
-    
+
     session['user_email'] = email
     return redirect(url_for('dashboard'))
 
@@ -114,25 +134,25 @@ def forgot_password():
 def send_password_reset():
     email = request.form.get('email', '').lower().strip()
     user = get_user(email)
-    
+
     if user:
         # Generate reset token (in production, use proper token generation)
         import secrets
         reset_token = secrets.token_urlsafe(32)
-        
+
         # Store token temporarily (you'd want to add this to database)
         session[f'reset_token_{reset_token}'] = {
             'email': email,
             'expires': (datetime.now().timestamp() + 3600)  # 1 hour
         }
-        
+
         reset_link = url_for('reset_password', token=reset_token, _external=True)
         email_service.send_password_reset_email(email, user['name'], reset_link)
-        
+
         flash('Password reset link sent to your email')
     else:
         flash('If that email exists, we sent a reset link')
-    
+
     return redirect(url_for('forgot_password'))
 
 @app.route('/reset-password/<token>')
@@ -141,7 +161,7 @@ def reset_password(token):
     if not token_data or datetime.now().timestamp() > token_data['expires']:
         flash('Reset link expired or invalid')
         return redirect(url_for('forgot_password'))
-    
+
     return render_template('reset_password.html', token=token)
 
 @app.route('/update-password', methods=['POST'])
@@ -149,33 +169,33 @@ def update_password():
     token = request.form.get('token')
     password = request.form.get('password')
     confirm_password = request.form.get('confirmPassword')
-    
+
     # Validate token
     token_data = session.get(f'reset_token_{token}')
     if not token_data or datetime.now().timestamp() > token_data['expires']:
         flash('Reset link expired or invalid')
         return redirect(url_for('forgot_password'))
-    
+
     # Validate passwords match
     if password != confirm_password:
         flash('Passwords do not match')
         return render_template('reset_password.html', token=token)
-    
+
     # Hash new password
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-    
+
     # Update user password
     user = get_user(token_data['email'])
     if user:
         user['password'] = hashed_password
         save_user(user)
-        
+
         # Clear reset token
         session.pop(f'reset_token_{token}', None)
-        
+
         flash('Password updated successfully! Please log in.')
         return redirect(url_for('landing_page'))
-    
+
     flash('User not found')
     return redirect(url_for('forgot_password'))
 
@@ -187,10 +207,10 @@ def admin_login():
 def admin_authenticate():
     username = request.form.get('username')
     password = request.form.get('password')
-    
+
     admin_username = os.getenv('ADMIN_USERNAME', 'admin')
     admin_password = os.getenv('ADMIN_PASSWORD', 'admin123')
-    
+
     if username == admin_username and password == admin_password:
         session['admin_authenticated'] = True
         return redirect(url_for('admin_dashboard'))
@@ -202,10 +222,10 @@ def admin_authenticate():
 def admin_dashboard():
     if not session.get('admin_authenticated'):
         return redirect(url_for('admin_login'))
-    
+
     from database import get_all_users
     users = get_all_users()
-    
+
     return render_template('admin_dashboard.html', users=users)
 
 @app.route('/admin/logout')
@@ -222,86 +242,86 @@ def admin():
 def admin_change_subscription():
     if not session.get('admin_authenticated'):
         return jsonify({'error': 'Unauthorized'}), 401
-    
+
     email = request.form.get('email')
     new_tier = request.form.get('tier')
-    
+
     user = get_user(email)
     if not user:
         return jsonify({'error': 'User not found'}), 404
-    
+
     # Update subscription
     user['subscription_tier'] = new_tier
     user['subscription_status'] = 'active'
     save_user(user)
-    
+
     return jsonify({'success': True, 'message': f'Subscription changed to {new_tier}'})
 
 @app.route('/admin/user/<email>/cancel', methods=['POST'])
 def admin_cancel_user():
     if not session.get('admin_authenticated'):
         return jsonify({'error': 'Unauthorized'}), 401
-    
+
     email = request.form.get('email')
-    
+
     user = get_user(email)
     if not user:
         return jsonify({'error': 'User not found'}), 404
-    
+
     # Cancel subscription but don't delete user
     user['subscription_status'] = 'cancelled'
     user['subscription_tier'] = 'free'
     save_user(user)
-    
+
     return jsonify({'success': True, 'message': 'User subscription cancelled'})
 
 @app.route('/admin/user/<email>/delete', methods=['POST'])
 def admin_delete_user():
     if not session.get('admin_authenticated'):
         return jsonify({'error': 'Unauthorized'}), 401
-    
+
     email = request.form.get('email')
-    
+
     # Delete user from database
     conn = sqlite3.connect('fitness_app.db')
     cursor = conn.cursor()
-    
+
     # Delete user logs first
     cursor.execute('DELETE FROM daily_logs WHERE user_email = ?', (email,))
     cursor.execute('DELETE FROM weekly_checkins WHERE user_email = ?', (email,))
     cursor.execute('DELETE FROM users WHERE email = ?', (email,))
-    
+
     conn.commit()
     conn.close()
-    
+
     return jsonify({'success': True, 'message': 'User deleted successfully'})
 
 @app.route('/admin/stripe-dashboard')
 def admin_stripe_dashboard():
     if not session.get('admin_authenticated'):
         return redirect(url_for('admin_login'))
-    
+
     # Get Stripe customers and revenue data
     try:
         customers = stripe.Customer.list(limit=100)
         subscriptions = stripe.Subscription.list(limit=100)
-        
+
         # Calculate revenue
         total_revenue = 0
         active_subscriptions = 0
-        
+
         for sub in subscriptions.data:
             if sub.status == 'active':
                 active_subscriptions += 1
                 total_revenue += sub.items.data[0].price.unit_amount / 100  # Convert from pence to pounds
-        
+
         stripe_data = {
             'customers': customers.data,
             'subscriptions': subscriptions.data,
             'total_revenue': total_revenue,
             'active_subscriptions': active_subscriptions
         }
-        
+
     except Exception as e:
         stripe_data = {
             'error': str(e),
@@ -310,27 +330,27 @@ def admin_stripe_dashboard():
             'total_revenue': 0,
             'active_subscriptions': 0
         }
-    
+
     return render_template('admin_stripe.html', stripe_data=stripe_data)
 
 @app.route('/admin/stats')
 def admin_stats():
     if not session.get('admin_authenticated'):
         return jsonify({'error': 'Unauthorized'}), 401
-    
+
     from database import get_all_users
     users = get_all_users()
-    
+
     # Calculate stats
     total_users = len(users)
     premium_users = len([u for u in users if u.get('subscription_tier') == 'premium'])
     free_users = len([u for u in users if u.get('subscription_tier') == 'free'])
     cancelled_users = len([u for u in users if u.get('subscription_status') == 'cancelled'])
-    
+
     # Calculate total logs
     total_logs = sum(len(u.get('daily_logs', [])) for u in users)
     total_checkins = sum(len(u.get('weekly_checkins', [])) for u in users)
-    
+
     stats = {
         'total_users': total_users,
         'premium_users': premium_users,
@@ -339,18 +359,18 @@ def admin_stats():
         'total_logs': total_logs,
         'total_checkins': total_checkins
     }
-    
+
     return jsonify(stats)
 
 @app.route('/subscription')
 def subscription():
     if 'user_email' not in session:
         return redirect(url_for('landing_page'))
-    
+
     user = get_user(session['user_email'])
     if not user:
         return redirect(url_for('landing_page'))
-    
+
     return render_template('subscription.html', 
                          current_tier=user.get('subscription_tier', 'free'),
                          email=user['email'],
@@ -360,12 +380,15 @@ def subscription():
 def create_checkout_session():
     if 'user_email' not in session:
         return jsonify({'error': 'Not logged in'}), 401
-    
+
     try:
         user = get_user(session['user_email'])
         if not user:
             return jsonify({'error': 'User not found'}), 404
-        
+
+        # Get current pricing
+        pricing = get_current_pricing()
+
         # Create Stripe checkout session
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
@@ -373,10 +396,11 @@ def create_checkout_session():
                 'price_data': {
                     'currency': 'gbp',
                     'product_data': {
-                        'name': 'AI Fitness Companion - Premium (Founding Member)',
-                        'description': 'Unlimited AI insights, meal plans, and advanced analytics - 50% off forever!'
+                        'name': 'AI Fitness Companion - Premium',
+                        'description': 'Unlimited AI insights, meal plans, and advanced analytics' + 
+                                     (' - FOUNDING MEMBER PRICING' if pricing['is_founding_member'] else '')
                     },
-                    'unit_amount': 497,  # £4.97
+                    'unit_amount': pricing['amount'],
                     'recurring': {
                         'interval': 'month'
                     }
@@ -391,24 +415,24 @@ def create_checkout_session():
                 'user_email': user['email']
             }
         )
-        
+
         return jsonify({'id': checkout_session.id})
-        
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 @app.route('/subscription-success')
 def subscription_success():
     session_id = request.args.get('session_id')
-    
+
     if not session_id:
         flash('Invalid session')
         return redirect(url_for('subscription'))
-    
+
     try:
         # Retrieve the session
         checkout_session = stripe.checkout.Session.retrieve(session_id)
-        
+
         # Update user subscription
         user_email = checkout_session.metadata.get('user_email')
         if user_email:
@@ -418,32 +442,32 @@ def subscription_success():
                 user['subscription_status'] = 'active'
                 user['stripe_customer_id'] = checkout_session.customer
                 save_user(user)
-                
+
                 flash('Welcome to Premium! Your subscription is now active.')
             else:
                 flash('User not found')
         else:
             flash('Invalid session data')
-            
+
     except Exception as e:
         flash(f'Error processing subscription: {str(e)}')
-    
+
     return redirect(url_for('dashboard'))
 
 @app.route('/downgrade', methods=['POST'])
 def downgrade():
     if 'user_email' not in session:
         return redirect(url_for('landing_page'))
-    
+
     user = get_user(session['user_email'])
     if not user:
         return redirect(url_for('landing_page'))
-    
+
     # Update subscription to free
     user['subscription_tier'] = 'free'
     user['subscription_status'] = 'active'
     save_user(user)
-    
+
     flash('Subscription downgraded to Free plan')
     return redirect(url_for('subscription'))
 
@@ -496,7 +520,7 @@ def api_food_search():
 if __name__ == "__main__":
     # Start security monitoring
     security_monitor.start_monitoring()
-    
+
     # Run the Flask app
     port = int(os.getenv('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)

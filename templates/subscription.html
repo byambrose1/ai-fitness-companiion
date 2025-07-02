@@ -11,10 +11,260 @@ stripe_publishable_key = os.environ.get("STRIPE_PUBLISHABLE_KEY")
 # Dummy data for demonstration
 email = "test@example.com"
 current_tier = "free"  # Or "premium"
+member_count = 50 # initial member count
+PRICE_AFTER_MEMBERS = 100
+
+def calculate_pricing(member_count):
+    is_founding_member = member_count < PRICE_AFTER_MEMBERS
+    original_price = "£9.97"
+    discount_text = "🚀 FOUNDING MEMBERS: 50% OFF FOREVER"
+    if is_founding_member:
+        display_price = "£4.97"
+    else:
+        display_price = "£9.97"
+
+    return {
+        "is_founding_member": is_founding_member,
+        "original_price": original_price,
+        "display_price": display_price,
+        "discount_text": discount_text,
+    }
 
 @app.route('/')
 def index():
-    return render_template('plans.html', stripe_publishable_key=stripe_publishable_key, email=email, current_tier=current_tier)
+    pricing = calculate_pricing(member_count)
+    users_until_price_change = max(0, PRICE_AFTER_MEMBERS - member_count)
+    return render_template('plans.html', stripe_publishable_key=stripe_publishable_key, email=email, current_tier=current_tier, pricing=pricing, users_until_price_change=users_until_price_change)
+
+@app.route('/dashboard')
+def dashboard():
+    email = request.args.get('email')
+    return f"Dashboard for {email}"
+
+@app.route('/downgrade', methods=['POST'])
+def downgrade():
+    email = request.form['email']
+    # Add logic to handle downgrading the user's subscription
+    return f"Downgraded {email} to free plan"
+
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    email = request.form['email']
+    try:
+        # Create a new Checkout Session for the subscription
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'gbp',
+                    'product_data': {
+                        'name': 'AI Fitness Companion - Premium (Founding Member)',
+                        'description': 'Unlimited AI insights, meal plans, and advanced analytics - 50% off forever!'
+                    },
+                    'unit_amount': 497,  # £4.97
+                },
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=url_for('dashboard', email=email, _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('index', _external=True),
+        )
+        return jsonify({'id': session.id})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Plans</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .pricing-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        .pricing-card {
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            margin: 0 20px;
+            padding: 20px;
+            text-align: center;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .features {
+            list-style: none;
+            padding: 0;
+        }
+        .features li {
+            margin: 5px 0;
+        }
+        .btn-subscribe {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-subscribe:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mt-5">Choose Your AI Fitness Plan</h1>
+        <div class="pricing-container">
+            <div class="pricing-card">
+                <h2>Free</h2>
+                <div class="price">Free</div>
+                <ul class="features">
+                    <li>Limited AI Insights</li>
+                    <li>Basic Meal Plans</li>
+                    <li>Community Support</li>
+                </ul>
+                {% if current_tier == "free" %}
+                    <button class="btn btn-secondary" disabled>Current Plan</button>
+                {% else %}
+                    <form action="/downgrade" method="post">
+                        <input type="hidden" name="email" value="{{ email }}">
+                        <button class="btn btn-warning" type="submit">Downgrade</button>
+                    </form>
+                {% endif %}
+            </div>
+
+            <div class="pricing-card">
+                <h2>✨ Premium</h2>
+                <div class="price">
+                    {% if pricing.is_founding_member %}
+                    <span style="text-decoration: line-through; color: #999; font-size: 1.5rem;">{{ pricing.original_price }}</span>
+                    <span style="color: #e74c3c; font-weight: bold;">{{ pricing.display_price }}</span>
+                    {% else %}
+                    <span style="color: #3B7A57; font-weight: bold;">{{ pricing.display_price }}</span>
+                    {% endif %}
+                    <span style="font-size: 1rem;">/month</span>
+                </div>
+                {% if pricing.is_founding_member %}
+                <div style="background: linear-gradient(45deg, #e74c3c, #c0392b); color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; margin: 10px 0; display: inline-block;">
+                    {{ pricing.discount_text }}
+                </div>
+                <div style="background: #fff3e0; color: #f57c00; padding: 12px; border-radius: 8px; margin: 10px 0; font-size: 0.9rem;">
+                    <strong>⏰ Limited Time:</strong> Only {{ users_until_price_change }} spots left at this price!
+                </div>
+                {% endif %}
+                <ul class="features">
+                    <li>Unlimited AI Insights</li>
+                    <li>Advanced Meal Plans</li>
+                    <li>Priority Support</li>
+                    <li>Personalized Analytics</li>
+                </ul>
+                {% if current_tier == "premium" %}
+                    <button class="btn btn-secondary" disabled>Current Plan</button>
+                {% else %}
+                    <form action="/create-checkout-session" method="post">
+                        <input type="hidden" name="email" value="{{ email }}">
+                        <button class="btn btn-subscribe" type="submit">Subscribe</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const stripe = Stripe('{{ stripe_publishable_key }}');
+        const btnSubscribe = document.querySelector('.btn-subscribe');
+        if (btnSubscribe) {
+            btnSubscribe.addEventListener('click', function(event) {
+                event.preventDefault();
+                const form = event.target.closest('form');
+                const email = form.querySelector('input[name="email"]').value;
+
+                fetch('/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${email}`,
+                })
+                .then(response => response.json())
+                .then(session => {
+                    return stripe.redirectToCheckout({ sessionId: session.id });
+                })
+                .then(result => {
+                    if (result.error) {
+                        alert(result.error.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+```
+
+```
+Line-by-line analysis: The code was modified to dynamically display the price based on the number of members and display discount text. Also, a function was added to calculate pricing, and HTML was added to display pricing information dynamically and a user count message.
+```
+
+```replit_final_file
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+import stripe
+import os
+
+app = Flask(__name__)
+
+# Replace with your actual Stripe secret key
+stripe.api_key = os.environ.get("STRIPE_SECRET_KEY")
+stripe_publishable_key = os.environ.get("STRIPE_PUBLISHABLE_KEY")
+
+# Dummy data for demonstration
+email = "test@example.com"
+current_tier = "free"  # Or "premium"
+member_count = 50 # initial member count
+PRICE_AFTER_MEMBERS = 100
+
+def calculate_pricing(member_count):
+    is_founding_member = member_count < PRICE_AFTER_MEMBERS
+    original_price = "£9.97"
+    discount_text = "🚀 FOUNDING MEMBERS: 50% OFF FOREVER"
+    if is_founding_member:
+        display_price = "£4.97"
+    else:
+        display_price = "£9.97"
+
+    return {
+        "is_founding_member": is_founding_member,
+        "original_price": original_price,
+        "display_price": display_price,
+        "discount_text": discount_text,
+    }
+
+@app.route('/')
+def index():
+    pricing = calculate_pricing(member_count)
+    users_until_price_change = max(0, PRICE_AFTER_MEMBERS - member_count)
+    return render_template('plans.html', stripe_publishable_key=stripe_publishable_key, email=email, current_tier=current_tier, pricing=pricing, users_until_price_change=users_until_price_change)
 
 @app.route('/dashboard')
 def dashboard():
