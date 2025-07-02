@@ -1516,26 +1516,37 @@
       fetch('/login', {
         method: 'POST',
         headers: {
-          'X-Requested-With': 'XMLHttpRequest'
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/x-www-form-urlencoded'
         },
-        body: formData
+        body: new URLSearchParams(formData)
       })
       .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        // Check if it's a redirect (successful login)
+        if (response.redirected) {
+          window.location.href = response.url;
+          return;
         }
-        return response.json();
+        
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          return response.json();
+        } else {
+          // Handle HTML response (likely an error page)
+          throw new Error('Login failed - invalid response format');
+        }
       })
       .then(data => {
-        if (data.success) {
+        if (data && data.success) {
           window.location.href = data.redirect || '/dashboard';
-        } else {
+        } else if (data) {
           alert(data.message || 'Login failed');
         }
       })
       .catch(error => {
-        console.error('Error:', error);
-        alert('Login failed. Please try again.');
+        console.error('Login error:', error);
+        alert('Login failed. Please check your credentials and try again.');
       });
     }
 

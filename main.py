@@ -188,12 +188,20 @@ def login():
             if password_match:
                 session['user_email'] = email
                 print(f'LOGIN SUCCESS: Setting session for {email}')
-                if request.headers.get('Content-Type') == 'application/json' or request.is_json:
+                # Check for AJAX request
+                is_ajax = (request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 
+                          request.headers.get('Content-Type') == 'application/json' or 
+                          request.is_json)
+                if is_ajax:
                     return jsonify({'success': True, 'redirect': url_for('dashboard')})
                 return redirect(url_for('dashboard'))
         
         print('LOGIN FAILED: Invalid credentials')
-        if request.headers.get('Content-Type') == 'application/json' or request.is_json:
+        # Check for AJAX request
+        is_ajax = (request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 
+                  request.headers.get('Content-Type') == 'application/json' or 
+                  request.is_json)
+        if is_ajax:
             return jsonify({'success': False, 'message': 'Invalid email or password'})
         flash('Invalid email or password')
 
