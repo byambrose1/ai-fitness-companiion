@@ -241,6 +241,26 @@
                 </div>
             </div>
 
+            <!-- Restaurant & Takeaway Quick Adds -->
+            <div class="quick-adds">
+                <h3>🍕 Had a takeaway today?</h3>
+                <div class="quick-grid">
+                    <div class="quick-btn" onclick="addTakeaway('McDonald\'s')">🍔 McDonald's</div>
+                    <div class="quick-btn" onclick="addTakeaway('KFC')">🍗 KFC</div>
+                    <div class="quick-btn" onclick="addTakeaway('Domino\'s')">🍕 Domino's</div>
+                    <div class="quick-btn" onclick="addTakeaway('Nando\'s')">🌶️ Nando's</div>
+                    <div class="quick-btn" onclick="addTakeaway('Chinese takeaway')">🥡 Chinese</div>
+                    <div class="quick-btn" onclick="addTakeaway('Indian takeaway')">🍛 Indian</div>
+                    <div class="quick-btn" onclick="addTakeaway('Fish & chips')">🐟 Fish & Chips</div>
+                    <div class="quick-btn" onclick="addTakeaway('Pizza delivery')">🍕 Pizza</div>
+                </div>
+                <div class="quick-grid" style="margin-top: 8px;">
+                    <div class="quick-btn" onclick="addDeliveryService('Deliveroo')">📱 Deliveroo</div>
+                    <div class="quick-btn" onclick="addDeliveryService('Just Eat')">🚗 Just Eat</div>
+                    <div class="quick-btn" onclick="addDeliveryService('Uber Eats')">🏍️ Uber Eats</div>
+                </div>
+            </div>
+
             <!-- Quick Add - Mood -->
             <div class="quick-adds">
                 <h3>😊 How are you feeling today?</h3>
@@ -625,6 +645,61 @@
                 foodLog.value = newText;
                 updateNutritionSummary();
             }
+        }
+
+        function addTakeaway(restaurant) {
+            const foodLog = document.getElementById('food_log');
+            const currentText = foodLog.value;
+            const takeawayText = `${restaurant} takeaway`;
+            const newText = currentText + (currentText ? ', ' : '') + takeawayText;
+            foodLog.value = newText;
+            
+            // Visual feedback
+            event.target.style.background = '#FFE8E8';
+            event.target.style.borderColor = '#FF6B6B';
+            setTimeout(() => {
+                event.target.style.background = '';
+                event.target.style.borderColor = '';
+            }, 1000);
+            
+            // Auto-search for specific items from that restaurant
+            setTimeout(() => {
+                document.getElementById('food_search').value = restaurant;
+                searchFoods(restaurant);
+            }, 500);
+            
+            updateNutritionSummary();
+        }
+
+        function addDeliveryService(service) {
+            const foodLog = document.getElementById('food_log');
+            const currentText = foodLog.value;
+            const serviceText = `${service} order`;
+            const newText = currentText + (currentText ? ', ' : '') + serviceText;
+            foodLog.value = newText;
+            
+            // Visual feedback
+            event.target.style.background = '#E8F4FF';
+            event.target.style.borderColor = '#4A90E2';
+            setTimeout(() => {
+                event.target.style.background = '';
+                event.target.style.borderColor = '';
+            }, 1000);
+            
+            // Show message encouraging details
+            setTimeout(() => {
+                const message = document.createElement('div');
+                message.innerHTML = `📱 <strong>${service} order logged!</strong> Add specific items from the search above for better tracking.`;
+                message.style.cssText = `
+                    background: #E8F4FF; border: 1px solid #4A90E2; 
+                    padding: 12px; border-radius: 8px; margin-top: 10px;
+                    font-size: 0.9rem; color: #2C5AA0;
+                `;
+                document.querySelector('.food-search-container').appendChild(message);
+                setTimeout(() => message.remove(), 4000);
+            }, 100);
+            
+            updateNutritionSummary();
         }
 
         function updateNutritionSummary() {
