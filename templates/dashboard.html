@@ -107,16 +107,16 @@
                             <div class="progress-bar">
                                 <div class="progress-fill" style="width: {{ (user.profile_data.motivationLevel * 10) }}%"></div>
                             </div>
-                            <span class="metric-number">{{ user.profile_data.motivationLevel }}/10</span>
+                            <span class="metric-number">{{ user.profile_data.get('motivationLevel', 5) }}/10</span>
                         </div>
                     </div>
                     <div class="metric-row">
                         <div class="metric-label">Stress Level</div>
                         <div class="metric-value">
                             <div class="progress-bar">
-                                <div class="progress-fill stress-bar" style="width: {{ (user.profile_data.stressLevel * 10) }}%"></div>
+                                <div class="progress-fill stress-bar" style="width: {{ (user.profile_data.get('stressLevel', 3) * 10) }}%"></div>
                             </div>
-                            <span class="metric-number">{{ user.profile_data.stressLevel }}/10</span>
+                            <span class="metric-number">{{ user.profile_data.get('stressLevel', 3) }}/10</span>
                         </div>
                     </div>
                     <div class="metric-row">
@@ -124,7 +124,7 @@
                         <div class="metric-value">
                             <div class="sleep-display">
                                 <span class="sleep-icon">😴</span>
-                                <span class="metric-number">{{ user.profile_data.sleepHours }}h</span>
+                                <span class="metric-number">{{ user.profile_data.get('sleepHours', 7) }}h</span>
                             </div>
                         </div>
                     </div>
