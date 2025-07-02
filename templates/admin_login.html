@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .admin-login {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .admin-form input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .admin-btn {
+            width: 100%;
+            padding: 12px;
+            background: #3B7A57;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .admin-btn:hover {
+            background: #2d5a42;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-login">
+        <h2>🔐 Admin Access</h2>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div style="color: red; margin: 10px 0;">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <form class="admin-form" action="/admin/authenticate" method="POST">
+            <input type="text" name="username" placeholder="Admin Username" required>
+            <input type="password" name="password" placeholder="Admin Password" required>
+            <button type="submit" class="admin-btn">Login</button>
+        </form>
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/" style="color: #3B7A57;">← Back to Main Site</a>
+        </div>
+    </div>
+</body>
+</html>
