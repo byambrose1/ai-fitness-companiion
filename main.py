@@ -216,40 +216,6 @@ def admin_login():
         return redirect(url_for('admin_dashboard'))
     return render_template('admin_login.html')
 
-@app.route('/admin/authenticate', methods=['POST'])
-def admin_authenticate():
-    """Handle admin authentication"""
-    username = request.form.get('username')
-    password = request.form.get('password')
-    
-    admin_username = os.getenv('ADMIN_USERNAME', 'admin')
-    admin_password = os.getenv('ADMIN_PASSWORD', 'admin123')
-    
-    if username == admin_username and password == admin_password:
-        session['admin_authenticated'] = True
-        return redirect(url_for('admin_dashboard'))
-    else:
-        flash('Invalid admin credentials')
-        return redirect(url_for('admin_login'))
-
-@app.route('/admin/dashboard')
-def admin_dashboard():
-    """Admin dashboard showing all users"""
-    if not session.get('admin_authenticated'):
-        return redirect(url_for('admin_login'))
-    
-    from database import get_all_users
-    users = get_all_users()
-    
-    return render_template('admin_dashboard.html', users=users)
-
-@app.route('/admin/logout')
-def admin_logout():
-    """Admin logout"""
-    session.pop('admin_authenticated', None)
-    flash('Logged out successfully')
-    return redirect(url_for('admin_login'))
-
 @app.route('/api/food-search')
 def api_food_search():
     """API endpoint for food search including restaurants and delivery"""
