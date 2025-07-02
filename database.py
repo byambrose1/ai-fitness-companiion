@@ -162,10 +162,18 @@ def get_all_users():
     conn = sqlite3.connect('fitness_app.db')
     cursor = conn.cursor()
 
-    cursor.execute('SELECT email, name, subscription_tier FROM users')
-    users = cursor.fetchall()
-
+    cursor.execute('SELECT email FROM users')
+    user_emails = [row[0] for row in cursor.fetchall()]
+    
     conn.close()
+    
+    # Get complete user objects for each user
+    users = []
+    for email in user_emails:
+        user = get_user(email)
+        if user:
+            users.append(user)
+    
     return users
 
 # Initialize database when module is imported
