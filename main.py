@@ -45,6 +45,193 @@ def validate_email(email):
     # Additional validation could include DNS lookup for domain
     return True
 
+def calculate_personalised_daily_score(log_data, profile_data):
+    """Calculate a personalised daily score based on user's goals and questionnaire responses"""
+    goal = profile_data.get('goal', 'general_fitness')
+    activity_level = profile_data.get('activity_level', 'moderately_active')
+    dietary_preferences = profile_data.get('dietary_preferences', 'none')
+    health_conditions = profile_data.get('health_conditions', '')
+    
+    score = 3  # Base score
+    insights = []
+    
+    # Goal-specific scoring weights
+    goal_weights = {
+        'weight_loss': {'workout': 2.5, 'food': 2.0, 'water': 1.5, 'sleep': 1.5, 'mood': 1.0},
+        'muscle_gain': {'workout': 3.0, 'food': 2.5, 'sleep': 2.0, 'water': 1.0, 'mood': 1.0},
+        'general_fitness': {'workout': 2.0, 'mood': 2.0, 'sleep': 1.5, 'water': 1.5, 'food': 1.5},
+        'endurance': {'workout': 3.0, 'water': 2.0, 'sleep': 2.0, 'food': 1.5, 'mood': 1.0},
+        'strength': {'workout': 3.0, 'food': 2.0, 'sleep': 2.0, 'water': 1.0, 'mood': 1.0}
+    }
+    
+    weights = goal_weights.get(goal, goal_weights['general_fitness'])
+    
+    # Mood scoring with goal context
+    if log_data.get('mood'):
+        mood_score = {'excellent': 1.0, 'good': 0.8, 'okay': 0.5, 'low': 0.2}.get(log_data['mood'], 0)
+        score += mood_score * weights['mood']
+        
+        if log_data['mood'] in ['excellent', 'good']:
+            if goal == 'weight_loss':
+                insights.append("🧠 Great mood supports healthy choices! You're more likely to stick to your weight loss plan when feeling positive.")
+            elif goal == 'muscle_gain':
+                insights.append("💪 Positive mindset enhances workout performance and muscle growth!")
+            else:
+                insights.append("😊 Excellent mood creates the perfect foundation for healthy habits!")
+        elif log_data['mood'] == 'low':
+            insights.append("💚 Tough days happen - the fact you're still tracking shows real commitment. Tomorrow is a fresh start.")
+    
+    # Workout scoring with goal and activity level context
+    if log_data.get('workout'):
+        workout_type = log_data['workout']
+        if workout_type != 'rest':
+            base_workout_score = 1.0
+            
+            # Adjust based on activity level expectations
+            if activity_level in ['very_active', 'extremely_active'] and workout_type in ['cardio', 'strength']:
+                base_workout_score = 1.2  # Higher expectations
+            elif activity_level == 'sedentary' and workout_type in ['walking', 'yoga']:
+                base_workout_score = 1.5  # Celebrate any movement
+                
+            score += base_workout_score * weights['workout']
+            
+            # Goal-specific workout insights
+            if goal == 'weight_loss':
+                if workout_type == 'cardio':
+                    insights.append("🔥 Cardio is brilliant for weight loss! You're burning calories and improving your cardiovascular health.")
+                elif workout_type == 'strength':
+                    insights.append("💪 Strength training builds muscle, which burns more calories at rest - perfect for weight loss!")
+                else:
+                    insights.append("🏃‍♀️ Every bit of movement counts towards your weight loss journey!")
+            elif goal == 'muscle_gain':
+                if workout_type == 'strength':
+                    insights.append("🏋️‍♀️ Strength training is the foundation of muscle building - you're on the right track!")
+                elif workout_type == 'cardio':
+                    insights.append("❤️ Light cardio supports recovery and muscle growth when balanced with strength training.")
+            elif goal == 'endurance':
+                if workout_type == 'cardio':
+                    insights.append("🏃‍♀️ Building that cardiovascular endurance - each session makes you stronger!")
+                    
+        elif workout_type == 'rest':
+            score += 0.5 * weights['workout']
+            if activity_level in ['very_active', 'extremely_active']:
+                insights.append("😴 Rest days are crucial for recovery, especially with your high activity level!")
+            else:
+                insights.append("💤 Rest is part of the process - your body repairs and grows stronger during recovery.")
+    
+    # Water intake with activity level context
+    if log_data.get('water_intake'):
+        water_score = {'excellent': 1.0, 'good': 0.8, 'moderate': 0.5, 'low': 0.2}.get(log_data['water_intake'], 0)
+        score += water_score * weights['water']
+        
+        if log_data['water_intake'] in ['excellent', 'good']:
+            if goal == 'weight_loss':
+                insights.append("💧 Excellent hydration supports your metabolism and helps control hunger - key for weight loss!")
+            elif activity_level in ['very_active', 'extremely_active']:
+                insights.append("💦 Great hydration is essential for your high activity level - well done!")
+            else:
+                insights.append("💧 Proper hydration supports every function in your body - you're nailing it!")
+    
+    # Sleep scoring with goal context
+    if log_data.get('sleep_hours'):
+        try:
+            sleep_hours = float(log_data['sleep_hours'])
+            if 7 <= sleep_hours <= 9:
+                sleep_score = 1.0
+                if goal == 'weight_loss':
+                    insights.append("🌙 7-9 hours sleep is perfect for weight loss - it regulates hunger hormones and supports recovery!")
+                elif goal == 'muscle_gain':
+                    insights.append("💤 Excellent sleep! This is when your muscles actually grow and repair - crucial for your goals.")
+                else:
+                    insights.append("😴 Perfect sleep duration! Your body and mind will thank you today.")
+            elif 6 <= sleep_hours < 7:
+                sleep_score = 0.7
+                insights.append("⏰ Nearly there on sleep! Even 30 minutes more can boost energy and mood significantly.")
+            elif sleep_hours < 6:
+                sleep_score = 0.3
+                if goal == 'weight_loss':
+                    insights.append("😴 Poor sleep affects hunger hormones - try to prioritise rest for better weight loss results.")
+                else:
+                    insights.append("💤 Your body needs more rest to perform at its best. Consider an earlier bedtime tonight.")
+            else:  # > 9 hours
+                sleep_score = 0.8
+                insights.append("😴 Lots of sleep! If you're feeling refreshed, that's what matters most.")
+                
+            score += sleep_score * weights['sleep']
+        except ValueError:
+            pass
+    
+    # Food scoring with dietary preferences context
+    if log_data.get('food_log'):
+        food_text = log_data['food_log'].lower()
+        food_score = 0.5  # Base food logging score
+        
+        # Check for takeaway/processed foods
+        takeaway_indicators = ['takeaway', 'mcdonald', 'kfc', 'domino', 'pizza', 'delivery', 'uber eats', 'deliveroo']
+        has_takeaway = any(indicator in food_text for indicator in takeaway_indicators)
+        
+        if has_takeaway:
+            if goal == 'weight_loss':
+                food_score = 0.3
+                insights.append("🍕 Takeaway day! No judgement - balance is key. Try adding some extra vegetables or walking tomorrow.")
+            else:
+                food_score = 0.4
+                insights.append("🍔 Takeaway happens! The important thing is getting back to your usual routine tomorrow.")
+        else:
+            # Check for healthy food indicators
+            healthy_indicators = ['salad', 'vegetables', 'fruit', 'chicken', 'fish', 'oats', 'quinoa', 'yogurt']
+            healthy_count = sum(1 for indicator in healthy_indicators if indicator in food_text)
+            
+            if healthy_count >= 2:
+                food_score = 1.0
+                if dietary_preferences == 'vegetarian' and any(veg in food_text for veg in ['vegetables', 'salad', 'quinoa']):
+                    insights.append("🌱 Brilliant vegetarian choices! You're nourishing your body perfectly.")
+                elif goal == 'weight_loss':
+                    insights.append("🥗 Fantastic food choices for weight loss! Whole foods will keep you satisfied and energised.")
+                elif goal == 'muscle_gain':
+                    insights.append("🍗 Great protein and nutrient choices - perfect fuel for muscle building!")
+                else:
+                    insights.append("🌟 Wonderful food choices! You're giving your body quality fuel.")
+            elif healthy_count == 1:
+                food_score = 0.7
+                insights.append("👍 Good food choices today! Small improvements in nutrition add up over time.")
+        
+        score += food_score * weights['food']
+    
+    # Stress level with contextual advice
+    if log_data.get('stress_level'):
+        try:
+            stress = int(log_data['stress_level'])
+            if stress <= 3:
+                score += 0.5
+                insights.append("🧘‍♀️ Low stress levels support all your health goals - you're managing brilliantly!")
+            elif stress >= 8:
+                score -= 0.3
+                if goal == 'weight_loss':
+                    insights.append("😤 High stress can trigger emotional eating. Try some deep breathing or a short walk to reset.")
+                else:
+                    insights.append("😓 High stress today. Remember, rest and relaxation are just as important as activity.")
+        except ValueError:
+            pass
+    
+    # Weight tracking context
+    if log_data.get('weight') and goal == 'weight_loss':
+        insights.append("⚖️ Weight logged! Remember, daily fluctuations are normal - focus on weekly trends.")
+    
+    # Ensure we have at least one insight
+    if not insights:
+        if goal == 'weight_loss':
+            insights.append("🎯 Every entry brings you closer to your weight loss goal. Consistency is your superpower!")
+        elif goal == 'muscle_gain':
+            insights.append("💪 Building muscle takes time and consistency. You're investing in a stronger future self!")
+        else:
+            insights.append("🌟 Great job tracking today! Self-awareness is the first step to lasting change.")
+    
+    # Cap score and ensure minimum
+    final_score = max(2, min(10, score))
+    
+    return final_score, insights
+
 def get_current_pricing():
     """
     Determines the current pricing based on the number of signups.
@@ -711,6 +898,8 @@ def questionnaire():
             flash('User not found. Please log in again.')
             return redirect(url_for('landing_page'))
 
+    print('QUESTIONNAIRE GET: Rendering questionnaire page')
+    return render_template('questionnaire.html')
 
 @app.route('/daily-log')
 def daily_log():
@@ -886,48 +1075,14 @@ def submit_daily_log():
         'timestamp': datetime.now().isoformat()
     }
 
-    # Calculate overall score (simplified)
-    score = 5  # Base score
-
-    # Mood scoring
-    if log_data['mood']:
-        mood_scores = {'excellent': 2, 'good': 1.5, 'okay': 1, 'low': 0.5}
-        score += mood_scores.get(log_data['mood'], 0)
-
-    # Water scoring
-    if log_data['water_intake']:
-        water_scores = {'excellent': 1.5, 'good': 1, 'moderate': 0.5, 'low': 0}
-        score += water_scores.get(log_data['water_intake'], 0)
-
-    # Workout scoring
-    if log_data['workout'] and log_data['workout'] != 'rest':
-        score += 1.5
-    elif log_data['workout'] == 'rest':
-        score += 0.5
-
-    # Sleep scoring
-    if log_data['sleep_hours']:
-        try:
-            sleep_hours = float(log_data['sleep_hours'])
-            if 7 <= sleep_hours <= 9:
-                score += 1.5
-            elif 6 <= sleep_hours < 7 or 9 < sleep_hours <= 10:
-                score += 1
-        except ValueError:
-            pass
-
-    # Stress level scoring (inverted - lower stress = higher score)
-    if log_data['stress_level']:
-        try:
-            stress = int(log_data['stress_level'])
-            if stress <= 3:
-                score += 0.5
-            elif stress >= 8:
-                score -= 0.5
-        except ValueError:
-            pass
-
-    log_data['overallScore'] = min(10, score)
+    # Calculate personalised score based on user's questionnaire responses
+    profile_data = user.get('profile_data', {})
+    goal = profile_data.get('goal', 'general_fitness')
+    activity_level = profile_data.get('activity_level', 'moderately_active')
+    
+    score, insights = calculate_personalised_daily_score(log_data, profile_data)
+    log_data['overallScore'] = score
+    log_data['personalised_insights'] = insights
 
     # Save to database
     add_daily_log(session['user_email'], log_data)

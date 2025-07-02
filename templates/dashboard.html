@@ -41,16 +41,75 @@
                     <h3>📊 Your Daily Score</h3>
                 </div>
                 <div class="card-content">
+                    <!-- Recent Score Display with Personalised Insights -->
+            <div class="metric-section" style="margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px; color: #1a1a1a;">📊 Your Latest Daily Score</h3>
+                <div class="score-display" style="background: linear-gradient(135deg, #A8E6CF, #D1F2EB); padding: 20px; border-radius: 12px;">
                     {% if recent_score %}
-                        <div class="score-display">
-                            <span class="score-number">{{ recent_score }}</span>
-                            <span class="score-max">/10</span>
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <div style="font-size: 2.5rem; font-weight: 700; color: #1a1a1a; margin-bottom: 8px;">
+                                {{ "%.1f"|format(recent_score) }}/10
+                            </div>
+                            <div style="color: #2d5a42; font-weight: 500;">
+                                {% if recent_score >= 8 %}
+                                    Excellent day! 🌟
+                                {% elif recent_score >= 6 %}
+                                    Good progress! 👍
+                                {% elif recent_score >= 4 %}
+                                    Building momentum! 💪
+                                {% else %}
+                                    Every day counts! 🌱
+                                {% endif %}
+                            </div>
                         </div>
-                        <p class="score-description">Based on your latest entries</p>
+
+                        <!-- Display personalised insights if available -->
+                        {% if daily_logs and daily_logs[-1].get('personalised_insights') %}
+                            <div style="background: rgba(255,255,255,0.7); padding: 12px; border-radius: 8px; text-align: left;">
+                                <h4 style="margin: 0 0 8px 0; color: #2d5a42; font-size: 0.95rem;">💡 Your Personalised Insights:</h4>
+                                {% for insight in daily_logs[-1]['personalised_insights'][:2] %}
+                                    <p style="margin: 6px 0; font-size: 0.9rem; color: #2d5a42; line-height: 1.4;">{{ insight }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Goal-specific motivation -->
+                        <div style="background: rgba(255,255,255,0.5); padding: 10px; border-radius: 6px; margin-top: 10px; text-align: center;">
+                            <small style="color: #2d5a42; font-weight: 500;">
+                                {% if user.profile_data.get('goal') == 'weight_loss' %}
+                                    🎯 Weight Loss Goal: Every healthy choice counts!
+                                {% elif user.profile_data.get('goal') == 'muscle_gain' %}
+                                    💪 Muscle Building Goal: Consistency builds strength!
+                                {% elif user.profile_data.get('goal') == 'endurance' %}
+                                    🏃‍♀️ Endurance Goal: Building stamina daily!
+                                {% elif user.profile_data.get('goal') == 'strength' %}
+                                    🏋️‍♀️ Strength Goal: Progressive overload works!
+                                {% else %}
+                                    🌟 Fitness Goal: Every step forward matters!
+                                {% endif %}
+                            </small>
+                        </div>
                     {% else %}
-                        <div class="score-display ready">Ready!</div>
-                        <p class="score-description">Complete your daily log to see your score</p>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.5rem; color: #2d5a42; margin-bottom: 8px;">
+                                Ready to start? 🌟
+                            </div>
+                            <div style="color: #2d5a42; font-weight: 500; margin-bottom: 10px;">
+                                Log your first day to get personalised insights based on your goals!
+                            </div>
+                            <div style="background: rgba(255,255,255,0.7); padding: 10px; border-radius: 6px; font-size: 0.9rem; color: #2d5a42;">
+                                Your score will be tailored to your 
+                                {% if user.profile_data.get('goal') %}
+                                    <strong>{{ user.profile_data.get('goal').replace('_', ' ').title() }}</strong> goal
+                                {% else %}
+                                    personal fitness goals
+                                {% endif %}
+                                and activity level!
+                            </div>
+                        </div>
                     {% endif %}
+                </div>
+            </div>
                 </div>
             </div>
 

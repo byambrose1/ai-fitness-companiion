@@ -625,113 +625,14 @@
                 // Show message about needing more data
                 document.getElementById('instantFeedback').style.display = 'block';
                 document.querySelector('.feedback-score').textContent = 'Complete more fields';
-                document.querySelector('.feedback-text').textContent = 'Please complete at least mood and water intake to get your daily score! 📊';
+                document.querySelector('.feedback-text').textContent = 'Complete at least 3 sections to get your personalised daily score and insights! 📊';
                 return;
             }
 
-            // Calculate a simple score based on logged data
-            let score = 4; // Base score
-            let insights = [];
-
-            // Mood scoring
-            if (selectedValues.mood === 'excellent') {
-                score += 2;
-                insights.push("Excellent mood sets you up for great choices! 😊");
-            } else if (selectedValues.mood === 'good') {
-                score += 1.5;
-                insights.push("Good mood = good momentum! 👍");
-            } else if (selectedValues.mood === 'okay') {
-                score += 1;
-                insights.push("Every day doesn't have to be perfect! 💚");
-            } else if (selectedValues.mood === 'low') {
-                score += 0.5;
-                insights.push("Tough days happen - you still showed up! 🌅");
-            }
-
-            // Water scoring
-            if (selectedValues.water === 'excellent') {
-                score += 1.5;
-                insights.push("Amazing hydration supports your metabolism! 💧");
-            } else if (selectedValues.water === 'good') {
-                score += 1;
-                insights.push("Great hydration today! 💪");
-            } else if (selectedValues.water === 'moderate') {
-                score += 0.5;
-                insights.push("Good start on hydration! 👍");
-            }
-
-            // Workout scoring
-            if (selectedValues.workout && selectedValues.workout !== 'rest') {
-                score += 1.5;
-                insights.push("Movement is medicine for body and mind! 💪");
-            } else if (selectedValues.workout === 'rest') {
-                score += 0.5;
-                insights.push("Rest days are crucial for recovery! 😴");
-            }
-
-            // Food logging
-            const foodLog = document.getElementById('food_log').value;
-            if (foodLog.length > 20) {
-                score += 1;
-                insights.push("Detailed food tracking helps identify patterns! 📝");
-            } else if (foodLog.length > 5) {
-                score += 0.5;
-                insights.push("Food logging helps build awareness! 📝");
-            }
-
-            // Sleep scoring
-            const sleepHours = document.querySelector('[name="sleep_hours"]').value;
-            if (sleepHours) {
-                const sleep = parseFloat(sleepHours);
-                if (sleep >= 7 && sleep <= 9) {
-                    score += 1.5;
-                    insights.push("Optimal sleep supports hormone balance! 🌙");
-                } else if (sleep >= 6) {
-                    score += 1;
-                    insights.push("Good sleep foundation! 🌙");
-                }
-            }
-
-            // Stress level
-            const stressLevel = document.querySelector('[name="stress_level"]').value;
-            if (stressLevel) {
-                const stress = parseInt(stressLevel);
-                if (stress <= 3) {
-                    score += 0.5;
-                    insights.push("Low stress levels support your goals! 🧘‍♀️");
-                } else if (stress >= 8) {
-                    insights.push("High stress - consider relaxation techniques 🌸");
-                }
-            }
-
-            // Notes and tracking devices bonus
-            const notes = document.querySelector('[name="notes"]').value;
-            const trackingData = document.querySelector('[name="tracking_devices"]').value;
-
-            if (notes && notes.length > 5) {
-                score += 0.5;
-                insights.push("📝 Your notes help AI provide personalized insights!");
-            }
-
-            if (trackingData && trackingData.length > 10) {
-                score += 0.5;
-                insights.push("📱 Device data integrated for better tracking!");
-            }
-
-            // Cap score at 10
-            const finalScore = Math.min(10, score);
-
-            // Show feedback immediately
+            // Show preview feedback - the real personalised score will come after form submission
             document.getElementById('instantFeedback').style.display = 'block';
-            document.querySelector('.feedback-score').textContent = finalScore.toFixed(1) + '/10';
-
-            // Select 1-2 best insights
-            const selectedInsights = insights.slice(0, 2);
-            const insightText = selectedInsights.length > 0 ? 
-                selectedInsights.join(' ') : 
-                "Great job logging today! Every entry helps us understand your patterns better! 🤖";
-
-            document.querySelector('.feedback-text').textContent = insightText;
+            document.querySelector('.feedback-score').textContent = 'Calculating...';
+            document.querySelector('.feedback-text').textContent = '🤖 Your personalised insights are being calculated based on your goals and questionnaire responses. Submit to see your detailed score!';
         }
 
         // Food search functionality
