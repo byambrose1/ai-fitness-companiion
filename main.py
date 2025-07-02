@@ -210,11 +210,9 @@ def admin_logout():
     return redirect(url_for('admin_login'))
 
 @app.route('/admin')
-def admin_login():
-    """Admin login page"""
-    if session.get('admin_authenticated'):
-        return redirect(url_for('admin_dashboard'))
-    return render_template('admin_login.html')
+def admin():
+    """Admin login page redirect"""
+    return redirect(url_for('admin_login'))
 
 @app.route('/api/food-search')
 def api_food_search():
