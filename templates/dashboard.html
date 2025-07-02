@@ -91,7 +91,7 @@
                 </div>
                 <div class="card-content">
                     <div class="goal-title">{{ user.profile_data.goal|replace('_', ' ')|title }}</div>
-                    <p class="goal-description">{{ user.profile_data.motivation[:100] }}...</p>
+                    <p class="goal-description">{{ user.profile_data.get('motivation', 'Complete your profile to set your motivation and goals!')[:100] }}...</p>
                 </div>
             </div>
 
