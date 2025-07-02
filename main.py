@@ -89,9 +89,12 @@ def register():
         'email': email,
         'name': name,
         'password': hashed_password,
-        'created_at': datetime.now().isoformat()
+        'created_at': datetime.now().isoformat(),
+        'subscription_tier': 'free',
+        'subscription_status': 'active',
+        'profile_data': {}
     }
-    save_user(email, user_data)
+    save_user(user_data)
     
     # Send welcome email
     email_service.send_welcome_email(email, name)
@@ -164,7 +167,7 @@ def update_password():
     user = get_user(token_data['email'])
     if user:
         user['password'] = hashed_password
-        save_user(token_data['email'], user)
+        save_user(user)
         
         # Clear reset token
         session.pop(f'reset_token_{token}', None)
@@ -265,11 +268,5 @@ if __name__ == "__main__":
     security_monitor.start_monitoring()
     
     # Run the Flask app
-    import socket
-    def get_free_port():
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(('', 0))
-            return s.getsockname()[1]
-    
-    port = int(os.getenv('PORT', get_free_port()))
+    port = int(os.getenv('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=True)

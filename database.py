@@ -100,8 +100,8 @@ def save_user(user_data):
         user_data['name'],
         user_data['password'],
         user_data['created_at'],
-        user_data['subscription_tier'],
-        user_data['subscription_status'],
+        user_data.get('subscription_tier', 'free'),
+        user_data.get('subscription_status', 'active'),
         user_data.get('stripe_customer_id'),
         json.dumps(user_data.get('profile_data', {}))
     ))
