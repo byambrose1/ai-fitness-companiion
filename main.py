@@ -64,7 +64,7 @@ def landing_page():
     email = request.args.get('email')
     if email and 'user_email' in session and session['user_email'] == email:
         return redirect(url_for('questionnaire'))
-    
+
     return render_template('index.html')
 
 @app.route('/dashboard')
@@ -80,32 +80,32 @@ def dashboard():
         print('DASHBOARD: User not found in database, clearing session')
         session.pop('user_email', None)
         return redirect(url_for('landing_page'))
-    
+
     print(f'DASHBOARD: User loaded successfully, profile_data keys: {list(user.get("profile_data", {}).keys())}')
 
     # Calculate dashboard data
     from datetime import datetime, timedelta
-    
+
     # Calculate days since signup
     created_at = datetime.fromisoformat(user['created_at'])
     days_since_signup = (datetime.now() - created_at).days
-    
+
     # Get user logs for stats
     daily_logs = user.get('daily_logs', [])
     total_logs = len(daily_logs)
-    
+
     # Calculate streak (simplified - consecutive days with logs)
     streak_days = min(total_logs, 7)  # Cap at 7 for new users
-    
+
     # Get recent score from latest log
     recent_score = None
     if daily_logs:
         recent_score = daily_logs[-1].get('overallScore', 8)
-    
+
     # Contextual message based on user data
     profile_data = user.get('profile_data', {})
     goal = profile_data.get('goal', 'general_fitness')
-    
+
     contextual_messages = {
         'weight_loss': 'Focus on creating a sustainable calorie deficit today 💪',
         'muscle_gain': 'Fuel your muscles with protein and progressive overload 🏋️',
@@ -114,7 +114,7 @@ def dashboard():
         'strength': 'Strength comes from consistency, not perfection 💪'
     }
     contextual_message = contextual_messages.get(goal, 'You\'re doing great - keep up the momentum! 🌟')
-    
+
     # Motivation content based on progress
     if total_logs == 0:
         motivation_content = '''
@@ -185,11 +185,11 @@ def login():
 
         user = get_user(email)
         print(f'USER LOOKUP: user_found={user is not None}')
-        
+
         if user:
             password_match = bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8'))
             print(f'PASSWORD CHECK: matches={password_match}')
-            
+
             if password_match:
                 session['user_email'] = email
                 print(f'LOGIN SUCCESS: Setting session for {email}')
@@ -200,7 +200,7 @@ def login():
                 if is_ajax:
                     return jsonify({'success': True, 'redirect': url_for('dashboard')})
                 return redirect(url_for('dashboard'))
-        
+
         print('LOGIN FAILED: Invalid credentials')
         # Check for AJAX request
         is_ajax = (request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 
@@ -321,7 +321,7 @@ def register():
     try:
         session['user_email'] = email
         print(f'Session set for user: {email}')
-        
+
         if is_ajax:
             return jsonify({
                 'success': True, 
@@ -744,7 +744,7 @@ def save_daily_log():
 
     # Collect device-specific data
     device_data = {}
-    
+
     # Apple Health data
     apple_data = {
         'steps': request.form.get('apple_steps'),
@@ -863,126 +863,69 @@ def submit_daily_log():
 
     # Collect form data
     log_data = {
-        'date': datetime.now().isoformat(),
+        'date': request.form.get('date', datetime.now().isoformat()),
         'mood': request.form.get('mood'),
         'energy_level': request.form.get('energy_level'),
         'stress_level': request.form.get('stress_level'),
         'sleep_hours': request.form.get('sleep_hours'),
-        'sleep_quality': request.form.get('sleep_quality'),
         'workout': request.form.get('workout'),
-        'workout_intensity': request.form.get('workout_intensity'),
         'workout_duration': request.form.get('workout_duration'),
         'food_log': request.form.get('food_log'),
         'water_intake': request.form.get('water_intake'),
         'weight': request.form.get('weight'),
+        'tracking_devices': request.form.get('tracking_devices'),
         'notes': request.form.get('notes'),
-        'tracking_devices': request.form.get('tracking_devices')
+        'timestamp': datetime.now().isoformat()
     }
-
-    # Collect device-specific data
-    device_data = {}
-    
-    # Apple Health data
-    apple_data = {
-        'steps': request.form.get('apple_steps'),
-        'active_calories': request.form.get('apple_active_calories'),
-        'exercise_time': request.form.get('apple_exercise_time'),
-        'stand_hours': request.form.get('apple_stand_hours'),
-        'heart_rate': request.form.get('apple_heart_rate'),
-        'sleep': request.form.get('apple_sleep')
-    }
-    if any(apple_data.values()):
-        device_data['apple_health'] = apple_data
-
-    # Fitbit data
-    fitbit_data = {
-        'steps': request.form.get('fitbit_steps'),
-        'zone_minutes': request.form.get('fitbit_zone_minutes'),
-        'sleep_score': request.form.get('fitbit_sleep_score'),
-        'resting_hr': request.form.get('fitbit_resting_hr'),
-        'floors': request.form.get('fitbit_floors'),
-        'calories': request.form.get('fitbit_calories')
-    }
-    if any(fitbit_data.values()):
-        device_data['fitbit'] = fitbit_data
-
-    # Garmin data
-    garmin_data = {
-        'steps': request.form.get('garmin_steps'),
-        'body_battery': request.form.get('garmin_body_battery'),
-        'stress': request.form.get('garmin_stress'),
-        'vo2_max': request.form.get('garmin_vo2_max'),
-        'intensity_minutes': request.form.get('garmin_intensity_minutes'),
-        'sleep_score': request.form.get('garmin_sleep_score')
-    }
-    if any(garmin_data.values()):
-        device_data['garmin'] = garmin_data
-
-    # Oura data
-    oura_data = {
-        'readiness': request.form.get('oura_readiness'),
-        'sleep_score': request.form.get('oura_sleep_score'),
-        'activity': request.form.get('oura_activity'),
-        'hrv': request.form.get('oura_hrv'),
-        'resting_hr': request.form.get('oura_resting_hr'),
-        'temperature': request.form.get('oura_temperature')
-    }
-    if any(oura_data.values()):
-        device_data['oura'] = oura_data
-
-    # Samsung data
-    samsung_data = {
-        'steps': request.form.get('samsung_steps'),
-        'active_time': request.form.get('samsung_active_time'),
-        'sleep': request.form.get('samsung_sleep'),
-        'heart_rate': request.form.get('samsung_heart_rate'),
-        'stress': request.form.get('samsung_stress'),
-        'calories': request.form.get('samsung_calories')
-    }
-    if any(samsung_data.values()):
-        device_data['samsung'] = samsung_data
-
-    # Polar data
-    polar_data = {
-        'steps': request.form.get('polar_steps'),
-        'training_load': request.form.get('polar_training_load'),
-        'recovery': request.form.get('polar_recovery'),
-        'sleep_score': request.form.get('polar_sleep_score'),
-        'rhr': request.form.get('polar_rhr'),
-        'active_calories': request.form.get('polar_active_calories')
-    }
-    if any(polar_data.values()):
-        device_data['polar'] = polar_data
-
-    # Suunto data
-    suunto_data = {
-        'steps': request.form.get('suunto_steps'),
-        'recovery_time': request.form.get('suunto_recovery_time'),
-        'training_stress': request.form.get('suunto_training_stress'),
-        'sleep': request.form.get('suunto_sleep'),
-        'resources': request.form.get('suunto_resources'),
-        'calories': request.form.get('suunto_calories')
-    }
-    if any(suunto_data.values()):
-        device_data['suunto'] = suunto_data
-
-    # Add device data to log
-    if device_data:
-        log_data['device_data'] = device_data
 
     # Calculate overall score (simplified)
     score = 5  # Base score
-    if log_data['mood'] and int(log_data['mood']) >= 7:
-        score += 1
-    if log_data['energy_level'] and int(log_data['energy_level']) >= 7:
-        score += 1
-    if log_data['sleep_hours'] and 7 <= float(log_data['sleep_hours']) <= 9:
-        score += 1.5
+
+    # Mood scoring
+    if log_data['mood']:
+        mood_scores = {'excellent': 2, 'good': 1.5, 'okay': 1, 'low': 0.5}
+        score += mood_scores.get(log_data['mood'], 0)
+
+    # Water scoring
+    if log_data['water_intake']:
+        water_scores = {'excellent': 1.5, 'good': 1, 'moderate': 0.5, 'low': 0}
+        score += water_scores.get(log_data['water_intake'], 0)
+
+    # Workout scoring
     if log_data['workout'] and log_data['workout'] != 'rest':
         score += 1.5
+    elif log_data['workout'] == 'rest':
+        score += 0.5
+
+    # Sleep scoring
+    if log_data['sleep_hours']:
+        try:
+            sleep_hours = float(log_data['sleep_hours'])
+            if 7 <= sleep_hours <= 9:
+                score += 1.5
+            elif 6 <= sleep_hours < 7 or 9 < sleep_hours <= 10:
+                score += 1
+        except ValueError:
+            pass
+
+    # Stress level scoring (inverted - lower stress = higher score)
+    if log_data['stress_level']:
+        try:
+            stress = int(log_data['stress_level'])
+            if stress <= 3:
+                score += 0.5
+            elif stress >= 8:
+                score -= 0.5
+        except ValueError:
+            pass
 
     log_data['overallScore'] = min(10, score)
 
+    # Save to database
+    add_daily_log(session['user_email'], log_data)
+
+    flash('Daily log saved successfully!')
+    return redirect(url_for('dashboard'))
 
 @app.route('/weekly-checkin')
 def weekly_checkin():
@@ -1056,7 +999,7 @@ def ai_chat_message():
     try:
         # Simple AI response (you can enhance this with OpenAI)
         response = f"Thanks for your message: '{message}'. I'm here to help with your fitness journey! (AI integration coming soon)"
-        
+
         return jsonify({'response': response})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -1091,7 +1034,7 @@ def select_device():
     # Update user's preferred tracking device
     if 'profile_data' not in user:
         user['profile_data'] = {}
-    
+
     user['profile_data']['preferred_device'] = device
     save_user(user)
 
