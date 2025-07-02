@@ -56,6 +56,90 @@ def food_search():
 
     return jsonify(results)
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email', '').lower().strip()
+        password = request.form.get('password', '')
+        
+        user = get_user(email)
+        if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
+            session['user_email'] = email
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Invalid email or password')
+    
+    return render_template('index.html')
+
+@app.route('/register', methods=['POST'])
+def register():
+    email = request.form.get('email', '').lower().strip()
+    password = request.form.get('password', '')
+    name = request.form.get('name', '').strip()
+    
+    if get_user(email):
+        flash('Account already exists. Please log in.')
+        return redirect(url_for('landing_page'))
+    
+    # Hash password
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    
+    # Save user
+    user_data = {
+        'email': email,
+        'name': name,
+        'password': hashed_password,
+        'created_at': datetime.now().isoformat()
+    }
+    save_user(email, user_data)
+    
+    # Send welcome email
+    email_service.send_welcome_email(email, name)
+    
+    # Add to Mailchimp
+    email_service.add_to_mailchimp(email, name, user_data)
+    
+    session['user_email'] = email
+    return redirect(url_for('dashboard'))
+
+@app.route('/forgot-password')
+def forgot_password():
+    return render_template('forgot_password.html')
+
+@app.route('/send-password-reset', methods=['POST'])
+def send_password_reset():
+    email = request.form.get('email', '').lower().strip()
+    user = get_user(email)
+    
+    if user:
+        # Generate reset token (in production, use proper token generation)
+        import secrets
+        reset_token = secrets.token_urlsafe(32)
+        
+        # Store token temporarily (you'd want to add this to database)
+        session[f'reset_token_{reset_token}'] = {
+            'email': email,
+            'expires': (datetime.now().timestamp() + 3600)  # 1 hour
+        }
+        
+        reset_link = url_for('reset_password', token=reset_token, _external=True)
+        email_service.send_password_reset_email(email, user['name'], reset_link)
+        
+        flash('Password reset link sent to your email')
+    else:
+        flash('If that email exists, we sent a reset link')
+    
+    return redirect(url_for('forgot_password'))
+
+@app.route('/reset-password/<token>')
+def reset_password(token):
+    token_data = session.get(f'reset_token_{token}')
+    if not token_data or datetime.now().timestamp() > token_data['expires']:
+        flash('Reset link expired or invalid')
+        return redirect(url_for('forgot_password'))
+    
+    return render_template('reset_password.html', token=token)
+
 @app.route('/api/food-search')
 def api_food_search():
     """API endpoint for food search including restaurants and delivery"""
