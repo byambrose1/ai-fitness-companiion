@@ -5,6 +5,7 @@ import bcrypt
 import openai
 from datetime import datetime
 import json
+import sqlite3
 from database import get_user, save_user, add_daily_log, get_user_logs, add_weekly_checkin, get_user_checkins
 from email_service import email_service
 from security_monitoring import SecurityMonitor
@@ -216,6 +217,130 @@ def admin_logout():
 def admin():
     """Admin login page redirect"""
     return redirect(url_for('admin_login'))
+
+@app.route('/admin/user/<email>/change-subscription', methods=['POST'])
+def admin_change_subscription():
+    if not session.get('admin_authenticated'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    email = request.form.get('email')
+    new_tier = request.form.get('tier')
+    
+    user = get_user(email)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    # Update subscription
+    user['subscription_tier'] = new_tier
+    user['subscription_status'] = 'active'
+    save_user(user)
+    
+    return jsonify({'success': True, 'message': f'Subscription changed to {new_tier}'})
+
+@app.route('/admin/user/<email>/cancel', methods=['POST'])
+def admin_cancel_user():
+    if not session.get('admin_authenticated'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    email = request.form.get('email')
+    
+    user = get_user(email)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    
+    # Cancel subscription but don't delete user
+    user['subscription_status'] = 'cancelled'
+    user['subscription_tier'] = 'free'
+    save_user(user)
+    
+    return jsonify({'success': True, 'message': 'User subscription cancelled'})
+
+@app.route('/admin/user/<email>/delete', methods=['POST'])
+def admin_delete_user():
+    if not session.get('admin_authenticated'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    email = request.form.get('email')
+    
+    # Delete user from database
+    conn = sqlite3.connect('fitness_app.db')
+    cursor = conn.cursor()
+    
+    # Delete user logs first
+    cursor.execute('DELETE FROM daily_logs WHERE user_email = ?', (email,))
+    cursor.execute('DELETE FROM weekly_checkins WHERE user_email = ?', (email,))
+    cursor.execute('DELETE FROM users WHERE email = ?', (email,))
+    
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'success': True, 'message': 'User deleted successfully'})
+
+@app.route('/admin/stripe-dashboard')
+def admin_stripe_dashboard():
+    if not session.get('admin_authenticated'):
+        return redirect(url_for('admin_login'))
+    
+    # Get Stripe customers and revenue data
+    try:
+        customers = stripe.Customer.list(limit=100)
+        subscriptions = stripe.Subscription.list(limit=100)
+        
+        # Calculate revenue
+        total_revenue = 0
+        active_subscriptions = 0
+        
+        for sub in subscriptions.data:
+            if sub.status == 'active':
+                active_subscriptions += 1
+                total_revenue += sub.items.data[0].price.unit_amount / 100  # Convert from pence to pounds
+        
+        stripe_data = {
+            'customers': customers.data,
+            'subscriptions': subscriptions.data,
+            'total_revenue': total_revenue,
+            'active_subscriptions': active_subscriptions
+        }
+        
+    except Exception as e:
+        stripe_data = {
+            'error': str(e),
+            'customers': [],
+            'subscriptions': [],
+            'total_revenue': 0,
+            'active_subscriptions': 0
+        }
+    
+    return render_template('admin_stripe.html', stripe_data=stripe_data)
+
+@app.route('/admin/stats')
+def admin_stats():
+    if not session.get('admin_authenticated'):
+        return jsonify({'error': 'Unauthorized'}), 401
+    
+    from database import get_all_users
+    users = get_all_users()
+    
+    # Calculate stats
+    total_users = len(users)
+    premium_users = len([u for u in users if u.get('subscription_tier') == 'premium'])
+    free_users = len([u for u in users if u.get('subscription_tier') == 'free'])
+    cancelled_users = len([u for u in users if u.get('subscription_status') == 'cancelled'])
+    
+    # Calculate total logs
+    total_logs = sum(len(u.get('daily_logs', [])) for u in users)
+    total_checkins = sum(len(u.get('weekly_checkins', [])) for u in users)
+    
+    stats = {
+        'total_users': total_users,
+        'premium_users': premium_users,
+        'free_users': free_users,
+        'cancelled_users': cancelled_users,
+        'total_logs': total_logs,
+        'total_checkins': total_checkins
+    }
+    
+    return jsonify(stats)
 
 @app.route('/api/food-search')
 def api_food_search():

@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stripe Dashboard - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .stripe-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .stripe-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stripe-stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .subscription-list {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .subscription-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="stripe-container">
+        <a href="/admin/dashboard" class="back-btn">← Back to Admin Dashboard</a>
+        
+        <h1>💳 Stripe Dashboard</h1>
+        
+        {% if stripe_data.error %}
+        <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <strong>Stripe Error:</strong> {{ stripe_data.error }}
+            <br><small>Make sure your STRIPE_SECRET_KEY is configured in Secrets</small>
+        </div>
+        {% else %}
+        
+        <div class="stripe-stats">
+            <div class="stripe-stat-card">
+                <div style="font-size: 2rem; color: #28a745;">£{{ "%.2f"|format(stripe_data.total_revenue) }}</div>
+                <div>Total Revenue</div>
+            </div>
+            <div class="stripe-stat-card">
+                <div style="font-size: 2rem; color: #007bff;">{{ stripe_data.active_subscriptions }}</div>
+                <div>Active Subscriptions</div>
+            </div>
+            <div class="stripe-stat-card">
+                <div style="font-size: 2rem; color: #6c757d;">{{ stripe_data.customers|length }}</div>
+                <div>Total Customers</div>
+            </div>
+        </div>
+
+        <div class="subscription-list">
+            <h3>Recent Subscriptions</h3>
+            {% if stripe_data.subscriptions %}
+                {% for subscription in stripe_data.subscriptions[:10] %}
+                <div class="subscription-item">
+                    <div>
+                        <strong>{{ subscription.customer }}</strong><br>
+                        <small>{{ subscription.items.data[0].price.nickname or 'Premium Plan' }}</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="background: {% if subscription.status == 'active' %}#28a745{% else %}#6c757d{% endif %}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">
+                            {{ subscription.status|title }}
+                        </span><br>
+                        <small>£{{ "%.2f"|format(subscription.items.data[0].price.unit_amount / 100) }}/month</small>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center; color: #666; padding: 20px;">No subscriptions found</p>
+            {% endif %}
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <a href="https://dashboard.stripe.com" target="_blank" style="background: #6772e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px;">
+                Open Full Stripe Dashboard →
+            </a>
+        </div>
+        
+        {% endif %}
+    </div>
+</body>
+</html>
