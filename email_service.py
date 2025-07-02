@@ -50,8 +50,11 @@ class EmailService:
 
     
 
-    def send_welcome_email(self, email, name):
+    def send_welcome_email(self, email, name, custom_message=None):
         """Send welcome email to new user"""
+        
+        # Customizable welcome message
+        welcome_message = custom_message or "Thank you for joining our fitness companion app! You've just taken the first step toward understanding your body and achieving your goals."
 
         html_body = f"""
             <html>
@@ -61,7 +64,7 @@ class EmailService:
                 </div>
                 
                 <div style="padding: 30px; background: white;">
-                    <p>Thank you for joining our fitness companion app! You've just taken the first step toward understanding your body and achieving your goals.</p>
+                    <p>{welcome_message}</p>
                     
                     <h3 style="color: #3B7A57;">What's Next?</h3>
                     <ul>
@@ -177,5 +180,23 @@ class EmailService:
         except Exception as e:
             print(f"Password reset email error: {e}")
             return False
+
+def get_email_template(self, template_name, **kwargs):
+        """Get email template with variables"""
+        templates = {
+            'welcome': {
+                'subject': "Welcome to Your Fitness Journey! 🌟",
+                'body': """
+                <p>Hi {name}!</p>
+                <p>{message}</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{cta_link}" style="background: #3B7A57; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px;">
+                        {cta_text}
+                    </a>
+                </div>
+                """
+            }
+        }
+        return templates.get(template_name, {}).get('body', '').format(**kwargs)
 
 email_service = EmailService()
