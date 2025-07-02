@@ -1515,12 +1515,20 @@
 
       fetch('/login', {
         method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
         body: formData
       })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         if (data.success) {
-          window.location.href = `/dashboard?email=${encodeURIComponent(email)}`;
+          window.location.href = data.redirect || '/dashboard';
         } else {
           alert(data.message || 'Login failed');
         }
@@ -1568,12 +1576,21 @@
 
       fetch('/register', {
         method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
         body: formData
       })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         if (data.success) {
           closeSignup();
+          // Pre-fill questionnaire with signup data
           document.getElementById('name').value = name;
           document.getElementById('email').value = email;
           document.getElementById('dob').value = dob;

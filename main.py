@@ -192,16 +192,25 @@ def register():
 
     print(f'Registration attempt: email={email}, name={name}, password_length={len(password) if password else 0}')
 
+    # Check if this is an AJAX request
+    is_ajax = request.headers.get('Content-Type') == 'application/json' or request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
     # Validate required fields
     if not email or not password or not name:
         print('Validation failed: Missing required fields')
-        flash('All fields are required.')
+        error_msg = 'All fields are required.'
+        if is_ajax:
+            return jsonify({'success': False, 'message': error_msg})
+        flash(error_msg)
         return redirect(url_for('landing_page'))
 
     # Validate email format
     if not validate_email(email):
         print(f'Validation failed: Invalid email format for {email}')
-        flash('Please enter a valid email address.')
+        error_msg = 'Please enter a valid email address.'
+        if is_ajax:
+            return jsonify({'success': False, 'message': error_msg})
+        flash(error_msg)
         return redirect(url_for('landing_page'))
 
     # Check if user already exists
@@ -209,11 +218,17 @@ def register():
         existing_user = get_user(email)
         if existing_user:
             print(f'Registration failed: User {email} already exists')
-            flash('Account already exists. Please log in.')
+            error_msg = 'Account already exists. Please log in.'
+            if is_ajax:
+                return jsonify({'success': False, 'message': error_msg})
+            flash(error_msg)
             return redirect(url_for('landing_page'))
     except Exception as e:
         print(f'Error checking existing user: {e}')
-        flash('Database error. Please try again.')
+        error_msg = 'Database error. Please try again.'
+        if is_ajax:
+            return jsonify({'success': False, 'message': error_msg})
+        flash(error_msg)
         return redirect(url_for('landing_page'))
 
     # Hash password
@@ -222,7 +237,10 @@ def register():
         print('Password hashed successfully')
     except Exception as e:
         print(f'Password hashing failed: {e}')
-        flash('Password processing error. Please try again.')
+        error_msg = 'Password processing error. Please try again.'
+        if is_ajax:
+            return jsonify({'success': False, 'message': error_msg})
+        flash(error_msg)
         return redirect(url_for('landing_page'))
 
     # Save user
@@ -241,7 +259,10 @@ def register():
         print(f'User saved successfully: {email}')
     except Exception as e:
         print(f'Database save failed: {e}')
-        flash('Failed to create account. Database error.')
+        error_msg = 'Failed to create account. Database error.'
+        if is_ajax:
+            return jsonify({'success': False, 'message': error_msg})
+        flash(error_msg)
         return redirect(url_for('landing_page'))
 
     # Increment signup count (thread-safe)
@@ -266,15 +287,26 @@ def register():
     except Exception as e:
         print(f'Mailchimp add failed: {e}')
 
-    # Set session and redirect
+    # Set session and return appropriate response
     try:
         session['user_email'] = email
         print(f'Session set for user: {email}')
-        flash('Account created successfully! Welcome to your fitness journey!')
-        return redirect(url_for('dashboard'))
+        
+        if is_ajax:
+            return jsonify({
+                'success': True, 
+                'message': 'Account created successfully!',
+                'redirect': url_for('dashboard')
+            })
+        else:
+            flash('Account created successfully! Welcome to your fitness journey!')
+            return redirect(url_for('dashboard'))
     except Exception as e:
         print(f'Session/redirect failed: {e}')
-        flash('Account created but login failed. Please try logging in.')
+        error_msg = 'Account created but login failed. Please try logging in.'
+        if is_ajax:
+            return jsonify({'success': False, 'message': error_msg})
+        flash(error_msg)
         return redirect(url_for('landing_page'))
 
 @app.route('/forgot-password')
