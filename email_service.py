@@ -4,12 +4,6 @@ import requests
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
-try:
-    import sendgrid
-    from sendgrid.helpers.mail import Mail
-    SENDGRID_AVAILABLE = True
-except ImportError:
-    SENDGRID_AVAILABLE = False
 
 class EmailService:
     def __init__(self):
@@ -17,11 +11,7 @@ class EmailService:
         self.mailchimp_server = os.getenv('MAILCHIMP_SERVER', '')  # e.g., 'us1'
         self.mailchimp_list_id = os.getenv('MAILCHIMP_LIST_ID', '')
         
-        # SendGrid settings (preferred for production)
-        self.sendgrid_api_key = os.getenv('SENDGRID_API_KEY', '')
-        self.sendgrid_from_email = os.getenv('SENDGRID_FROM_EMAIL', 'noreply@yourapp.com')
-        
-        # SMTP settings for fallback
+        # SMTP settings
         self.smtp_server = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
         self.smtp_port = int(os.getenv('SMTP_PORT', '587'))
         self.smtp_username = os.getenv('SMTP_USERNAME', '')
@@ -58,24 +48,7 @@ class EmailService:
             print(f"Mailchimp error: {e}")
             return False
 
-    def _send_with_sendgrid(self, to_email, subject, html_content):
-        """Send email using SendGrid API"""
-        if not self.sendgrid_api_key or not SENDGRID_AVAILABLE:
-            return False
-        
-        try:
-            sg = sendgrid.SendGridAPIClient(api_key=self.sendgrid_api_key)
-            message = Mail(
-                from_email=self.sendgrid_from_email,
-                to_emails=to_email,
-                subject=subject,
-                html_content=html_content
-            )
-            response = sg.send(message)
-            return response.status_code == 202
-        except Exception as e:
-            print(f"SendGrid error: {e}")
-            return False
+    
 
     def send_welcome_email(self, email, name):
         """Send welcome email to new user"""
@@ -117,11 +90,7 @@ class EmailService:
             </html>
             """
 
-        # Try SendGrid first, fallback to SMTP
-        if self._send_with_sendgrid(email, "Welcome to Your Fitness Journey! 🌟", html_body):
-            return True
-        
-        # Fallback to SMTP
+        # Send using SMTP
         if not self.smtp_username:
             print("No email service configured")
             return False
