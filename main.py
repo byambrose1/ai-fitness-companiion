@@ -1210,6 +1210,114 @@ def ai_response():
     flash(f"AI Coach: {ai_response}")
     return redirect(url_for('ai_chat'))
 
+def analyze_user_data_for_ai(daily_logs, profile_data, question):
+    """Analyze user's logged data to provide personalized AI context"""
+    if not daily_logs:
+        return "No daily logs available yet. User needs to start tracking to get personalized insights."
+    
+    # Get recent logs (last 7-14 days)
+    recent_logs = daily_logs[-14:] if len(daily_logs) >= 14 else daily_logs
+    
+    # Analyze patterns
+    analysis = []
+    
+    # Weight tracking analysis
+    weights = [float(log.get('weight', 0)) for log in recent_logs if log.get('weight') and log.get('weight').replace('.', '').isdigit()]
+    if len(weights) >= 2:
+        weight_change = weights[-1] - weights[0]
+        if weight_change > 0:
+            analysis.append(f"Weight trend: +{weight_change:.1f}lbs over {len(weights)} entries")
+        elif weight_change < 0:
+            analysis.append(f"Weight trend: {weight_change:.1f}lbs over {len(weights)} entries")
+        else:
+            analysis.append(f"Weight stable over {len(weights)} entries")
+    
+    # Sleep analysis
+    sleep_hours = [float(log.get('sleep_hours', 0)) for log in recent_logs if log.get('sleep_hours') and str(log.get('sleep_hours')).replace('.', '').isdigit()]
+    if sleep_hours:
+        avg_sleep = sum(sleep_hours) / len(sleep_hours)
+        poor_sleep_days = len([h for h in sleep_hours if h < 6.5])
+        analysis.append(f"Sleep: {avg_sleep:.1f}h average, {poor_sleep_days} days under 6.5h")
+    
+    # Workout consistency
+    workouts = [log.get('workout', 'rest') for log in recent_logs if log.get('workout')]
+    workout_days = len([w for w in workouts if w != 'rest'])
+    rest_days = len([w for w in workouts if w == 'rest'])
+    if workouts:
+        analysis.append(f"Exercise: {workout_days} workout days, {rest_days} rest days in last {len(workouts)} logs")
+    
+    # Mood patterns
+    moods = [log.get('mood') for log in recent_logs if log.get('mood')]
+    if moods:
+        low_mood_days = len([m for m in moods if m in ['low', 'okay']])
+        good_mood_days = len([m for m in moods if m in ['good', 'excellent']])
+        analysis.append(f"Mood: {good_mood_days} good days, {low_mood_days} challenging days")
+    
+    # Stress analysis
+    stress_levels = [int(log.get('stress_level', 5)) for log in recent_logs if log.get('stress_level') and str(log.get('stress_level')).isdigit()]
+    if stress_levels:
+        avg_stress = sum(stress_levels) / len(stress_levels)
+        high_stress_days = len([s for s in stress_levels if s >= 7])
+        analysis.append(f"Stress: {avg_stress:.1f}/10 average, {high_stress_days} high-stress days")
+    
+    # Food patterns
+    food_entries = [log.get('food_log', '') for log in recent_logs if log.get('food_log')]
+    if food_entries:
+        takeaway_mentions = len([f for f in food_entries if any(word in f.lower() for word in ['takeaway', 'pizza', 'mcdonalds', 'kfc', 'delivery'])])
+        analysis.append(f"Food logging: {len(food_entries)} entries, {takeaway_mentions} mentioned takeaways")
+    
+    # Water intake
+    water_logs = [log.get('water_intake') for log in recent_logs if log.get('water_intake')]
+    if water_logs:
+        good_hydration = len([w for w in water_logs if w in ['good', 'excellent']])
+        analysis.append(f"Hydration: {good_hydration}/{len(water_logs)} days with good water intake")
+    
+    # Recent daily scores
+    recent_scores = [log.get('overallScore', 0) for log in recent_logs[-7:] if log.get('overallScore')]
+    if recent_scores:
+        avg_score = sum(recent_scores) / len(recent_scores)
+        analysis.append(f"Recent daily scores: {avg_score:.1f}/10 average")
+    
+    # Check if question is about weight loss specifically
+    if 'weight' in question.lower() and 'lose' in question.lower() or 'loss' in question.lower():
+        # Add specific weight loss context
+        if weights and len(weights) >= 2:
+            recent_trend = "gaining" if weights[-1] > weights[-2] else "losing" if weights[-1] < weights[-2] else "stable"
+            analysis.append(f"Recent weight trend: {recent_trend}")
+    
+    if not analysis:
+        return "User has started logging but needs more data for detailed analysis."
+    
+    return "RECENT TRACKING DATA:\n" + "\n".join([f"- {item}" for item in analysis])
+
+def generate_data_driven_response(question, goal, profile_data, personal_data_context):
+    """Generate enhanced responses using personal data analysis"""
+    question_lower = question.lower()
+    
+    # Check if this is about weight loss plateau/concerns
+    if any(phrase in question_lower for phrase in ['weight', 'lose', 'loss', 'plateau', 'scale']):
+        if "No daily logs available" in personal_data_context:
+            return "I'd love to help you understand your weight patterns, but I need you to start logging your daily data first. Once you track for a few days, I can analyze what might be affecting your progress! 📊"
+        elif "needs more data" in personal_data_context:
+            return "I can see you've started tracking - brilliant! For better weight loss insights, I need a bit more data. Keep logging consistently for a few more days and I'll be able to spot patterns that might be affecting your results. 📈"
+        else:
+            # Use the data analysis to provide specific insights
+            return f"Looking at your recent tracking data, I can see some specific patterns that might explain your weight concerns. Check your sleep quality, stress levels, and consistency with workouts - these all directly impact weight loss. Your logged data shows exactly where to focus! 💪"
+    
+    # Goal-specific responses with data awareness
+    if goal == 'weight_loss':
+        if any(word in question_lower for word in ['food', 'eat', 'diet', 'nutrition']):
+            return "Based on your tracking data, focus on consistency with your food logging. I can spot patterns in what's working best for you once you log more meals. Protein and vegetables at each meal will support your goals! 🥗"
+        elif any(word in question_lower for word in ['exercise', 'workout', 'cardio', 'strength']):
+            return "Looking at your workout logs, consistency matters more than intensity. I can see which types of exercise you're enjoying most - stick with those and gradually increase frequency! 🏃‍♀️"
+    
+    elif goal == 'muscle_gain':
+        if any(word in question_lower for word in ['protein', 'food', 'nutrition']):
+            return "Your food logs will help me identify if you're getting enough protein for muscle growth. Aim for protein at every meal - I can track your patterns once you log more consistently! 💪"
+    
+    # Default data-aware response
+    return "Great question! The more you log your daily habits, the better I can provide specific insights based on YOUR patterns. Keep tracking consistently and I'll help you identify exactly what's working and what needs adjustment! ✨"
+
 def generate_fallback_response(question, goal, profile_data):
     """Generate enhanced fallback responses when OpenAI API is not available"""
     question_lower = question.lower()
@@ -1261,15 +1369,13 @@ def ai_chat_message():
     profile_data = user.get('profile_data', {})
     goal = profile_data.get('goal', 'general_fitness')
     activity_level = profile_data.get('activity_level', 'moderately_active')
+    dietary_preferences = profile_data.get('dietary_preferences', 'none')
     
-    # Get recent daily logs for context
+    # Get comprehensive daily logs for analysis
     daily_logs = user.get('daily_logs', [])
-    recent_context = ""
-    if daily_logs:
-        recent_log = daily_logs[-1]
-        recent_score = recent_log.get('overallScore', 'Not tracked')
-        recent_mood = recent_log.get('mood', 'Not tracked')
-        recent_context = f"Recent daily score: {recent_score}/10, Recent mood: {recent_mood}. "
+    
+    # Analyze recent patterns for personalized insights
+    personal_data_context = analyze_user_data_for_ai(daily_logs, profile_data, message)
 
     try:
         # Use OpenAI API if available
@@ -1277,14 +1383,24 @@ def ai_chat_message():
             from openai import OpenAI
             client = OpenAI(api_key=openai.api_key)
             
-            # Create personalised system prompt
-            system_prompt = f"""You are a supportive, knowledgeable AI wellness coach for a British woman. 
-            User's goals: {goal.replace('_', ' ')}
-            Activity level: {activity_level.replace('_', ' ')}
-            {recent_context}
-            
-            Provide practical, supportive advice in British English. Be encouraging and focus on sustainable habits. 
-            Keep responses under 120 words."""
+            # Create detailed personalised system prompt with actual data
+            system_prompt = f"""You are an expert AI wellness coach analyzing real user data for a British woman.
+
+USER PROFILE:
+- Goal: {goal.replace('_', ' ')}
+- Activity level: {activity_level.replace('_', ' ')}
+- Dietary preferences: {dietary_preferences}
+
+PERSONAL DATA ANALYSIS:
+{personal_data_context}
+
+INSTRUCTIONS:
+- Base your response on the actual logged data above
+- Be specific about patterns you see in their data
+- Provide actionable insights based on their real behaviours
+- Use British English and be supportive but honest
+- Keep under 150 words
+- Reference specific data points when relevant"""
 
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
@@ -1292,19 +1408,19 @@ def ai_chat_message():
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": message}
                 ],
-                max_tokens=150,
+                max_tokens=200,
                 temperature=0.7
             )
             
             ai_response = response.choices[0].message.content.strip()
         else:
-            # Fallback to enhanced responses
-            ai_response = generate_fallback_response(message, goal, profile_data)
+            # Enhanced fallback with data analysis
+            ai_response = generate_data_driven_response(message, goal, profile_data, personal_data_context)
 
         return jsonify({'response': ai_response})
     except Exception as e:
         print(f"AI chat error: {e}")
-        fallback_response = generate_fallback_response(message, goal, profile_data)
+        fallback_response = generate_data_driven_response(message, goal, profile_data, personal_data_context)
         return jsonify({'response': fallback_response})
 
 
