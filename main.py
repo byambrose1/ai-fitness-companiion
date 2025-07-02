@@ -140,6 +140,41 @@ def reset_password(token):
     
     return render_template('reset_password.html', token=token)
 
+@app.route('/update-password', methods=['POST'])
+def update_password():
+    token = request.form.get('token')
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirmPassword')
+    
+    # Validate token
+    token_data = session.get(f'reset_token_{token}')
+    if not token_data or datetime.now().timestamp() > token_data['expires']:
+        flash('Reset link expired or invalid')
+        return redirect(url_for('forgot_password'))
+    
+    # Validate passwords match
+    if password != confirm_password:
+        flash('Passwords do not match')
+        return render_template('reset_password.html', token=token)
+    
+    # Hash new password
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    
+    # Update user password
+    user = get_user(token_data['email'])
+    if user:
+        user['password'] = hashed_password
+        save_user(token_data['email'], user)
+        
+        # Clear reset token
+        session.pop(f'reset_token_{token}', None)
+        
+        flash('Password updated successfully! Please log in.')
+        return redirect(url_for('landing_page'))
+    
+    flash('User not found')
+    return redirect(url_for('forgot_password'))
+
 @app.route('/api/food-search')
 def api_food_search():
     """API endpoint for food search including restaurants and delivery"""
