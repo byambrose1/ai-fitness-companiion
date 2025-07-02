@@ -1,0 +1,47 @@
+Please fix the following critical issues in my Fat Loss Companion app.  
+Be very thorough — I need this fully functional so I can demo it.
+
+---
+
+1️⃣ Broken dashboard buttons
+- When I click "Upgrade to Premium", it currently leads to an undefined error page. Fix the routing so it goes to a working /premium page with correct content.
+- The same issue happens with "Daily Log" and "Weekly Check-in" — they also lead to undefined or broken pages.  
+  Ensure these routes exist in the backend, have valid templates, and load properly.
+
+2️⃣ Manual check-in UI confusion
+- I see "Manual Check-in (perfectly valid)" with a blue background but it’s unclear.  
+- Improve the text to clearly guide the user, e.g.  
+  "Manual Check-in — Track your data manually here. Works perfectly without connected devices."
+
+3️⃣ Updating profile
+- Clicking "Update My Profile" currently just returns to the landing page.  
+- Fix the routing so it goes to a functional profile editing page that saves user info.
+
+4️⃣ Device buttons not working
+- None of the tracking device buttons (Oura, Fitbit, Garmin, Apple Health, Google Fit) do anything right now.  
+- Make them selectable — when a user clicks on a device, it should:
+  ✅ Highlight the selected device as their chosen tracking method.
+  ✅ If it's Apple Health or Google Fit, show:  
+    "Device connection coming soon. In the meantime, manually enter data in the same format."
+  ✅ For Garmin also say "Connection coming soon."
+  ✅ For all devices, show exactly what manual data the user should enter, laid out in a style that mimics that device’s native display. 
+    (E.g. Oura: Sleep Score, Readiness, HRV; Fitbit: Steps, Heart Rate, Active Minutes etc.) 
+  ✅ Make sure this UI is intuitive and actually updates when the user clicks different devices.
+
+5️⃣ Notes about device connections
+- Remember: Apple Health & Google Fit **cannot connect at all right now** because we’d need a native app.  
+- Garmin also can't connect yet as we still need to apply.  
+- So the buttons should inform the user clearly:  
+  "Device connection coming soon. Please enter your data manually."
+
+6️⃣ Make sure after these fixes:
+- All pages load without 404 or undefined errors.
+- Console is clean (no errors or stack traces on click).
+- All routes are defined and render valid templates.
+
+7️⃣ Summary
+- Once done, give me a clear list of what you fixed, the new routes you added, and show console output to prove these issues are resolved.
+
+---
+
+Do not skip steps. Fix all these problems so the dashboard is fully usable for manual tracking right now. Thank you.
