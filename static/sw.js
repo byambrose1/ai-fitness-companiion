@@ -1,4 +1,3 @@
-
 const CACHE_NAME = 'fitness-companion-v1';
 const urlsToCache = [
   '/',
@@ -23,13 +22,19 @@ self.addEventListener('fetch', function(event) {
   event.respondWith(
     caches.match(event.request)
       .then(function(response) {
-        // Cache hit - return response
         if (response) {
           return response;
         }
         return fetch(event.request);
-      }
-    )
+      })
+      .catch(function(error) {
+        console.log('Fetch failed:', error);
+        // Return offline page for navigation requests
+        if (event.request.mode === 'navigate') {
+          return caches.match('/static/offline.html');
+        }
+        throw error;
+      })
   );
 });
 

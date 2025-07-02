@@ -25,7 +25,9 @@ stripe.api_key = os.getenv('STRIPE_SECRET_KEY', '')
 security_monitor = SecurityMonitor()
 
 # Track number of signups - in a real app, this would be in a database
+import threading
 signup_count = 0
+signup_lock = threading.Lock()
 
 def validate_email(email):
     """Validate email format and check if it's a real email domain"""
@@ -84,7 +86,11 @@ def food_search():
         try:
             from food_database import search_food_database
             results = search_food_database(query)
+        except ImportError:
+            results = []
+            flash('Food database not available')
         except Exception as e:
+            results = []
             flash(f'Food search error: {str(e)}')
 
     return jsonify(results)
@@ -136,8 +142,10 @@ def register():
     }
     save_user(user_data)
 
-    # Increment signup count
-    signup_count += 1
+    # Increment signup count (thread-safe)
+    global signup_count
+    with signup_lock:
+        signup_count += 1
 
     # Send welcome email
     email_service.send_welcome_email(email, name)
@@ -606,8 +614,18 @@ def api_food_search():
 
 if __name__ == "__main__":
     # Start security monitoring
-    security_monitor.start_monitoring()
+    try:
+        security_monitor.start_monitoring()
+    except Exception as e:
+        print(f"Security monitoring failed to start: {e}")
 
-    # Run the Flask app
+    # Run the Flask app with port fallback
     port = int(os.getenv('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    try:
+        app.run(host='0.0.0.0', port=port, debug=True)
+    except OSError as e:
+        if "Address already in use" in str(e):
+            print(f"Port {port} is in use, trying port {port + 1}")
+            app.run(host='0.0.0.0', port=port + 1, debug=True)
+        else:
+            raise
