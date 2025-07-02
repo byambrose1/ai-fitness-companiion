@@ -6,7 +6,7 @@ import openai
 from datetime import datetime
 import json
 from database import get_user, save_user, add_daily_log, get_user_logs, add_weekly_checkin, get_user_checkins
-from email_service import send_welcome_email
+from email_service import email_service
 from security_monitoring import SecurityMonitor
 import stripe
 
