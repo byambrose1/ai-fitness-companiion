@@ -715,6 +715,143 @@ def daily_log():
 
     return render_template('daily-log.html', user=user)
 
+@app.route('/save-daily-log', methods=['POST'])
+def save_daily_log():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+
+    # Collect form data
+    log_data = {
+        'date': datetime.now().isoformat(),
+        'mood': request.form.get('mood'),
+        'energy_level': request.form.get('energy_level'),
+        'stress_level': request.form.get('stress_level'),
+        'sleep_hours': request.form.get('sleep_hours'),
+        'sleep_quality': request.form.get('sleep_quality'),
+        'workout': request.form.get('workout'),
+        'workout_intensity': request.form.get('workout_intensity'),
+        'workout_duration': request.form.get('workout_duration'),
+        'food_log': request.form.get('food_log'),
+        'water_intake': request.form.get('water_intake'),
+        'weight': request.form.get('weight'),
+        'notes': request.form.get('notes'),
+        'tracking_devices': request.form.get('tracking_devices')
+    }
+
+    # Collect device-specific data
+    device_data = {}
+    
+    # Apple Health data
+    apple_data = {
+        'steps': request.form.get('apple_steps'),
+        'active_calories': request.form.get('apple_active_calories'),
+        'exercise_time': request.form.get('apple_exercise_time'),
+        'stand_hours': request.form.get('apple_stand_hours'),
+        'heart_rate': request.form.get('apple_heart_rate'),
+        'sleep': request.form.get('apple_sleep')
+    }
+    if any(apple_data.values()):
+        device_data['apple_health'] = apple_data
+
+    # Fitbit data
+    fitbit_data = {
+        'steps': request.form.get('fitbit_steps'),
+        'zone_minutes': request.form.get('fitbit_zone_minutes'),
+        'sleep_score': request.form.get('fitbit_sleep_score'),
+        'resting_hr': request.form.get('fitbit_resting_hr'),
+        'floors': request.form.get('fitbit_floors'),
+        'calories': request.form.get('fitbit_calories')
+    }
+    if any(fitbit_data.values()):
+        device_data['fitbit'] = fitbit_data
+
+    # Garmin data
+    garmin_data = {
+        'steps': request.form.get('garmin_steps'),
+        'body_battery': request.form.get('garmin_body_battery'),
+        'stress': request.form.get('garmin_stress'),
+        'vo2_max': request.form.get('garmin_vo2_max'),
+        'intensity_minutes': request.form.get('garmin_intensity_minutes'),
+        'sleep_score': request.form.get('garmin_sleep_score')
+    }
+    if any(garmin_data.values()):
+        device_data['garmin'] = garmin_data
+
+    # Oura data
+    oura_data = {
+        'readiness': request.form.get('oura_readiness'),
+        'sleep_score': request.form.get('oura_sleep_score'),
+        'activity': request.form.get('oura_activity'),
+        'hrv': request.form.get('oura_hrv'),
+        'resting_hr': request.form.get('oura_resting_hr'),
+        'temperature': request.form.get('oura_temperature')
+    }
+    if any(oura_data.values()):
+        device_data['oura'] = oura_data
+
+    # Samsung data
+    samsung_data = {
+        'steps': request.form.get('samsung_steps'),
+        'active_time': request.form.get('samsung_active_time'),
+        'sleep': request.form.get('samsung_sleep'),
+        'heart_rate': request.form.get('samsung_heart_rate'),
+        'stress': request.form.get('samsung_stress'),
+        'calories': request.form.get('samsung_calories')
+    }
+    if any(samsung_data.values()):
+        device_data['samsung'] = samsung_data
+
+    # Polar data
+    polar_data = {
+        'steps': request.form.get('polar_steps'),
+        'training_load': request.form.get('polar_training_load'),
+        'recovery': request.form.get('polar_recovery'),
+        'sleep_score': request.form.get('polar_sleep_score'),
+        'rhr': request.form.get('polar_rhr'),
+        'active_calories': request.form.get('polar_active_calories')
+    }
+    if any(polar_data.values()):
+        device_data['polar'] = polar_data
+
+    # Suunto data
+    suunto_data = {
+        'steps': request.form.get('suunto_steps'),
+        'recovery_time': request.form.get('suunto_recovery_time'),
+        'training_stress': request.form.get('suunto_training_stress'),
+        'sleep': request.form.get('suunto_sleep'),
+        'resources': request.form.get('suunto_resources'),
+        'calories': request.form.get('suunto_calories')
+    }
+    if any(suunto_data.values()):
+        device_data['suunto'] = suunto_data
+
+    # Add device data to log
+    if device_data:
+        log_data['device_data'] = device_data
+
+    # Calculate overall score (simplified)
+    score = 5  # Base score
+    if log_data['mood'] and log_data['mood'] in ['excellent', 'good']:
+        score += 1
+    if log_data['water_intake'] and log_data['water_intake'] in ['good', 'excellent']:
+        score += 1
+    if log_data['sleep_hours'] and 7 <= float(log_data['sleep_hours']) <= 9:
+        score += 1.5
+    if log_data['workout'] and log_data['workout'] != 'rest':
+        score += 1.5
+
+    log_data['overallScore'] = min(10, score)
+
+    # Save to database
+    add_daily_log(session['user_email'], log_data)
+
+    flash('Daily log saved successfully!')
+    return redirect(url_for('dashboard'))
+
 @app.route('/submit-daily-log', methods=['POST'])
 def submit_daily_log():
     if 'user_email' not in session:
@@ -734,11 +871,104 @@ def submit_daily_log():
         'sleep_quality': request.form.get('sleep_quality'),
         'workout': request.form.get('workout'),
         'workout_intensity': request.form.get('workout_intensity'),
+        'workout_duration': request.form.get('workout_duration'),
         'food_log': request.form.get('food_log'),
         'water_intake': request.form.get('water_intake'),
         'weight': request.form.get('weight'),
-        'notes': request.form.get('notes')
+        'notes': request.form.get('notes'),
+        'tracking_devices': request.form.get('tracking_devices')
     }
+
+    # Collect device-specific data
+    device_data = {}
+    
+    # Apple Health data
+    apple_data = {
+        'steps': request.form.get('apple_steps'),
+        'active_calories': request.form.get('apple_active_calories'),
+        'exercise_time': request.form.get('apple_exercise_time'),
+        'stand_hours': request.form.get('apple_stand_hours'),
+        'heart_rate': request.form.get('apple_heart_rate'),
+        'sleep': request.form.get('apple_sleep')
+    }
+    if any(apple_data.values()):
+        device_data['apple_health'] = apple_data
+
+    # Fitbit data
+    fitbit_data = {
+        'steps': request.form.get('fitbit_steps'),
+        'zone_minutes': request.form.get('fitbit_zone_minutes'),
+        'sleep_score': request.form.get('fitbit_sleep_score'),
+        'resting_hr': request.form.get('fitbit_resting_hr'),
+        'floors': request.form.get('fitbit_floors'),
+        'calories': request.form.get('fitbit_calories')
+    }
+    if any(fitbit_data.values()):
+        device_data['fitbit'] = fitbit_data
+
+    # Garmin data
+    garmin_data = {
+        'steps': request.form.get('garmin_steps'),
+        'body_battery': request.form.get('garmin_body_battery'),
+        'stress': request.form.get('garmin_stress'),
+        'vo2_max': request.form.get('garmin_vo2_max'),
+        'intensity_minutes': request.form.get('garmin_intensity_minutes'),
+        'sleep_score': request.form.get('garmin_sleep_score')
+    }
+    if any(garmin_data.values()):
+        device_data['garmin'] = garmin_data
+
+    # Oura data
+    oura_data = {
+        'readiness': request.form.get('oura_readiness'),
+        'sleep_score': request.form.get('oura_sleep_score'),
+        'activity': request.form.get('oura_activity'),
+        'hrv': request.form.get('oura_hrv'),
+        'resting_hr': request.form.get('oura_resting_hr'),
+        'temperature': request.form.get('oura_temperature')
+    }
+    if any(oura_data.values()):
+        device_data['oura'] = oura_data
+
+    # Samsung data
+    samsung_data = {
+        'steps': request.form.get('samsung_steps'),
+        'active_time': request.form.get('samsung_active_time'),
+        'sleep': request.form.get('samsung_sleep'),
+        'heart_rate': request.form.get('samsung_heart_rate'),
+        'stress': request.form.get('samsung_stress'),
+        'calories': request.form.get('samsung_calories')
+    }
+    if any(samsung_data.values()):
+        device_data['samsung'] = samsung_data
+
+    # Polar data
+    polar_data = {
+        'steps': request.form.get('polar_steps'),
+        'training_load': request.form.get('polar_training_load'),
+        'recovery': request.form.get('polar_recovery'),
+        'sleep_score': request.form.get('polar_sleep_score'),
+        'rhr': request.form.get('polar_rhr'),
+        'active_calories': request.form.get('polar_active_calories')
+    }
+    if any(polar_data.values()):
+        device_data['polar'] = polar_data
+
+    # Suunto data
+    suunto_data = {
+        'steps': request.form.get('suunto_steps'),
+        'recovery_time': request.form.get('suunto_recovery_time'),
+        'training_stress': request.form.get('suunto_training_stress'),
+        'sleep': request.form.get('suunto_sleep'),
+        'resources': request.form.get('suunto_resources'),
+        'calories': request.form.get('suunto_calories')
+    }
+    if any(suunto_data.values()):
+        device_data['suunto'] = suunto_data
+
+    # Add device data to log
+    if device_data:
+        log_data['device_data'] = device_data
 
     # Calculate overall score (simplified)
     score = 5  # Base score
