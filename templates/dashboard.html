@@ -105,7 +105,7 @@
                         <div class="metric-label">Motivation</div>
                         <div class="metric-value">
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: {{ (user.profile_data.motivationLevel * 10) }}%"></div>
+                                <div class="progress-fill" style="width: {{ (user.profile_data.get('motivationLevel', 5) * 10) }}%"></div>
                             </div>
                             <span class="metric-number">{{ user.profile_data.get('motivationLevel', 5) }}/10</span>
                         </div>

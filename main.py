@@ -64,13 +64,19 @@ def landing_page():
 
 @app.route('/dashboard')
 def dashboard():
+    print(f'DASHBOARD: Session check - user_email in session: {"user_email" in session}')
     if 'user_email' not in session:
+        print('DASHBOARD: No user in session, redirecting to landing page')
         return redirect(url_for('landing_page'))
 
+    print(f'DASHBOARD: Loading user data for {session["user_email"]}')
     user = get_user(session['user_email'])
     if not user:
+        print('DASHBOARD: User not found in database, clearing session')
         session.pop('user_email', None)
         return redirect(url_for('landing_page'))
+    
+    print(f'DASHBOARD: User loaded successfully, profile_data keys: {list(user.get("profile_data", {}).keys())}')
 
     # Calculate dashboard data
     from datetime import datetime, timedelta
@@ -163,22 +169,33 @@ def login():
         email = request.form.get('email', '').lower().strip()
         password = request.form.get('password', '')
 
+        print(f'LOGIN ATTEMPT: email={email}, password_length={len(password) if password else 0}')
+
         if not email or not password:
+            print('LOGIN FAILED: Missing email or password')
             if request.headers.get('Content-Type') == 'application/json' or request.is_json:
                 return jsonify({'success': False, 'message': 'Email and password are required'})
             flash('Email and password are required')
             return render_template('index.html')
 
         user = get_user(email)
-        if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-            session['user_email'] = email
-            if request.headers.get('Content-Type') == 'application/json' or request.is_json:
-                return jsonify({'success': True, 'redirect': url_for('dashboard')})
-            return redirect(url_for('dashboard'))
-        else:
-            if request.headers.get('Content-Type') == 'application/json' or request.is_json:
-                return jsonify({'success': False, 'message': 'Invalid email or password'})
-            flash('Invalid email or password')
+        print(f'USER LOOKUP: user_found={user is not None}')
+        
+        if user:
+            password_match = bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8'))
+            print(f'PASSWORD CHECK: matches={password_match}')
+            
+            if password_match:
+                session['user_email'] = email
+                print(f'LOGIN SUCCESS: Setting session for {email}')
+                if request.headers.get('Content-Type') == 'application/json' or request.is_json:
+                    return jsonify({'success': True, 'redirect': url_for('dashboard')})
+                return redirect(url_for('dashboard'))
+        
+        print('LOGIN FAILED: Invalid credentials')
+        if request.headers.get('Content-Type') == 'application/json' or request.is_json:
+            return jsonify({'success': False, 'message': 'Invalid email or password'})
+        flash('Invalid email or password')
 
     return render_template('index.html')
 
@@ -640,9 +657,11 @@ def subscription_success():
 @app.route('/questionnaire', methods=['GET', 'POST'])
 def questionnaire():
     if 'user_email' not in session:
+        print('QUESTIONNAIRE: No user in session, redirecting to landing page')
         return redirect(url_for('landing_page'))
 
     if request.method == 'POST':
+        print(f'QUESTIONNAIRE POST: User {session["user_email"]} submitting questionnaire')
         user = get_user(session['user_email'])
         if user:
             # Save questionnaire data to user profile
@@ -653,12 +672,19 @@ def questionnaire():
                 'health_conditions': request.form.get('health_conditions'),
                 'questionnaire_completed': True
             }
+            print(f'QUESTIONNAIRE: Saving profile data: {profile_data}')
             user['profile_data'].update(profile_data)
             save_user(user)
+            print('QUESTIONNAIRE: Profile saved successfully, redirecting to dashboard')
 
             flash('Profile updated successfully!')
             return redirect(url_for('dashboard'))
+        else:
+            print('QUESTIONNAIRE ERROR: User not found in database')
+            flash('User not found. Please log in again.')
+            return redirect(url_for('landing_page'))
 
+    print('QUESTIONNAIRE GET: Rendering questionnaire page')
     return render_template('questionnaire.html')
 
 @app.route('/downgrade', methods=['POST'])
