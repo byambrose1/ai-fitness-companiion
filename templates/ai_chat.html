@@ -15,11 +15,97 @@
             <h2>🤖 Your Personal AI Coach</h2>
             <p class="coach-intro">Get personalised advice based on your {{ user.profile_data.get('goal', 'fitness').replace('_', ' ') }} goals and profile.</p>
 
-            <form method="POST" action="/ai-response" class="chat-form">
+            <div class="chat-messages" id="chatMessages" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 8px; background: #f9f9f9;">
+                <div class="ai-message" style="margin-bottom: 15px; padding: 10px; background: #e8f5e8; border-radius: 8px;">
+                    <strong>🤖 AI Coach:</strong> Hello! I'm here to help with your {{ user.profile_data.get('goal', 'fitness').replace('_', ' ') }} journey. What would you like to know?
+                </div>
+            </div>
+
+            <form id="chatForm" class="chat-form">
                 <label for="question">Ask your AI coach anything about fitness, nutrition, or wellness:</label>
-                <textarea name="question" id="question" rows="4" placeholder="e.g., What should I eat to support my {{ user.profile_data.get('goal', 'fitness').replace('_', ' ') }} goals? How can I improve my sleep? What's the best approach for my fitness level?" required></textarea>
-                <button type="submit" class="button">Get Personalised Advice</button>
+                <textarea name="question" id="question" rows="3" placeholder="e.g., What should I eat to support my {{ user.profile_data.get('goal', 'fitness').replace('_', ' ') }} goals? How can I improve my sleep?" required></textarea>
+                <button type="submit" class="button" id="sendButton">Get Personalised Advice</button>
             </form>
+
+            <script>
+            document.getElementById('chatForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const question = document.getElementById('question').value.trim();
+                if (!question) return;
+                
+                const sendButton = document.getElementById('sendButton');
+                const chatMessages = document.getElementById('chatMessages');
+                
+                // Add user message
+                const userMessage = document.createElement('div');
+                userMessage.style.cssText = 'margin-bottom: 15px; padding: 10px; background: #f0f8ff; border-radius: 8px; text-align: right;';
+                userMessage.innerHTML = `<strong>You:</strong> ${question}`;
+                chatMessages.appendChild(userMessage);
+                
+                // Show loading
+                const loadingMessage = document.createElement('div');
+                loadingMessage.id = 'loading';
+                loadingMessage.style.cssText = 'margin-bottom: 15px; padding: 10px; background: #e8f5e8; border-radius: 8px;';
+                loadingMessage.innerHTML = '<strong>🤖 AI Coach:</strong> <em>Thinking...</em>';
+                chatMessages.appendChild(loadingMessage);
+                
+                // Disable button and clear input
+                sendButton.disabled = true;
+                sendButton.textContent = 'Getting Response...';
+                document.getElementById('question').value = '';
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                try {
+                    const response = await fetch('/ai-chat-message', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message: question })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    // Remove loading message
+                    document.getElementById('loading').remove();
+                    
+                    if (data.response) {
+                        // Add AI response
+                        const aiMessage = document.createElement('div');
+                        aiMessage.style.cssText = 'margin-bottom: 15px; padding: 10px; background: #e8f5e8; border-radius: 8px;';
+                        aiMessage.innerHTML = `<strong>🤖 AI Coach:</strong> ${data.response}`;
+                        chatMessages.appendChild(aiMessage);
+                    } else {
+                        // Add error message
+                        const errorMessage = document.createElement('div');
+                        errorMessage.style.cssText = 'margin-bottom: 15px; padding: 10px; background: #ffe8e8; border-radius: 8px;';
+                        errorMessage.innerHTML = `<strong>🤖 AI Coach:</strong> Sorry, I encountered an error. Please try again.`;
+                        chatMessages.appendChild(errorMessage);
+                    }
+                    
+                } catch (error) {
+                    // Remove loading message
+                    const loading = document.getElementById('loading');
+                    if (loading) loading.remove();
+                    
+                    // Add error message
+                    const errorMessage = document.createElement('div');
+                    errorMessage.style.cssText = 'margin-bottom: 15px; padding: 10px; background: #ffe8e8; border-radius: 8px;';
+                    errorMessage.innerHTML = `<strong>🤖 AI Coach:</strong> Sorry, I'm having trouble connecting. Please try again.`;
+                    chatMessages.appendChild(errorMessage);
+                }
+                
+                // Re-enable button
+                sendButton.disabled = false;
+                sendButton.textContent = 'Get Personalised Advice';
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+            </script>
 
             <div class="suggested-questions">
                 <h3>💡 Popular Questions:</h3>

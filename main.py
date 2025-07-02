@@ -1156,30 +1156,88 @@ def ai_response():
         flash('Please enter a question')
         return redirect(url_for('ai_chat'))
 
-    # Personalized AI response based on user's profile
+    # Get user's profile for personalisation
     profile_data = user.get('profile_data', {})
     goal = profile_data.get('goal', 'general_fitness')
+    activity_level = profile_data.get('activity_level', 'moderately_active')
+    dietary_preferences = profile_data.get('dietary_preferences', 'none')
     
-    # Create personalized response based on goal
-    if goal == 'weight_loss':
-        if 'food' in question.lower() or 'eat' in question.lower():
-            ai_response = f"For weight loss, focus on creating a moderate calorie deficit of 300-500 calories daily. Prioritise protein (aim for 1.6-2.2g per kg body weight), include plenty of vegetables, and choose whole foods over processed ones. Regarding '{question}' - remember that sustainable weight loss is about consistency, not perfection."
-        elif 'exercise' in question.lower() or 'workout' in question.lower():
-            ai_response = f"Combine cardio and strength training for best weight loss results. Aim for 150 minutes moderate cardio weekly plus 2-3 strength sessions. About '{question}' - consistency beats intensity. Start where you are and gradually increase."
+    # Get recent daily logs for context
+    daily_logs = user.get('daily_logs', [])
+    recent_context = ""
+    if daily_logs:
+        recent_log = daily_logs[-1]
+        recent_score = recent_log.get('overallScore', 'Not tracked')
+        recent_mood = recent_log.get('mood', 'Not tracked')
+        recent_context = f"Recent daily score: {recent_score}/10, Recent mood: {recent_mood}. "
+
+    try:
+        # Use OpenAI API if available
+        if openai.api_key:
+            from openai import OpenAI
+            client = OpenAI(api_key=openai.api_key)
+            
+            # Create personalised system prompt
+            system_prompt = f"""You are a supportive, knowledgeable AI wellness coach for a British woman. 
+            User's goals: {goal.replace('_', ' ')}
+            Activity level: {activity_level.replace('_', ' ')}
+            Dietary preferences: {dietary_preferences}
+            {recent_context}
+            
+            Provide practical, supportive advice in British English. Be encouraging and focus on sustainable habits. 
+            Keep responses under 150 words and always end with a motivational note."""
+
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": question}
+                ],
+                max_tokens=200,
+                temperature=0.7
+            )
+            
+            ai_response = response.choices[0].message.content.strip()
         else:
-            ai_response = f"For your weight loss goal, remember that 80% of results come from nutrition and 20% from exercise. Focus on sustainable habits rather than quick fixes. Regarding '{question}' - small consistent changes lead to lasting results."
-    elif goal == 'muscle_gain':
-        if 'protein' in question.lower() or 'food' in question.lower():
-            ai_response = f"For muscle gain, aim for 1.6-2.2g protein per kg body weight daily. Include protein at every meal - eggs, chicken, fish, legumes, dairy. About '{question}' - timing matters less than total daily intake, but post-workout protein helps recovery."
-        elif 'workout' in question.lower() or 'strength' in question.lower():
-            ai_response = f"Focus on progressive overload - gradually increase weight, reps, or sets each week. Compound movements (squats, deadlifts, bench press) give the best results. Regarding '{question}' - consistency and progressive challenge are key to muscle growth."
-        else:
-            ai_response = f"Building muscle requires patience - visible changes typically take 8-12 weeks. Focus on consistent training, adequate protein, and proper recovery. About '{question}' - trust the process and stay consistent."
-    else:
-        ai_response = f"Great question: '{question}'. For your fitness goals, focus on building sustainable habits. Start with small changes, be consistent, and gradually increase intensity. Remember, progress isn't always linear - celebrate small wins along the way."
+            # Fallback to enhanced hardcoded responses
+            ai_response = generate_fallback_response(question, goal, profile_data)
+            
+    except Exception as e:
+        print(f"OpenAI API error: {e}")
+        # Fallback to enhanced hardcoded responses
+        ai_response = generate_fallback_response(question, goal, profile_data)
     
     flash(f"AI Coach: {ai_response}")
     return redirect(url_for('ai_chat'))
+
+def generate_fallback_response(question, goal, profile_data):
+    """Generate enhanced fallback responses when OpenAI API is not available"""
+    question_lower = question.lower()
+    
+    # Goal-specific responses
+    if goal == 'weight_loss':
+        if any(word in question_lower for word in ['food', 'eat', 'diet', 'nutrition']):
+            return "For sustainable weight loss, focus on a modest calorie deficit with plenty of protein and vegetables. Avoid extreme restrictions - they lead to rebound weight gain. Small consistent changes work best! 💪"
+        elif any(word in question_lower for word in ['exercise', 'workout', 'cardio', 'strength']):
+            return "Combine 3 days of strength training with 2-3 days of cardio weekly. Start with 20-30 minute sessions and build up gradually. Consistency beats intensity every time! 🏃‍♀️"
+        else:
+            return f"Great question about your weight loss journey! Remember, sustainable progress takes time - aim for 1-2lbs per week. Focus on building healthy habits rather than quick fixes. You've got this! ✨"
+    
+    elif goal == 'muscle_gain':
+        if any(word in question_lower for word in ['protein', 'food', 'nutrition']):
+            return "Aim for 1.6-2.2g protein per kg body weight daily. Include protein at every meal - Greek yogurt, eggs, chicken, fish, lentils. Don't forget carbs for energy and recovery! 🍗"
+        elif any(word in question_lower for word in ['workout', 'strength', 'exercise']):
+            return "Progressive overload is key - gradually increase weight, reps or sets each week. Focus on compound movements like squats, deadlifts, and bench press. Train each muscle group 2-3 times weekly! 💪"
+        else:
+            return f"Building muscle takes patience - visible changes typically show after 8-12 weeks of consistent training. Focus on proper form, adequate protein, and good sleep. Trust the process! 🌟"
+    
+    else:  # general fitness
+        if any(word in question_lower for word in ['start', 'begin', 'beginner']):
+            return "Start with 2-3 days of 20-30 minute activities you enjoy - walking, dancing, swimming. Build the habit first, then increase intensity. Small steps lead to big changes! 🌟"
+        elif any(word in question_lower for word in ['motivation', 'consistent', 'habit']):
+            return "Focus on systems, not just goals. Set a specific time for exercise, prepare healthy snacks, track your progress. Celebrate small wins - they build momentum! 🎉"
+        else:
+            return f"Brilliant question! Remember, fitness is a journey, not a destination. Focus on how movement makes you feel rather than just how you look. Every step forward counts! ✨"
 
 @app.route('/ai-chat-message', methods=['POST'])
 def ai_chat_message():
@@ -1196,16 +1254,58 @@ def ai_chat_message():
 
     # Check subscription tier for AI limits
     if user.get('subscription_tier') == 'free':
-        # Implement usage limits for free tier
+        # Could implement usage limits here
         pass
 
-    try:
-        # Simple AI response (you can enhance this with OpenAI)
-        response = f"Thanks for your message: '{message}'. I'm here to help with your fitness journey! (AI integration coming soon)"
+    # Get user's profile for personalisation
+    profile_data = user.get('profile_data', {})
+    goal = profile_data.get('goal', 'general_fitness')
+    activity_level = profile_data.get('activity_level', 'moderately_active')
+    
+    # Get recent daily logs for context
+    daily_logs = user.get('daily_logs', [])
+    recent_context = ""
+    if daily_logs:
+        recent_log = daily_logs[-1]
+        recent_score = recent_log.get('overallScore', 'Not tracked')
+        recent_mood = recent_log.get('mood', 'Not tracked')
+        recent_context = f"Recent daily score: {recent_score}/10, Recent mood: {recent_mood}. "
 
-        return jsonify({'response': response})
+    try:
+        # Use OpenAI API if available
+        if openai.api_key:
+            from openai import OpenAI
+            client = OpenAI(api_key=openai.api_key)
+            
+            # Create personalised system prompt
+            system_prompt = f"""You are a supportive, knowledgeable AI wellness coach for a British woman. 
+            User's goals: {goal.replace('_', ' ')}
+            Activity level: {activity_level.replace('_', ' ')}
+            {recent_context}
+            
+            Provide practical, supportive advice in British English. Be encouraging and focus on sustainable habits. 
+            Keep responses under 120 words."""
+
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": message}
+                ],
+                max_tokens=150,
+                temperature=0.7
+            )
+            
+            ai_response = response.choices[0].message.content.strip()
+        else:
+            # Fallback to enhanced responses
+            ai_response = generate_fallback_response(message, goal, profile_data)
+
+        return jsonify({'response': ai_response})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"AI chat error: {e}")
+        fallback_response = generate_fallback_response(message, goal, profile_data)
+        return jsonify({'response': fallback_response})
 
 
 
