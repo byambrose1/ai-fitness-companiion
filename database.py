@@ -123,6 +123,41 @@ def add_daily_log(email, log_data):
     conn.commit()
     conn.close()
 
+def get_user_logs(email):
+    """Get daily logs for a specific user"""
+    conn = sqlite3.connect('fitness_app.db')
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT data FROM daily_logs WHERE user_email = ? ORDER BY timestamp DESC', (email,))
+    logs = [json.loads(row[0]) for row in cursor.fetchall()]
+    
+    conn.close()
+    return logs
+
+def get_user_checkins(email):
+    """Get weekly checkins for a specific user"""
+    conn = sqlite3.connect('fitness_app.db')
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT data FROM weekly_checkins WHERE user_email = ? ORDER BY timestamp DESC', (email,))
+    checkins = [json.loads(row[0]) for row in cursor.fetchall()]
+    
+    conn.close()
+    return checkins
+
+def add_weekly_checkin(email, checkin_data):
+    """Add weekly checkin for user"""
+    conn = sqlite3.connect('fitness_app.db')
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        INSERT INTO weekly_checkins (user_email, week_of, timestamp, data)
+        VALUES (?, ?, ?, ?)
+    ''', (email, checkin_data['week_of'], checkin_data['timestamp'], json.dumps(checkin_data)))
+    
+    conn.commit()
+    conn.close()
+
 def get_all_users():
     """Get all users for admin interface"""
     conn = sqlite3.connect('fitness_app.db')
