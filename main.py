@@ -184,32 +184,49 @@ def login():
 
 @app.route('/register', methods=['POST'])
 def register():
+    global signup_count
+
+    email = request.form.get('email', '').lower().strip()
+    password = request.form.get('password', '')
+    name = request.form.get('name', '').strip()
+
+    print(f'Registration attempt: email={email}, name={name}, password_length={len(password) if password else 0}')
+
+    # Validate required fields
+    if not email or not password or not name:
+        print('Validation failed: Missing required fields')
+        flash('All fields are required.')
+        return redirect(url_for('landing_page'))
+
+    # Validate email format
+    if not validate_email(email):
+        print(f'Validation failed: Invalid email format for {email}')
+        flash('Please enter a valid email address.')
+        return redirect(url_for('landing_page'))
+
+    # Check if user already exists
     try:
-        global signup_count
-
-        email = request.form.get('email', '').lower().strip()
-        password = request.form.get('password', '')
-        name = request.form.get('name', '').strip()
-
-        # Validate required fields
-        if not email or not password or not name:
-            flash('All fields are required.')
-            return redirect(url_for('landing_page'))
-
-        # Validate email format
-        if not validate_email(email):
-            flash('Please enter a valid email address.')
-            return redirect(url_for('landing_page'))
-
-        # Check if user already exists
-        if get_user(email):
+        existing_user = get_user(email)
+        if existing_user:
+            print(f'Registration failed: User {email} already exists')
             flash('Account already exists. Please log in.')
             return redirect(url_for('landing_page'))
+    except Exception as e:
+        print(f'Error checking existing user: {e}')
+        flash('Database error. Please try again.')
+        return redirect(url_for('landing_page'))
 
-        # Hash password
+    # Hash password
+    try:
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        print('Password hashed successfully')
+    except Exception as e:
+        print(f'Password hashing failed: {e}')
+        flash('Password processing error. Please try again.')
+        return redirect(url_for('landing_page'))
 
-        # Save user
+    # Save user
+    try:
         user_data = {
             'email': email,
             'name': name,
@@ -219,32 +236,45 @@ def register():
             'subscription_status': 'active',
             'profile_data': {}
         }
+        print(f'Attempting to save user: {email}')
         save_user(user_data)
+        print(f'User saved successfully: {email}')
+    except Exception as e:
+        print(f'Database save failed: {e}')
+        flash('Failed to create account. Database error.')
+        return redirect(url_for('landing_page'))
 
-        # Increment signup count (thread-safe)
+    # Increment signup count (thread-safe)
+    try:
         with signup_lock:
             signup_count += 1
+            print(f'Signup count incremented to: {signup_count}')
+    except Exception as e:
+        print(f'Signup count increment failed: {e}')
 
-        # Try to send welcome email (don't fail registration if email fails)
-        try:
-            email_service.send_welcome_email(email, name)
-        except Exception as e:
-            print(f'Welcome email failed: {e}')
+    # Try to send welcome email (don't fail registration if email fails)
+    try:
+        email_service.send_welcome_email(email, name)
+        print('Welcome email sent successfully')
+    except Exception as e:
+        print(f'Welcome email failed: {e}')
 
-        # Try to add to Mailchimp (don't fail registration if this fails)
-        try:
-            email_service.add_to_mailchimp(email, name, user_data)
-        except Exception as e:
-            print(f'Mailchimp add failed: {e}')
+    # Try to add to Mailchimp (don't fail registration if this fails)
+    try:
+        email_service.add_to_mailchimp(email, name, user_data)
+        print('Mailchimp add successful')
+    except Exception as e:
+        print(f'Mailchimp add failed: {e}')
 
-        # Set session and redirect
+    # Set session and redirect
+    try:
         session['user_email'] = email
+        print(f'Session set for user: {email}')
         flash('Account created successfully! Welcome to your fitness journey!')
         return redirect(url_for('dashboard'))
-
     except Exception as e:
-        print(f'Registration error: {e}')
-        flash('Account creation failed. Please try again.')
+        print(f'Session/redirect failed: {e}')
+        flash('Account created but login failed. Please try logging in.')
         return redirect(url_for('landing_page'))
 
 @app.route('/forgot-password')

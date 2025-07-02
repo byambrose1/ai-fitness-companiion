@@ -88,26 +88,34 @@ def get_user(email):
 
 def save_user(user_data):
     """Save or update user"""
-    conn = sqlite3.connect('fitness_app.db')
-    cursor = conn.cursor()
+    try:
+        print(f'Attempting to save user to database: {user_data["email"]}')
+        conn = sqlite3.connect('fitness_app.db')
+        cursor = conn.cursor()
 
-    cursor.execute('''
-        INSERT OR REPLACE INTO users 
-        (email, name, password, created_at, subscription_tier, subscription_status, stripe_customer_id, profile_data)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (
-        user_data['email'],
-        user_data['name'],
-        user_data['password'],
-        user_data['created_at'],
-        user_data.get('subscription_tier', 'free'),
-        user_data.get('subscription_status', 'active'),
-        user_data.get('stripe_customer_id'),
-        json.dumps(user_data.get('profile_data', {}))
-    ))
+        cursor.execute('''
+            INSERT OR REPLACE INTO users 
+            (email, name, password, created_at, subscription_tier, subscription_status, stripe_customer_id, profile_data)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            user_data['email'],
+            user_data['name'],
+            user_data['password'],
+            user_data['created_at'],
+            user_data.get('subscription_tier', 'free'),
+            user_data.get('subscription_status', 'active'),
+            user_data.get('stripe_customer_id'),
+            json.dumps(user_data.get('profile_data', {}))
+        ))
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+        print(f'User saved successfully: {user_data["email"]}')
+        conn.close()
+    except Exception as e:
+        print(f'Database save error: {e}')
+        if 'conn' in locals():
+            conn.close()
+        raise e
 
 def add_daily_log(email, log_data):
     """Add daily log for user"""
@@ -177,4 +185,9 @@ def get_all_users():
     return users
 
 # Initialize database when module is imported
-init_database()
+try:
+    init_database()
+    print('Database initialized successfully')
+except Exception as e:
+    print(f'Database initialization failed: {e}')
+    raise e
