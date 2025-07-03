@@ -1,0 +1,389 @@
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile & Settings - Fat Loss Companion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .settings-section {
+            background: white;
+            margin-bottom: 30px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #A8E6CF 0%, #7ED3B2 100%);
+            padding: 20px 30px;
+            border-bottom: 1px solid #e0f2e7;
+        }
+        
+        .section-header h3 {
+            margin: 0;
+            color: #2d5a42;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-content {
+            padding: 30px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .back-navigation {
+            margin-bottom: 20px;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            color: #666;
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .back-btn:hover {
+            background: #e9ecef;
+            color: #333;
+        }
+        
+        .device-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .device-status-card {
+            background: #f8fffe;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #e0f2e7;
+        }
+        
+        .device-status-card.connected {
+            border-color: #00b894;
+            background: #e8f5e8;
+        }
+        
+        .device-icon-large {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .membership-card {
+            background: linear-gradient(135deg, #ff7675, #fd79a8);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .membership-card.premium {
+            background: linear-gradient(135deg, #00b894, #7ED3B2);
+        }
+        
+        .save-btn {
+            background: #3B7A57;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .save-btn:hover {
+            background: #2d5a42;
+        }
+        
+        .danger-zone {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .danger-zone h4 {
+            color: #c53030;
+            margin: 0 0 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container settings-container">
+        <div class="back-navigation">
+            <a href="/dashboard" class="back-btn">
+                <span>←</span>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+        
+        <h1>Profile & Settings</h1>
+        
+        <!-- Personal Information Section -->
+        <div class="settings-section">
+            <div class="section-header">
+                <h3>
+                    <span>👤</span>
+                    <span>Personal Information</span>
+                </h3>
+            </div>
+            <div class="section-content">
+                <form method="POST" action="/update-profile">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input type="text" id="name" name="name" value="{{ user.name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dob">Date of Birth</label>
+                            <input type="date" id="dob" name="dob" value="{{ user.profile_data.get('dob', '') }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" name="gender">
+                                <option value="">Prefer not to say</option>
+                                <option value="female" {% if user.profile_data.get('gender') == 'female' %}selected{% endif %}>Female</option>
+                                <option value="male" {% if user.profile_data.get('gender') == 'male' %}selected{% endif %}>Male</option>
+                                <option value="non-binary" {% if user.profile_data.get('gender') == 'non-binary' %}selected{% endif %}>Non-binary</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="save-btn">Save Changes</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Health Goals Section -->
+        <div class="settings-section">
+            <div class="section-header">
+                <h3>
+                    <span>🎯</span>
+                    <span>Health Goals & Preferences</span>
+                </h3>
+            </div>
+            <div class="section-content">
+                <form method="POST" action="/update-goals">
+                    <input type="hidden" name="goal" value="fat_loss">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="currentWeight">Current Weight (kg)</label>
+                            <input type="number" step="0.1" id="currentWeight" name="currentWeight" 
+                                   value="{{ user.profile_data.get('weight', '') }}" placeholder="70.0">
+                        </div>
+                        <div class="form-group">
+                            <label for="goalWeight">Goal Weight (kg)</label>
+                            <input type="number" step="0.1" id="goalWeight" name="goalWeight" 
+                                   value="{{ user.profile_data.get('goalWeight', '') }}" placeholder="65.0">
+                        </div>
+                        <div class="form-group">
+                            <label for="activityLevel">Activity Level</label>
+                            <select id="activityLevel" name="activityLevel">
+                                <option value="sedentary" {% if user.profile_data.get('activity_level') == 'sedentary' %}selected{% endif %}>Sedentary</option>
+                                <option value="lightly_active" {% if user.profile_data.get('activity_level') == 'lightly_active' %}selected{% endif %}>Lightly Active</option>
+                                <option value="moderately_active" {% if user.profile_data.get('activity_level') == 'moderately_active' %}selected{% endif %}>Moderately Active</option>
+                                <option value="very_active" {% if user.profile_data.get('activity_level') == 'very_active' %}selected{% endif %}>Very Active</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dietaryPreferences">Dietary Preferences</label>
+                            <select id="dietaryPreferences" name="dietaryPreferences">
+                                <option value="none" {% if user.profile_data.get('dietary_preferences') == 'none' %}selected{% endif %}>No restrictions</option>
+                                <option value="vegetarian" {% if user.profile_data.get('dietary_preferences') == 'vegetarian' %}selected{% endif %}>Vegetarian</option>
+                                <option value="vegan" {% if user.profile_data.get('dietary_preferences') == 'vegan' %}selected{% endif %}>Vegan</option>
+                                <option value="gluten_free" {% if user.profile_data.get('dietary_preferences') == 'gluten_free' %}selected{% endif %}>Gluten-free</option>
+                                <option value="dairy_free" {% if user.profile_data.get('dietary_preferences') == 'dairy_free' %}selected{% endif %}>Dairy-free</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="save-btn">Update Goals</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Device Connections Section -->
+        <div class="settings-section">
+            <div class="section-header">
+                <h3>
+                    <span>📱</span>
+                    <span>Device Connections</span>
+                </h3>
+            </div>
+            <div class="section-content">
+                <p>Connect your fitness devices for automatic data sync, or continue with manual logging.</p>
+                
+                <div class="device-status-grid">
+                    <div class="device-status-card {% if user.profile_data.get('preferred_device') == 'fitbit' %}connected{% endif %}">
+                        <div class="device-icon-large">⌚</div>
+                        <h4>Fitbit</h4>
+                        <p>{% if user.profile_data.get('preferred_device') == 'fitbit' %}Connected{% else %}Not Connected{% endif %}</p>
+                        {% if user.profile_data.get('preferred_device') == 'fitbit' %}
+                            <button class="btn-secondary" onclick="disconnectDevice('fitbit')">Disconnect</button>
+                        {% else %}
+                            <button class="save-btn" onclick="connectDevice('fitbit')">Connect</button>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="device-status-card {% if user.profile_data.get('preferred_device') == 'oura' %}connected{% endif %}">
+                        <div class="device-icon-large">💍</div>
+                        <h4>Oura Ring</h4>
+                        <p>{% if user.profile_data.get('preferred_device') == 'oura' %}Connected{% else %}Coming Soon{% endif %}</p>
+                        <button class="save-btn" onclick="connectDevice('oura')" disabled>Connect</button>
+                    </div>
+                    
+                    <div class="device-status-card {% if user.profile_data.get('preferred_device') == 'manual' %}connected{% endif %}">
+                        <div class="device-icon-large">✍️</div>
+                        <h4>Manual Logging</h4>
+                        <p>{% if user.profile_data.get('preferred_device') == 'manual' %}Active{% else %}Available{% endif %}</p>
+                        <button class="save-btn" onclick="selectManualLogging()">Select</button>
+                    </div>
+                </div>
+                
+                <a href="/connect-devices" class="action-btn secondary" style="margin-top: 20px; display: inline-block;">
+                    Manage All Devices
+                </a>
+            </div>
+        </div>
+        
+        <!-- Membership Section -->
+        <div class="settings-section">
+            <div class="section-header">
+                <h3>
+                    <span>💎</span>
+                    <span>Membership</span>
+                </h3>
+            </div>
+            <div class="section-content">
+                <div class="membership-card {% if user.subscription_tier == 'premium' %}premium{% endif %}">
+                    <h4>
+                        {% if user.subscription_tier == 'premium' %}
+                            Premium Member
+                        {% else %}
+                            Free Member
+                        {% endif %}
+                    </h4>
+                    <p>
+                        {% if user.subscription_tier == 'premium' %}
+                            You have access to unlimited AI insights, advanced analytics, and personalized meal planning.
+                        {% else %}
+                            Upgrade to Premium for unlimited AI coaching and advanced features.
+                        {% endif %}
+                    </p>
+                    {% if user.subscription_tier == 'free' %}
+                        <a href="/subscription" class="action-btn" style="background: white; color: #fd79a8; margin-top: 15px;">
+                            Upgrade to Premium
+                        </a>
+                    {% else %}
+                        <a href="/subscription" class="action-btn" style="background: rgba(255,255,255,0.2); margin-top: 15px;">
+                            Manage Subscription
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Security Section -->
+        <div class="settings-section">
+            <div class="section-header">
+                <h3>
+                    <span>🔒</span>
+                    <span>Security</span>
+                </h3>
+            </div>
+            <div class="section-content">
+                <form method="POST" action="/change-password">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" name="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" name="newPassword" required>
+                        <small class="requirements">12+ characters, uppercase, lowercase, number, special character</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="save-btn">Update Password</button>
+                </form>
+                
+                <div class="danger-zone">
+                    <h4>Danger Zone</h4>
+                    <p>These actions cannot be undone. Please be certain before proceeding.</p>
+                    <div style="display: flex; gap: 15px; margin-top: 15px;">
+                        <a href="/cancel-subscription" class="btn-warning">Cancel Subscription</a>
+                        <a href="/delete-account" class="btn-danger" onclick="return confirm('Are you sure? This will permanently delete all your data.')">Delete Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function connectDevice(deviceType) {
+            fetch('/select-device', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ device: deviceType })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Device preference updated!');
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to connect device');
+            });
+        }
+        
+        function selectManualLogging() {
+            connectDevice('manual');
+        }
+        
+        function disconnectDevice(deviceType) {
+            if (confirm('Are you sure you want to disconnect this device?')) {
+                connectDevice('manual');
+            }
+        }
+    </script>
+</body>
+</html>

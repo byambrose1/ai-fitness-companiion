@@ -1581,6 +1581,219 @@ input:focus, textarea:focus, select:focus {
     transform: translateY(-2px);
 }
 
+/* Tour Modal Styles */
+.tour-modal .modal-content {
+    max-width: 700px;
+    width: 90%;
+}
+
+.tour-content {
+    padding: 0;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.tour-header {
+    background: linear-gradient(135deg, #A8E6CF 0%, #7ED3B2 100%);
+    padding: 30px;
+    text-align: center;
+    color: #2d5a42;
+}
+
+.tour-header h2 {
+    margin: 0 0 20px 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.tour-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.tour-progress-bar {
+    width: 200px;
+    height: 8px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.tour-progress-fill {
+    height: 100%;
+    background: #2d5a42;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    width: 33.33%;
+}
+
+#tourStepCounter {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2d5a42;
+}
+
+.tour-body {
+    padding: 40px;
+    min-height: 400px;
+}
+
+.tour-step {
+    display: none;
+    text-align: center;
+}
+
+.tour-step.active {
+    display: block;
+}
+
+.tour-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.tour-step h3 {
+    color: #2d5a42;
+    margin: 0 0 15px 0;
+    font-size: 1.5rem;
+}
+
+.tour-step p {
+    color: #666;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin: 0 0 30px 0;
+}
+
+.tour-visual {
+    margin-top: 20px;
+}
+
+.habit-example {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: #f8fffe;
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #7ED3B2;
+}
+
+.habit-icon {
+    font-size: 1.5rem;
+}
+
+.dashboard-preview {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.preview-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    text-align: center;
+    min-width: 100px;
+}
+
+.preview-score {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #3B7A57;
+    margin-bottom: 5px;
+}
+
+.preview-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.tracking-options {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.tracking-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: #f8fffe;
+    padding: 20px;
+    border-radius: 12px;
+    border: 2px solid #e0f2e7;
+}
+
+.tracking-icon {
+    font-size: 2rem;
+}
+
+.tracking-plus {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #3B7A57;
+}
+
+.tour-footer {
+    background: #f8f9fa;
+    padding: 25px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tour-navigation {
+    display: flex;
+    gap: 15px;
+}
+
+.tour-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tour-skip {
+    background: transparent;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.tour-skip:hover {
+    background: #f5f5f5;
+}
+
+.tour-back {
+    background: #f5f5f5;
+    color: #666;
+}
+
+.tour-back:hover {
+    background: #e5e7eb;
+}
+
+.tour-next, .tour-complete {
+    background: #3B7A57;
+    color: white;
+}
+
+.tour-next:hover, .tour-complete:hover {
+    background: #2d5a42;
+    transform: translateY(-1px);
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
     .auth-container, .success-container {

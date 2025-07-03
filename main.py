@@ -1569,6 +1569,94 @@ def cancel_subscription():
     flash('Your subscription has been cancelled. You can still use the free features.')
     return redirect(url_for('dashboard'))
 
+@app.route('/profile-settings')
+def profile_settings():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+
+    return render_template('profile_settings.html', user=user)
+
+@app.route('/update-profile', methods=['POST'])
+def update_profile():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+
+    # Update basic profile information
+    user['name'] = request.form.get('name', user['name'])
+    
+    # Update profile data
+    if 'profile_data' not in user:
+        user['profile_data'] = {}
+    
+    user['profile_data']['dob'] = request.form.get('dob', '')
+    user['profile_data']['gender'] = request.form.get('gender', '')
+    
+    save_user(user)
+    flash('Profile updated successfully!')
+    return redirect(url_for('profile_settings'))
+
+@app.route('/update-goals', methods=['POST'])
+def update_goals():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+
+    # Update goals and preferences
+    if 'profile_data' not in user:
+        user['profile_data'] = {}
+    
+    user['profile_data']['goal'] = 'fat_loss'  # Always fat loss
+    user['profile_data']['weight'] = request.form.get('currentWeight', '')
+    user['profile_data']['goalWeight'] = request.form.get('goalWeight', '')
+    user['profile_data']['activity_level'] = request.form.get('activityLevel', '')
+    user['profile_data']['dietary_preferences'] = request.form.get('dietaryPreferences', '')
+    
+    save_user(user)
+    flash('Goals updated successfully!')
+    return redirect(url_for('profile_settings'))
+
+@app.route('/change-password', methods=['POST'])
+def change_password():
+    if 'user_email' not in session:
+        return redirect(url_for('landing_page'))
+
+    user = get_user(session['user_email'])
+    if not user:
+        return redirect(url_for('landing_page'))
+
+    current_password = request.form.get('currentPassword')
+    new_password = request.form.get('newPassword')
+    confirm_password = request.form.get('confirmPassword')
+
+    # Verify current password
+    if not bcrypt.checkpw(current_password.encode('utf-8'), user['password'].encode('utf-8')):
+        flash('Current password is incorrect')
+        return redirect(url_for('profile_settings'))
+
+    # Validate new password
+    if new_password != confirm_password:
+        flash('New passwords do not match')
+        return redirect(url_for('profile_settings'))
+
+    # Hash new password and save
+    hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    user['password'] = hashed_password
+    save_user(user)
+
+    flash('Password changed successfully!')
+    return redirect(url_for('profile_settings'))
+
 @app.route('/delete-account', methods=['POST'])
 def delete_account():
     if 'user_email' not in session:

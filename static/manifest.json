@@ -1,8 +1,8 @@
 
 {
-  "name": "AI Fitness Companion",
-  "short_name": "FitnessAI",
-  "description": "Your personalized AI-powered fitness and wellness companion",
+  "name": "Fat Loss Companion",
+  "short_name": "FatLoss",
+  "description": "Your habit-based fat loss companion with AI insights",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",

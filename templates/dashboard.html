@@ -1,3 +1,83 @@
+
+<!-- First-Time Dashboard Tour Modal -->
+<div id="dashboardTourModal" class="modal tour-modal" style="display: none;">
+    <div class="modal-content tour-content">
+        <div class="tour-header">
+            <h2 id="tourTitle">Welcome to Fat Loss Companion!</h2>
+            <div class="tour-progress">
+                <div class="tour-progress-bar">
+                    <div class="tour-progress-fill" id="tourProgressFill"></div>
+                </div>
+                <span id="tourStepCounter">Step 1 of 3</span>
+            </div>
+        </div>
+        
+        <div class="tour-body">
+            <!-- Tour Step 1 -->
+            <div class="tour-step active" data-step="1">
+                <div class="tour-icon">🌟</div>
+                <h3>Welcome to Fat Loss Companion!</h3>
+                <p>We're here to help you build trust with yourself by keeping small promises daily. This isn't about quick fixes — it's about consistency that lasts.</p>
+                <div class="tour-visual">
+                    <div class="habit-example">
+                        <span class="habit-icon">✅</span>
+                        <span>Small daily habits = lasting transformation</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tour Step 2 -->
+            <div class="tour-step" data-step="2">
+                <div class="tour-icon">📊</div>
+                <h3>Your Dashboard — Your Progress Hub</h3>
+                <p>Track your daily check-ins, see your small wins, and stay motivated. You'll get personalised tips and reminders here to help you keep going.</p>
+                <div class="tour-visual">
+                    <div class="dashboard-preview">
+                        <div class="preview-card">
+                            <span class="preview-score">8.2/10</span>
+                            <span class="preview-label">Daily Score</span>
+                        </div>
+                        <div class="preview-card">
+                            <span class="preview-score">7</span>
+                            <span class="preview-label">Day Streak</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tour Step 3 -->
+            <div class="tour-step" data-step="3">
+                <div class="tour-icon">📱</div>
+                <h3>Manual Logs & Device Sync</h3>
+                <p>We believe in mindful tracking. Manual logging builds awareness, but you can connect devices too. Both approaches help you understand your patterns better.</p>
+                <div class="tour-visual">
+                    <div class="tracking-options">
+                        <div class="tracking-option">
+                            <span class="tracking-icon">✍️</span>
+                            <span>Manual Logging</span>
+                        </div>
+                        <div class="tracking-plus">+</div>
+                        <div class="tracking-option">
+                            <span class="tracking-icon">⌚</span>
+                            <span>Device Sync</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tour-footer">
+            <button type="button" class="tour-btn tour-skip" onclick="skipTour()">Skip Tour</button>
+            <div class="tour-navigation">
+                <button type="button" class="tour-btn tour-back" id="tourBackBtn" onclick="previousTourStep()" style="display: none;">Back</button>
+                <button type="button" class="tour-btn tour-next" id="tourNextBtn" onclick="nextTourStep()">Next</button>
+                <button type="button" class="tour-btn tour-complete" id="tourCompleteBtn" onclick="completeTour()" style="display: none;">Start Your Journey</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
@@ -285,10 +365,10 @@
                 <p>Connect or change your fitness tracker</p>
             </a>
 
-            <a href="/questionnaire?email={{ user.email }}" class="action-card profile-card">
+            <a href="/profile-settings" class="action-card profile-card">
                 <div class="card-icon">⚙️</div>
-                <h3>Update Profile</h3>
-                <p>Modify your goals and preferences</p>
+                <h3>Profile & Settings</h3>
+                <p>Manage your account and preferences</p>
             </a>
 
             {% if user.subscription_tier == 'free' %}
@@ -311,5 +391,117 @@
         </div>
         {% endif %}
     </div>
+<script>
+        let currentTourStep = 1;
+        const totalTourSteps = 3;
+
+        // Check if user should see tour on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user has completed questionnaire but not seen tour
+            const hasSeenTour = localStorage.getItem('hasSeenDashboardTour');
+            const userEmail = '{{ user.email }}';
+            
+            if (!hasSeenTour && userEmail) {
+                setTimeout(() => {
+                    showDashboardTour();
+                }, 1000); // Show tour after 1 second delay
+            }
+        });
+
+        function showDashboardTour() {
+            document.getElementById('dashboardTourModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            updateTourProgress();
+        }
+
+        function nextTourStep() {
+            if (currentTourStep < totalTourSteps) {
+                document.querySelector(`[data-step="${currentTourStep}"]`).classList.remove('active');
+                currentTourStep++;
+                document.querySelector(`[data-step="${currentTourStep}"]`).classList.add('active');
+                updateTourProgress();
+                updateTourButtons();
+            }
+        }
+
+        function previousTourStep() {
+            if (currentTourStep > 1) {
+                document.querySelector(`[data-step="${currentTourStep}"]`).classList.remove('active');
+                currentTourStep--;
+                document.querySelector(`[data-step="${currentTourStep}"]`).classList.add('active');
+                updateTourProgress();
+                updateTourButtons();
+            }
+        }
+
+        function updateTourProgress() {
+            const progress = (currentTourStep / totalTourSteps) * 100;
+            document.getElementById('tourProgressFill').style.width = progress + '%';
+            document.getElementById('tourStepCounter').textContent = `Step ${currentTourStep} of ${totalTourSteps}`;
+            
+            const titles = {
+                1: "Welcome to Fat Loss Companion!",
+                2: "Your Dashboard — Your Progress Hub",
+                3: "Manual Logs & Device Sync"
+            };
+            document.getElementById('tourTitle').textContent = titles[currentTourStep];
+        }
+
+        function updateTourButtons() {
+            const backBtn = document.getElementById('tourBackBtn');
+            const nextBtn = document.getElementById('tourNextBtn');
+            const completeBtn = document.getElementById('tourCompleteBtn');
+
+            if (currentTourStep === 1) {
+                backBtn.style.display = 'none';
+            } else {
+                backBtn.style.display = 'block';
+            }
+
+            if (currentTourStep === totalTourSteps) {
+                nextBtn.style.display = 'none';
+                completeBtn.style.display = 'block';
+            } else {
+                nextBtn.style.display = 'block';
+                completeBtn.style.display = 'none';
+            }
+        }
+
+        function skipTour() {
+            completeTour();
+        }
+
+        function completeTour() {
+            document.getElementById('dashboardTourModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            localStorage.setItem('hasSeenDashboardTour', 'true');
+            
+            // Add a celebration animation or message
+            showWelcomeMessage();
+        }
+
+        function showWelcomeMessage() {
+            // Create a temporary welcome message
+            const welcomeMsg = document.createElement('div');
+            welcomeMsg.innerHTML = `
+                <div style="position: fixed; top: 20px; right: 20px; background: #3B7A57; color: white; padding: 15px 20px; border-radius: 10px; z-index: 1001; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                    🌟 Welcome! Your journey starts now!
+                </div>
+            `;
+            document.body.appendChild(welcomeMsg);
+            
+            setTimeout(() => {
+                welcomeMsg.remove();
+            }, 4000);
+        }
+
+        // Close tour if clicking outside
+        window.onclick = function(event) {
+            const tourModal = document.getElementById('dashboardTourModal');
+            if (event.target == tourModal) {
+                completeTour();
+            }
+        }
+    </script>
 </body>
 </html>
