@@ -68,8 +68,8 @@ def create_checkout_session():
                 'price_data': {
                     'currency': 'gbp',
                     'product_data': {
-                        'name': 'AI Fitness Companion - Premium (Founding Member)',
-                        'description': 'Unlimited AI insights, meal plans, and advanced analytics - 50% off forever!'
+                        'name': 'Fat Loss Companion - Premium (Founding Member)',
+                        'description': 'Unlimited AI insights, personalised meal plans, and habit-based fat loss support - 50% off forever!'
                     },
                     'unit_amount': 497,  # £4.97
                 },
@@ -141,15 +141,16 @@ if __name__ == '__main__':
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center mt-5">Choose Your AI Fitness Plan</h1>
+        <h1 class="text-center mt-5">Choose Your Fat Loss Companion Plan</h1>
         <div class="pricing-container">
             <div class="pricing-card">
                 <h2>Free</h2>
                 <div class="price">Free</div>
                 <ul class="features">
-                    <li>Limited AI Insights</li>
-                    <li>Basic Meal Plans</li>
-                    <li>Community Support</li>
+                    <li>Basic daily habit tracking</li>
+                    <li>Limited AI insights</li>
+                    <li>7-day log history</li>
+                    <li>Community support</li>
                 </ul>
                 {% if current_tier == "free" %}
                     <button class="btn btn-secondary" disabled>Current Plan</button>
@@ -195,10 +196,11 @@ if __name__ == '__main__':
                 </div>
                 {% endif %}
                 <ul class="features">
-                    <li>Unlimited AI Insights</li>
-                    <li>Advanced Meal Plans</li>
-                    <li>Priority Support</li>
-                    <li>Personalized Analytics</li>
+                    <li>Unlimited AI coaching</li>
+                    <li>Personalised meal planning</li>
+                    <li>Full log history & insights</li>
+                    <li>Habit-based fat loss guidance</li>
+                    <li>Priority support</li>
                 </ul>
                 {% if current_tier == "premium" %}
                     <button class="btn btn-secondary" disabled>Current Plan</button>
