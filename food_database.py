@@ -111,38 +111,6 @@ class FoodDatabaseAPI:
             print(f"Edamam API error: {e}")
         return []
 
-    def search_all_databases(self, query: str, limit_per_db: int = 5) -> List[Dict]:
-        """Search all available databases and combine results"""
-        all_foods = []
-
-        # Search restaurant and delivery foods first (most relevant for takeaways)
-        restaurant_foods = self.get_uk_restaurant_foods(query)
-        all_foods.extend(restaurant_foods[:limit_per_db])
-
-        # Search UK retail foods (for UK users)
-        uk_foods = self.get_uk_specific_foods(query)
-        all_foods.extend(uk_foods[:limit_per_db])
-
-        # Search USDA (free, no limits)
-        usda_foods = self.search_usda_foods(query, limit_per_db)
-        all_foods.extend(usda_foods)
-
-        # Search Open Food Facts (free, no limits)
-        off_foods = self.search_open_food_facts(query, limit_per_db)
-        all_foods.extend(off_foods)
-
-        # Search Edamam if API keys available
-        edamam_foods = self.search_edamam_foods(query, limit_per_db)
-        all_foods.extend(edamam_foods)
-
-        # Search Nutrition Label API for packaged foods
-        nutrition_api = NutritionLabelAPI()
-        packaged_food = nutrition_api.analyze_packaged_food(query)
-        if 'error' not in packaged_food:
-            all_foods.append(packaged_food)
-
-        return all_foods[:20]  # Return top 20 results
-
     def _extract_calories(self, nutrients: List[Dict]) -> float:
         """Extract calories from USDA nutrient data"""
         for nutrient in nutrients:
@@ -679,6 +647,24 @@ class FoodDatabaseService:
                 'food': food_name,
                 'timestamp': json.dumps({"timestamp": "now"})
             }
+
+    def search_all_databases(self, query: str, limit_per_db: int = 5) -> List[Dict]:
+        """Search all available databases and combine results"""
+        all_foods = []
+
+        # Search restaurant and delivery foods first (most relevant for takeaways)
+        restaurant_foods = self.get_uk_restaurant_foods(query)
+        all_foods.extend(restaurant_foods[:limit_per_db])
+
+        # Search UK retail foods (for UK users)
+        uk_foods = self.get_uk_specific_foods(query)
+        all_foods.extend(uk_foods[:limit_per_db])
+
+        # Search multiple databases
+        fdc_results = self.search_food_multiple_sources(query, limit_per_db)
+        all_foods.extend(fdc_results)
+
+        return all_foods[:20]  # Return top 20 results
 
 # Initialize the service
 food_db = FoodDatabaseService()

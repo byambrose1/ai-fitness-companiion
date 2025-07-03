@@ -289,18 +289,36 @@ def dashboard():
     if daily_logs:
         recent_score = daily_logs[-1].get('overallScore', 8)
 
-    # Contextual message based on user data
+    # Personalised contextual message based on user data and previous logs
     profile_data = user.get('profile_data', {})
     goal = profile_data.get('goal', 'general_fitness')
-
-    contextual_messages = {
-        'weight_loss': 'Focus on creating a sustainable calorie deficit today 💪',
-        'muscle_gain': 'Fuel your muscles with protein and progressive overload 🏋️',
-        'general_fitness': 'Every small step counts towards your wellness journey 🌟',
-        'endurance': 'Build your stamina one workout at a time 🏃',
-        'strength': 'Strength comes from consistency, not perfection 💪'
-    }
-    contextual_message = contextual_messages.get(goal, 'You\'re doing great - keep up the momentum! 🌟')
+    daily_logs = user.get('daily_logs', [])
+    
+    # Create personalised message based on recent activity
+    contextual_message = ''
+    if daily_logs:
+        recent_log = daily_logs[-1]
+        recent_mood = recent_log.get('mood', '')
+        recent_workout = recent_log.get('workout', '')
+        
+        if recent_mood == 'excellent':
+            contextual_message = "Brilliant energy yesterday! Let's build on that momentum today 🌟"
+        elif recent_mood == 'low':
+            contextual_message = "Yesterday was tough, but you're here - that's what matters. Fresh start today 💚"
+        elif recent_workout and recent_workout != 'rest':
+            contextual_message = f"Great {recent_workout} session yesterday! Your consistency is impressive 💪"
+        else:
+            contextual_message = "Welcome back! Ready to make today count? 🚀"
+    else:
+        # Default messages by goal for new users
+        goal_messages = {
+            'weight_loss': 'Focus on creating a sustainable calorie deficit today 💪',
+            'muscle_gain': 'Fuel your muscles with protein and progressive overload 🏋️',
+            'general_fitness': 'Every small step counts towards your wellness journey 🌟',
+            'endurance': 'Build your stamina one workout at a time 🏃',
+            'strength': 'Strength comes from consistency, not perfection 💪'
+        }
+        contextual_message = goal_messages.get(goal, 'You\'re doing great - keep up the momentum! 🌟')
 
     # Motivation content based on progress
     if total_logs == 0:

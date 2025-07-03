@@ -155,10 +155,10 @@
                     </div>
 
                     <!-- Personalised Insights from Latest Log -->
-                    {% if daily_logs and daily_logs[-1].get('personalised_insights') %}
+                    {% if user.daily_logs and user.daily_logs[-1].get('personalised_insights') %}
                         <div class="insights-section">
                             <h4>💡 Your Personalised Insights:</h4>
-                            {% for insight in daily_logs[-1]['personalised_insights'][:3] %}
+                            {% for insight in user.daily_logs[-1]['personalised_insights'][:3] %}
                                 <div class="insight-item">{{ insight }}</div>
                             {% endfor %}
                         </div>
