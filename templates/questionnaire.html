@@ -1,62 +1,124 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete Your Profile - AI Fitness Companion</title>
+    <title>Complete Your Profile - Fat Loss Companion</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <h1>Complete Your Fitness Profile</h1>
-        <p>Help us personalize your fitness journey by answering a few questions.</p>
+        <div class="questionnaire-header">
+            <h1>Let's Personalize Your Fat Loss Journey</h1>
+            <p>Answer these questions so we can give you targeted guidance based on your lifestyle and habits.</p>
+        </div>
         
-        <form method="POST" action="/questionnaire" style="max-width: 600px; margin: 0 auto;">
+        <form method="POST" action="/questionnaire" class="questionnaire-form">
+            <!-- Hidden goal field - always fat loss -->
+            <input type="hidden" name="goal" value="fat_loss">
+            
             <div class="form-group">
-                <label for="goal">What's your primary fitness goal?</label>
-                <select name="goal" id="goal" required>
-                    <option value="">Select your goal</option>
-                    <option value="weight_loss">Weight Loss</option>
-                    <option value="muscle_gain">Muscle Gain</option>
-                    <option value="maintenance">Maintenance</option>
-                    <option value="endurance">Improve Endurance</option>
-                    <option value="strength">Build Strength</option>
-                </select>
+                <label for="goal_display">Your Primary Goal</label>
+                <div class="goal-display">
+                    <span class="goal-icon">🎯</span>
+                    <span class="goal-text">Sustainable Fat Loss</span>
+                    <p class="goal-description">Build habits that create lasting fat loss without extreme diets or unsustainable restrictions.</p>
+                </div>
             </div>
             
             <div class="form-group">
                 <label for="activity_level">How active are you currently?</label>
-                <select name="activity_level" id="activity_level" required>
-                    <option value="">Select activity level</option>
-                    <option value="sedentary">Sedentary (little to no exercise)</option>
-                    <option value="lightly_active">Lightly Active (1-3 days per week)</option>
-                    <option value="moderately_active">Moderately Active (3-5 days per week)</option>
-                    <option value="very_active">Very Active (6-7 days per week)</option>
-                    <option value="extremely_active">Extremely Active (2x per day or intense training)</option>
+                <select name="activity_level" id="activity_level" required class="form-select">
+                    <option value="">Select your current activity level</option>
+                    <option value="sedentary">Sedentary (desk job, little exercise)</option>
+                    <option value="lightly_active">Lightly Active (1-2 workouts per week)</option>
+                    <option value="moderately_active">Moderately Active (3-4 workouts per week)</option>
+                    <option value="very_active">Very Active (5-6 workouts per week)</option>
+                    <option value="extremely_active">Extremely Active (daily intense training)</option>
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label for="water_intake">How much water do you typically drink per day?</label>
+                <div class="water-options">
+                    <label class="radio-option">
+                        <input type="radio" name="water_intake" value="low" required>
+                        <span class="radio-custom"></span>
+                        <div class="option-content">
+                            <span class="option-icon">💧</span>
+                            <span class="option-text">Less than 1 litre</span>
+                        </div>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="water_intake" value="moderate" required>
+                        <span class="radio-custom"></span>
+                        <div class="option-content">
+                            <span class="option-icon">💧💧</span>
+                            <span class="option-text">1-1.5 litres</span>
+                        </div>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="water_intake" value="good" required>
+                        <span class="radio-custom"></span>
+                        <div class="option-content">
+                            <span class="option-icon">💧💧💧</span>
+                            <span class="option-text">2-2.5 litres</span>
+                        </div>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="water_intake" value="excellent" required>
+                        <span class="radio-custom"></span>
+                        <div class="option-content">
+                            <span class="option-icon">💧💧💧💧</span>
+                            <span class="option-text">3+ litres</span>
+                        </div>
+                    </label>
+                </div>
             </div>
             
             <div class="form-group">
-                <label for="dietary_preferences">Do you have any dietary preferences?</label>
-                <select name="dietary_preferences" id="dietary_preferences">
-                    <option value="none">No specific preferences</option>
+                <label for="dietary_preferences">Do you follow any specific eating pattern?</label>
+                <select name="dietary_preferences" id="dietary_preferences" class="form-select">
+                    <option value="none">No specific pattern</option>
                     <option value="vegetarian">Vegetarian</option>
                     <option value="vegan">Vegan</option>
-                    <option value="keto">Keto</option>
+                    <option value="keto">Keto/Low Carb</option>
                     <option value="paleo">Paleo</option>
                     <option value="mediterranean">Mediterranean</option>
+                    <option value="intermittent_fasting">Intermittent Fasting</option>
                     <option value="gluten_free">Gluten-Free</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="health_conditions">Any health conditions we should know about? (Optional)</label>
-                <textarea name="health_conditions" id="health_conditions" rows="3" placeholder="e.g., diabetes, heart conditions, injuries..."></textarea>
+                <label for="health_conditions">Any health conditions affecting your journey? (Optional)</label>
+                <textarea name="health_conditions" id="health_conditions" rows="3" placeholder="e.g., PCOS, thyroid issues, stress, sleep problems, injuries..." class="form-textarea"></textarea>
+                <small class="form-help">This helps us give you more targeted advice</small>
             </div>
             
-            <button type="submit" class="btn btn-primary">Complete Profile</button>
+            <button type="submit" class="btn btn-primary questionnaire-submit">Complete My Profile</button>
         </form>
     </div>
+
+    <script>
+        // Ensure form validation works properly
+        document.querySelector('.questionnaire-form').addEventListener('submit', function(e) {
+            const activityLevel = document.getElementById('activity_level').value;
+            const waterIntake = document.querySelector('input[name="water_intake"]:checked');
+            
+            if (!activityLevel) {
+                e.preventDefault();
+                alert('Please select your activity level');
+                return;
+            }
+            
+            if (!waterIntake) {
+                e.preventDefault();
+                alert('Please select your typical water intake');
+                return;
+            }
+        });
+    </script>
 </body>
 </html>

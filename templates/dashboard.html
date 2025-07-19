@@ -270,51 +270,55 @@
             </div>
         </div>
 
-        <!-- Your Personal Coaching Section -->
-        <div class="coaching-section">
-            <h2>🏃‍♀️ Your Personal Coach</h2>
-            <div class="coaching-cards">
-                {% if user.profile_data.get('goal') == 'weight_loss' %}
-                    <div class="coaching-card">
-                        <div class="coaching-icon">🍽️</div>
-                        <h4>Today's Nutrition Tip</h4>
-                        <p>Try eating protein with every meal to stay fuller for longer and support your metabolism. Aim for lean sources like chicken, fish, eggs, or legumes.</p>
+        <!-- Personalized Focus Areas Based on Data -->
+        {% if personalized_insights.focus_areas %}
+        <div class="focus-areas-section">
+            <h2>🎯 Your Focus Areas This Week</h2>
+            <div class="focus-cards">
+                {% for focus in personalized_insights.focus_areas[:3] %}
+                <div class="focus-card priority">
+                    <div class="focus-icon">{{ focus.icon }}</div>
+                    <h4>{{ focus.area }}</h4>
+                    <p class="focus-message">{{ focus.message }}</p>
+                    <div class="focus-tip">
+                        <strong>💡 Next Step:</strong> {{ focus.tip }}
                     </div>
-                {% elif user.profile_data.get('goal') == 'muscle_gain' %}
-                    <div class="coaching-card">
-                        <div class="coaching-icon">💪</div>
-                        <h4>Today's Training Tip</h4>
-                        <p>Focus on progressive overload - gradually increase weight, reps, or sets each week. Your muscles adapt to challenges, so keep progressing!</p>
-                    </div>
-                {% else %}
-                    <div class="coaching-card">
-                        <div class="coaching-icon">⚡</div>
-                        <h4>Today's Wellness Tip</h4>
-                        <p>Movement doesn't have to be intense to be beneficial. A 10-minute walk, some stretching, or dancing to your favourite songs all count!</p>
-                    </div>
-                {% endif %}
-
-                {% if user.profile_data.get('health_conditions') and 'stress' in user.profile_data.get('health_conditions', '').lower() %}
-                    <div class="coaching-card">
-                        <div class="coaching-icon">🧘‍♀️</div>
-                        <h4>Stress Management</h4>
-                        <p>Since you mentioned stress, try 5 minutes of deep breathing today. Inhale for 4 counts, hold for 4, exhale for 6. This activates your calm response.</p>
-                    </div>
-                {% elif user.profile_data.get('activity_level') == 'sedentary' %}
-                    <div class="coaching-card">
-                        <div class="coaching-icon">🚶‍♀️</div>
-                        <h4>Movement Reminder</h4>
-                        <p>Start small! Set a timer to stand and stretch every hour. Even 2-minute movement breaks can boost energy and improve your day.</p>
-                    </div>
-                {% else %}
-                    <div class="coaching-card">
-                        <div class="coaching-icon">💧</div>
-                        <h4>Hydration Check</h4>
-                        <p>Aim for clear or pale yellow urine as a hydration guide. Start your day with a glass of water and keep a bottle nearby as a reminder.</p>
-                    </div>
-                {% endif %}
+                </div>
+                {% endfor %}
             </div>
         </div>
+        {% endif %}
+
+        <!-- Habit Building Suggestions -->
+        {% if personalized_insights.habit_suggestions %}
+        <div class="habits-section">
+            <h2>🔄 Build These Habits</h2>
+            <div class="habit-cards">
+                {% for habit in personalized_insights.habit_suggestions %}
+                <div class="habit-card">
+                    <div class="habit-icon">✅</div>
+                    <h4>{{ habit.habit }}</h4>
+                    <p>{{ habit.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Specific Tips Based on User Profile -->
+        {% if personalized_insights.specific_tips %}
+        <div class="tips-section">
+            <h2>💡 Personalized for You</h2>
+            <div class="tips-list">
+                {% for tip in personalized_insights.specific_tips %}
+                <div class="tip-item">
+                    <span class="tip-icon">🌟</span>
+                    <span class="tip-text">{{ tip }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
 
         <!-- Device Tracking Section - Remember User Choice -->
         <div class="tracking-section">

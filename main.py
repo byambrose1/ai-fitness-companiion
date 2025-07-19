@@ -45,6 +45,123 @@ def validate_email(email):
     # Additional validation could include DNS lookup for domain
     return True
 
+def generate_personalized_insights(profile_data, recent_logs):
+    """Generate personalized insights based on questionnaire data and recent log patterns"""
+    goal = profile_data.get('goal', 'fat_loss')
+    activity_level = profile_data.get('activity_level', '')
+    dietary_preferences = profile_data.get('dietary_preferences', '')
+    health_conditions = profile_data.get('health_conditions', '').lower()
+    
+    insights = {
+        'main_message': '',
+        'focus_areas': [],
+        'specific_tips': [],
+        'habit_suggestions': []
+    }
+    
+    # Analyze recent patterns if logs exist
+    if recent_logs:
+        # Water intake analysis
+        water_logs = [log.get('water_intake') for log in recent_logs if log.get('water_intake')]
+        poor_water_days = len([w for w in water_logs if w in ['low', 'moderate']])
+        
+        if poor_water_days >= len(water_logs) * 0.6:  # 60% or more poor water days
+            insights['focus_areas'].append({
+                'area': 'Hydration',
+                'icon': '💧',
+                'message': 'You\'ve reported low water intake consistently - aim for 2L today.',
+                'tip': 'Start your day with a large glass of water and keep a bottle nearby as a visual reminder.'
+            })
+        
+        # Sleep analysis
+        sleep_logs = [float(log.get('sleep_hours', 0)) for log in recent_logs if log.get('sleep_hours') and str(log.get('sleep_hours')).replace('.', '').isdigit()]
+        if sleep_logs:
+            avg_sleep = sum(sleep_logs) / len(sleep_logs)
+            if avg_sleep < 6.5:
+                insights['focus_areas'].append({
+                    'area': 'Sleep Quality',
+                    'icon': '😴',
+                    'message': f'Your average sleep is {avg_sleep:.1f}h - this affects fat loss hormones.',
+                    'tip': 'Poor sleep increases hunger hormones. Try going to bed 30 minutes earlier tonight.'
+                })
+        
+        # Food pattern analysis
+        food_logs = [log.get('food_log', '').lower() for log in recent_logs if log.get('food_log')]
+        takeaway_mentions = len([f for f in food_logs if any(word in f for word in ['takeaway', 'pizza', 'mcdonald', 'delivery', 'chips'])])
+        protein_mentions = len([f for f in food_logs if any(word in f for word in ['chicken', 'fish', 'protein', 'eggs', 'yogurt', 'beans'])])
+        
+        if takeaway_mentions >= len(food_logs) * 0.4:  # 40% or more takeaway days
+            insights['focus_areas'].append({
+                'area': 'Food Choices',
+                'icon': '🥗',
+                'message': 'Multiple takeaway meals this week - let\'s focus on home cooking.',
+                'tip': 'Prep 2-3 simple meals this weekend. Even basic options beat takeaway for fat loss.'
+            })
+        elif protein_mentions < len(food_logs) * 0.3:  # Less than 30% protein mentions
+            insights['focus_areas'].append({
+                'area': 'Protein Intake',
+                'icon': '🍗',
+                'message': 'Protein intake seems low - this is crucial for fat loss and staying full.',
+                'tip': 'Add protein to every meal: eggs at breakfast, chicken/fish at lunch, Greek yogurt as snacks.'
+            })
+        
+        # Stress analysis
+        stress_logs = [int(log.get('stress_level', 5)) for log in recent_logs if log.get('stress_level') and str(log.get('stress_level')).isdigit()]
+        if stress_logs and sum(stress_logs) / len(stress_logs) >= 7:
+            insights['focus_areas'].append({
+                'area': 'Stress Management',
+                'icon': '🧘‍♀️',
+                'message': 'High stress levels can trigger cortisol and emotional eating.',
+                'tip': 'Try 5 minutes of deep breathing before meals to activate your calm response.'
+            })
+        
+        # Workout consistency
+        workouts = [log.get('workout', 'rest') for log in recent_logs if log.get('workout')]
+        workout_days = len([w for w in workouts if w != 'rest'])
+        if workout_days < 2 and activity_level in ['sedentary', 'lightly_active']:
+            insights['focus_areas'].append({
+                'area': 'Movement',
+                'icon': '🚶‍♀️',
+                'message': 'More movement will boost your metabolism and mood.',
+                'tip': 'Start with 15-minute walks after meals. This aids digestion and fat burning.'
+            })
+    
+    # Activity level-specific insights
+    if activity_level == 'sedentary':
+        insights['habit_suggestions'].append({
+            'habit': 'Start with micro-movements',
+            'description': 'Set hourly reminders to stand and stretch for 2 minutes'
+        })
+    elif activity_level == 'lightly_active':
+        insights['habit_suggestions'].append({
+            'habit': 'Build movement consistency',
+            'description': 'Aim for 20-30 minutes of activity 4 days this week'
+        })
+    
+    # Dietary preference insights
+    if dietary_preferences == 'vegetarian':
+        insights['specific_tips'].append('Focus on plant proteins: lentils, quinoa, Greek yogurt, and eggs for fat loss.')
+    elif dietary_preferences == 'keto':
+        insights['specific_tips'].append('Track your healthy fats and ensure you\'re in a calorie deficit for fat loss.')
+    
+    # Health condition considerations
+    if 'stress' in health_conditions or 'anxiety' in health_conditions:
+        insights['specific_tips'].append('Manage stress first - high cortisol makes fat loss much harder.')
+    if 'sleep' in health_conditions or 'insomnia' in health_conditions:
+        insights['specific_tips'].append('Prioritize sleep hygiene - poor sleep disrupts hunger hormones.')
+    
+    # Generate main contextual message
+    if insights['focus_areas']:
+        main_focus = insights['focus_areas'][0]
+        insights['main_message'] = f"Your biggest opportunity: {main_focus['message']} 🎯"
+    else:
+        if recent_logs:
+            insights['main_message'] = "You're tracking consistently - that's the foundation of lasting fat loss! 🌟"
+        else:
+            insights['main_message'] = "Ready to start your fat loss journey? Your first log will unlock personalized insights! 🚀"
+    
+    return insights
+
 def calculate_personalised_daily_score(log_data, profile_data):
     """Calculate a personalised daily score based on user's goals and questionnaire responses"""
     goal = profile_data.get('goal', 'general_fitness')
@@ -289,36 +406,20 @@ def dashboard():
     if daily_logs:
         recent_score = daily_logs[-1].get('overallScore', 8)
 
-    # Personalised contextual message based on user data and previous logs
+    # Generate personalized insights and focus areas based on questionnaire and logs
     profile_data = user.get('profile_data', {})
-    goal = profile_data.get('goal', 'general_fitness')
+    goal = profile_data.get('goal', 'fat_loss')  # Always fat loss for this app
+    activity_level = profile_data.get('activity_level', '')
+    dietary_preferences = profile_data.get('dietary_preferences', '')
+    health_conditions = profile_data.get('health_conditions', '')
     daily_logs = user.get('daily_logs', [])
     
-    # Create personalised message based on recent activity
-    contextual_message = ''
-    if daily_logs:
-        recent_log = daily_logs[-1]
-        recent_mood = recent_log.get('mood', '')
-        recent_workout = recent_log.get('workout', '')
-        
-        if recent_mood == 'excellent':
-            contextual_message = "Brilliant energy yesterday! Let's build on that momentum today 🌟"
-        elif recent_mood == 'low':
-            contextual_message = "Yesterday was tough, but you're here - that's what matters. Fresh start today 💚"
-        elif recent_workout and recent_workout != 'rest':
-            contextual_message = f"Great {recent_workout} session yesterday! Your consistency is impressive 💪"
-        else:
-            contextual_message = "Welcome back! Ready to make today count? 🚀"
-    else:
-        # Default messages by goal for new users
-        goal_messages = {
-            'weight_loss': 'Focus on creating a sustainable calorie deficit today 💪',
-            'muscle_gain': 'Fuel your muscles with protein and progressive overload 🏋️',
-            'general_fitness': 'Every small step counts towards your wellness journey 🌟',
-            'endurance': 'Build your stamina one workout at a time 🏃',
-            'strength': 'Strength comes from consistency, not perfection 💪'
-        }
-        contextual_message = goal_messages.get(goal, 'You\'re doing great - keep up the momentum! 🌟')
+    # Analyze patterns from recent logs (last 7 days)
+    recent_logs = daily_logs[-7:] if len(daily_logs) >= 7 else daily_logs
+    
+    # Generate personalized insights and next steps
+    personalized_insights = generate_personalized_insights(profile_data, recent_logs)
+    contextual_message = personalized_insights['main_message']
 
     # Motivation content based on progress
     if total_logs == 0:
@@ -350,7 +451,8 @@ def dashboard():
                          streak_days=streak_days,
                          recent_score=recent_score,
                          contextual_message=contextual_message,
-                         motivation_content=motivation_content)
+                         motivation_content=motivation_content,
+                         personalized_insights=personalized_insights)
 
 @app.route('/food-search')
 def food_search():
@@ -898,23 +1000,51 @@ def questionnaire():
         if user:
             # Save questionnaire data to user profile
             profile_data = {
-                'goal': request.form.get('goal'),
+                'goal': 'fat_loss',  # Always fat loss for this app
                 'activity_level': request.form.get('activity_level'),
+                'water_intake': request.form.get('water_intake'),
                 'dietary_preferences': request.form.get('dietary_preferences'),
                 'health_conditions': request.form.get('health_conditions'),
-                'questionnaire_completed': True
+                'questionnaire_completed': True,
+                'completed_at': datetime.now().isoformat()
             }
             print(f'QUESTIONNAIRE: Saving profile data: {profile_data}')
+            
+            # Ensure profile_data exists
+            if 'profile_data' not in user:
+                user['profile_data'] = {}
+            
             user['profile_data'].update(profile_data)
             save_user(user)
             print('QUESTIONNAIRE: Profile saved successfully, redirecting to dashboard')
 
-            flash('Profile updated successfully!')
-            return redirect(url_for('dashboard'))
+            # Check if this is an AJAX request
+            is_ajax = (request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 
+                      request.headers.get('Content-Type') == 'application/json' or 
+                      request.is_json)
+            
+            if is_ajax:
+                return jsonify({
+                    'success': True, 
+                    'message': 'Profile completed successfully!',
+                    'redirect': url_for('dashboard')
+                })
+            else:
+                flash('Your profile is complete! Let\'s start your fat loss journey.')
+                return redirect(url_for('dashboard'))
         else:
             print('QUESTIONNAIRE ERROR: User not found in database')
-            flash('User not found. Please log in again.')
-            return redirect(url_for('landing_page'))
+            error_msg = 'User not found. Please log in again.'
+            
+            is_ajax = (request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 
+                      request.headers.get('Content-Type') == 'application/json' or 
+                      request.is_json)
+            
+            if is_ajax:
+                return jsonify({'success': False, 'message': error_msg})
+            else:
+                flash(error_msg)
+                return redirect(url_for('landing_page'))
 
     print('QUESTIONNAIRE GET: Rendering questionnaire page')
     return render_template('questionnaire.html')
