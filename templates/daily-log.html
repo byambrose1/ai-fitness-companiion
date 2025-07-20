@@ -310,12 +310,12 @@
                     🔍 Search Database (UK/US foods, restaurants, brands)
                 </label>
                 <div style="background: #e3f9e5; padding: 8px; border-radius: 6px; margin: 4px 0 8px 0; font-size: 0.8rem; color: #2d5a42;">
-                    <strong>Search examples:</strong> "Big Mac", "Tesco Chicken Breast", "Nando's Chicken", "Cadbury Chocolate"
+                    <strong>Quick options:</strong> McDonald's, KFC, Domino's, Nando's, Chinese takeaway, Indian takeaway, Fish & chips
                 </div>
                 <div class="food-search-container">
                     <input type="text" id="food_search" placeholder="Try: Big Mac, KFC Chicken, Tesco Salmon, or any food..." oninput="searchFoods(this.value)">
                     <div id="food_results" class="food-results"></div>
-                    <button type="button" onclick="addCustomFood()" class="custom-food-btn">+ Add custom food item</button>
+                    <button type="button" onclick="addCustomFood()" class="custom-food-btn">+ Add custom food with macros</button>
                 </div>
 
                 <label for="food_log" style="font-size: 0.95rem; color: #2d5a42; font-weight: 600; margin-top: 16px;">
@@ -324,7 +324,10 @@
                 <div style="background: #e3f9e5; padding: 8px; border-radius: 6px; margin: 4px 0 8px 0; font-size: 0.8rem; color: #2d5a42;">
                     <strong>Manual entry examples:</strong> "2 eggs with toast", "chicken tikka masala from local Indian", "homemade smoothie"
                 </div>
-                <textarea name="food_log" id="food_log" placeholder="Foods will appear here from search above, or type manually: e.g., oats with berries for breakfast, chicken salad for lunch..." rows="3"></textarea>
+                <textarea name="food_log" id="food_log" placeholder="Foods will appear here from search above, or type manually: e.g., oats with berries for breakfast, chicken salad for lunch..." rows="3" oninput="updateNutritionSummary()"></textarea>
+                
+                <!-- Added Foods List -->
+                <div id="added_foods_list" style="margin-top: 15px;"></div>
             </div>
 
             <div id="nutrition_summary" class="nutrition-summary" style="display: none;">
@@ -335,6 +338,7 @@
                     <div>Carbs: <span id="total_carbs">0</span>g</div>
                     <div>Fat: <span id="total_fat">0</span>g</div>
                 </div>
+                <button type="button" onclick="clearAllFoods()" style="background: #ff6b6b; color: white; border: none; padding: 8px 16px; border-radius: 6px; margin-top: 10px; cursor: pointer;">Clear All Foods</button>
             </div>
 
             <label for="workout_duration">⏱️ Workout Duration (minutes):</label>
@@ -469,12 +473,7 @@
                 <input type="hidden" name="tracking_devices" value="{{ user.profile_data.get('preferred_device', 'manual') }}">
             </div>
 
-            <label for="food_search" style="font-size: 0.95rem; color: #2d5a42; font-weight: 600;">
-                    🔍 Search Food Database
-                </label>
-                <div style="background: #e3f9e5; padding: 8px; border-radius: 6px; margin: 4px 0 8px 0; font-size: 0.8rem; color: #2d5a42;">
-                    <strong>Quick options:</strong> McDonald's, KFC, Domino's, Nando's, Chinese takeaway, Indian takeaway, Fish & chips
-                </div>
+            
 
             <label for="notes">💭 Personal Notes (Optional - AI Analyzed):</label>
             <div style="background: #e3f9e5; padding: 12px; border-radius: 8px; margin: 8px 0; font-size: 0.85rem; color: #2d5a42;">
@@ -615,6 +614,15 @@
             document.querySelector('.feedback-text').textContent = '🤖 Your personalised insights are being calculated based on your goals and questionnaire responses. Submit to see your detailed score!';
         }
 
+        // Global nutrition tracking
+        let addedFoods = [];
+        let totalNutrition = {
+            calories: 0,
+            protein: 0,
+            carbs: 0,
+            fat: 0
+        };
+
         // Food search functionality
         let searchTimeout;
         function searchFoods(query) {
@@ -640,8 +648,8 @@
                             item.innerHTML = `
                                 <strong>${food.name}</strong> - ${food.calories_per_100g || 0} cal/100g
                                 <br><small>${food.brand || food.source || ''}</small>
+                                <br><button onclick="selectFood(${JSON.stringify(food).replace(/"/g, '&quot;')})" style="background: #3B7A57; color: white; border: none; padding: 4px 8px; border-radius: 4px; margin-top: 4px; cursor: pointer;">Add to Log</button>
                             `;
-                            item.onclick = () => selectFood(food);
                             resultsDiv.appendChild(item);
                         });
                         resultsDiv.classList.add('show');
@@ -658,45 +666,116 @@
         }
 
         function selectFood(food) {
-            const foodLog = document.getElementById('food_log');
-            const currentText = foodLog.value;
-            const newText = currentText + (currentText ? ', ' : '') + food.name;
-            foodLog.value = newText;
+            const portion = prompt(`How many grams of ${food.name}?`, '100');
+            if (!portion || isNaN(portion)) return;
+
+            const portionNum = parseFloat(portion);
+            const multiplier = portionNum / 100;
+
+            const foodEntry = {
+                name: food.name,
+                portion: portionNum,
+                calories: Math.round((food.calories_per_100g || 0) * multiplier),
+                protein: Math.round((food.protein_per_100g || 0) * multiplier * 10) / 10,
+                carbs: Math.round((food.carbs_per_100g || 0) * multiplier * 10) / 10,
+                fat: Math.round((food.fat_per_100g || 0) * multiplier * 10) / 10
+            };
+
+            addedFoods.push(foodEntry);
+            updateFoodDisplay();
+            updateNutritionSummary();
 
             // Hide search results
             document.getElementById('food_results').classList.remove('show');
             document.getElementById('food_search').value = '';
-
-            // Update nutrition summary if visible
-            updateNutritionSummary();
         }
 
         function addCustomFood() {
-            const customFood = prompt('Enter custom food item:');
-            if (customFood && customFood.trim()) {
-                const foodLog = document.getElementById('food_log');
-                const currentText = foodLog.value;
-                const newText = currentText + (currentText ? ', ' : '') + customFood.trim();
-                foodLog.value = newText;
-                updateNutritionSummary();
-            }
+            const name = prompt('Food name:');
+            if (!name) return;
+
+            const calories = prompt('Calories:', '0');
+            const protein = prompt('Protein (g):', '0');
+            const carbs = prompt('Carbs (g):', '0');
+            const fat = prompt('Fat (g):', '0');
+
+            if (calories === null || protein === null || carbs === null || fat === null) return;
+
+            const foodEntry = {
+                name: name,
+                portion: 'custom',
+                calories: parseFloat(calories) || 0,
+                protein: parseFloat(protein) || 0,
+                carbs: parseFloat(carbs) || 0,
+                fat: parseFloat(fat) || 0
+            };
+
+            addedFoods.push(foodEntry);
+            updateFoodDisplay();
+            updateNutritionSummary();
         }
 
-        
+        function updateFoodDisplay() {
+            const listDiv = document.getElementById('added_foods_list');
+            if (addedFoods.length === 0) {
+                listDiv.innerHTML = '';
+                return;
+            }
+
+            listDiv.innerHTML = '<h4 style="color: #3B7A57; margin-bottom: 10px;">Added Foods:</h4>';
+            addedFoods.forEach((food, index) => {
+                const foodDiv = document.createElement('div');
+                foodDiv.style.cssText = 'background: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; border: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;';
+                foodDiv.innerHTML = `
+                    <div>
+                        <strong>${food.name}</strong> ${food.portion !== 'custom' ? `(${food.portion}g)` : '(custom)'}
+                        <br><small>${food.calories} cal, ${food.protein}g protein, ${food.carbs}g carbs, ${food.fat}g fat</small>
+                    </div>
+                    <button onclick="removeFood(${index})" style="background: #ff6b6b; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Remove</button>
+                `;
+                listDiv.appendChild(foodDiv);
+            });
+
+            // Update the text area with food names
+            const foodLog = document.getElementById('food_log');
+            const foodNames = addedFoods.map(food => 
+                food.portion !== 'custom' ? `${food.name} (${food.portion}g)` : `${food.name} (custom)`
+            ).join(', ');
+            foodLog.value = foodNames;
+        }
+
+        function removeFood(index) {
+            addedFoods.splice(index, 1);
+            updateFoodDisplay();
+            updateNutritionSummary();
+        }
+
+        function clearAllFoods() {
+            addedFoods = [];
+            totalNutrition = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+            updateFoodDisplay();
+            updateNutritionSummary();
+        }
 
         function updateNutritionSummary() {
-            // Simple nutrition tracking - in a real app this would calculate based on selected foods
-            const foodText = document.getElementById('food_log').value;
-            if (foodText.length > 20) {
-                document.getElementById('nutrition_summary').style.display = 'block';
-                // Placeholder values - would be calculated from actual food data
-                document.getElementById('total_calories').textContent = '1,250';
-                document.getElementById('total_protein').textContent = '85';
-                document.getElementById('total_carbs').textContent = '140';
-                document.getElementById('total_fat').textContent = '45';
-            } else {
+            if (addedFoods.length === 0) {
                 document.getElementById('nutrition_summary').style.display = 'none';
+                return;
             }
+
+            // Calculate totals from added foods
+            totalNutrition = addedFoods.reduce((total, food) => ({
+                calories: total.calories + food.calories,
+                protein: total.protein + food.protein,
+                carbs: total.carbs + food.carbs,
+                fat: total.fat + food.fat
+            }), { calories: 0, protein: 0, carbs: 0, fat: 0 });
+
+            document.getElementById('nutrition_summary').style.display = 'block';
+            document.getElementById('total_calories').textContent = Math.round(totalNutrition.calories);
+            document.getElementById('total_protein').textContent = Math.round(totalNutrition.protein * 10) / 10;
+            document.getElementById('total_carbs').textContent = Math.round(totalNutrition.carbs * 10) / 10;
+            document.getElementById('total_fat').textContent = Math.round(totalNutrition.fat * 10) / 10;
         }
 
         // Hide search results when clicking outside
