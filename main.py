@@ -48,9 +48,9 @@ def validate_email(email):
 def generate_personalized_insights(profile_data, recent_logs):
     """Generate personalized insights based on questionnaire data and recent log patterns"""
     goal = profile_data.get('goal', 'fat_loss')
-    activity_level = profile_data.get('activity_level', '')
-    dietary_preferences = profile_data.get('dietary_preferences', '')
-    health_conditions = profile_data.get('health_conditions', '').lower()
+    activity_level = profile_data.get('activity_level', '') or ''
+    dietary_preferences = profile_data.get('dietary_preferences', '') or ''
+    health_conditions = (profile_data.get('health_conditions') or '').lower()
     
     insights = {
         'main_message': '',
@@ -165,9 +165,9 @@ def generate_personalized_insights(profile_data, recent_logs):
 def calculate_personalised_daily_score(log_data, profile_data):
     """Calculate a personalised daily score based on user's goals and questionnaire responses"""
     goal = profile_data.get('goal', 'general_fitness')
-    activity_level = profile_data.get('activity_level', 'moderately_active')
-    dietary_preferences = profile_data.get('dietary_preferences', 'none')
-    health_conditions = profile_data.get('health_conditions', '')
+    activity_level = profile_data.get('activity_level', 'moderately_active') or 'moderately_active'
+    dietary_preferences = profile_data.get('dietary_preferences', 'none') or 'none'
+    health_conditions = profile_data.get('health_conditions', '') or ''
     
     score = 3  # Base score
     insights = []
