@@ -423,22 +423,34 @@
         }
 
         function nextTourStep() {
-            if (currentTourStep < totalTourSteps) {
-                document.querySelector(`[data-step="${currentTourStep}"]`).classList.remove('active');
-                currentTourStep++;
-                document.querySelector(`[data-step="${currentTourStep}"]`).classList.add('active');
-                updateTourProgress();
-                updateTourButtons();
+            try {
+                if (currentTourStep < totalTourSteps) {
+                    const currentStep = document.querySelector(`[data-step="${currentTourStep}"]`);
+                    if (currentStep) currentStep.classList.remove('active');
+                    currentTourStep++;
+                    const nextStep = document.querySelector(`[data-step="${currentTourStep}"]`);
+                    if (nextStep) nextStep.classList.add('active');
+                    updateTourProgress();
+                    updateTourButtons();
+                }
+            } catch (error) {
+                console.error('Error in nextTourStep:', error);
             }
         }
 
         function previousTourStep() {
-            if (currentTourStep > 1) {
-                document.querySelector(`[data-step="${currentTourStep}"]`).classList.remove('active');
-                currentTourStep--;
-                document.querySelector(`[data-step="${currentTourStep}"]`).classList.add('active');
-                updateTourProgress();
-                updateTourButtons();
+            try {
+                if (currentTourStep > 1) {
+                    const currentStep = document.querySelector(`[data-step="${currentTourStep}"]`);
+                    if (currentStep) currentStep.classList.remove('active');
+                    currentTourStep--;
+                    const prevStep = document.querySelector(`[data-step="${currentTourStep}"]`);
+                    if (prevStep) prevStep.classList.add('active');
+                    updateTourProgress();
+                    updateTourButtons();
+                }
+            } catch (error) {
+                console.error('Error in previousTourStep:', error);
             }
         }
 
@@ -505,9 +517,11 @@
 
         // Close tour if clicking outside
         window.onclick = function(event) {
-            const tourModal = document.getElementById('dashboardTourModal');
-            if (event.target == tourModal) {
-                completeTour();
+            if (event && event.target) {
+                const tourModal = document.getElementById('dashboardTourModal');
+                if (event.target == tourModal) {
+                    completeTour();
+                }
             }
         }
     </script>
