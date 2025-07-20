@@ -498,8 +498,9 @@ def login():
             print(f'PASSWORD CHECK: matches={password_match}')
 
             if password_match:
+                session.clear()  # Clear any existing session data
                 session['user_email'] = email
-                print(f'LOGIN SUCCESS: Setting session for {email}')
+                print(f'LOGIN SUCCESS: Session cleared and set for {email}')
                 # Check for AJAX request
                 is_ajax = (request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 
                           request.headers.get('Content-Type') == 'application/json' or 
@@ -624,10 +625,11 @@ def register():
     except Exception as e:
         print(f'Mailchimp add failed: {e}')
 
-    # Set session and return appropriate response
+    # Clear any existing session data and set new session
     try:
+        session.clear()  # Clear all existing session data
         session['user_email'] = email
-        print(f'Session set for user: {email}')
+        print(f'Session cleared and set for new user: {email}')
 
         if is_ajax:
             return jsonify({
@@ -1698,6 +1700,15 @@ def cancel_subscription():
 
     flash('Your subscription has been cancelled. You can still use the free features.')
     return redirect(url_for('dashboard'))
+
+@app.route('/logout')
+def logout():
+    """Logout user and clear session"""
+    user_email = session.get('user_email', 'Unknown')
+    session.clear()
+    print(f'User logged out: {user_email}')
+    flash('You have been logged out successfully')
+    return redirect(url_for('landing_page'))
 
 @app.route('/profile-settings')
 def profile_settings():
