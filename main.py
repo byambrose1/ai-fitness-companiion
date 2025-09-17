@@ -13,7 +13,7 @@ import openai
 from dotenv import load_dotenv
 import secrets
 import re
-from personalization import generate_personalized_dashboard_content
+from personalisation import generate_personalized_dashboard_content
 
 # Load environment variables
 load_dotenv()
